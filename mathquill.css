@@ -394,7 +394,7 @@
   display: block;
 }
 
-.mathquill-rendered-math .non-italicized-function {
+.mathquill-rendered-math .un-italicized {
   padding-right: .2em;
 }
 

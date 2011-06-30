@@ -8,6 +8,29 @@ function Variable(ch, html) {
   Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
 }
 _ = Variable.prototype = new Symbol;
+_.insertAt = function(cursor) {
+  var cmd = this.cmd;
+  //want the longest possible autocommand, so assemble longest series of letters (Variables) first
+  for (var i = 0, prev = cursor.prev; i < 8 && prev && prev instanceof Variable; i += 1, prev = prev.prev)
+    cmd = prev.cmd + cmd;
+  //and check for autocommand before that, since autocommands may be prefixes of longer autocommands
+  if (prev instanceof UnItalicized && AutoCmds.hasOwnProperty(prev.text() + cmd)) {
+    for (var i = 0; i < cmd.length; i += 1) cursor.backspace();
+    cursor.insertNew(new UnItalicized(undefined, prev.text() + cmd));
+    return;
+  }
+  else { //and test if there's an autocommand here, starting with the longest possible and slicing
+    for (var i = 0; i < cmd.length; i += 1) {
+      if (AutoCmds.hasOwnProperty(cmd)) {
+        for (var i = 1; i < cmd.length; i += 1) cursor.backspace();
+        cursor.insertNew(new UnItalicized(undefined, cmd));
+        return;
+      }
+      cmd = cmd.slice(1);
+    }
+  }
+  MathCommand.prototype.insertAt.apply(this, arguments);
+};
 _.text = function() {
   var text = this.cmd;
   if (this.prev && !(this.prev instanceof Variable)
@@ -18,6 +41,55 @@ _.text = function() {
     text += '*';
   return text;
 };
+
+function UnItalicized(replacedFragment, fn) {
+  Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>', fn);
+}
+_ = UnItalicized.prototype = new Symbol;
+_.respace = function()
+{
+  this.jQ[0].className =
+    (this.next instanceof SupSub || this.next instanceof Bracket) ?
+    '' : 'un-italicized';
+};
+//backslashless commands, words where adjacent letters (Variables)
+//that form them automatically are turned into commands
+var AutoCmds = {
+  ln: 1,
+  lg: 1,
+  log: 1,
+  span: 1,
+  proj: 1,
+  det: 1,
+  dim: 1,
+  min: 1,
+  max: 1,
+  mod: 1,
+  lcm: 1,
+  gcd: 1,
+  gcf: 1,
+  hcf: 1,
+  lim: 1
+};
+
+(function() {
+  var trigs = { sin: 1, cos: 1, tan: 1, sec: 1, cosec: 1, csc: 1, cotan: 1, cot: 1, ctg: 1 };
+  for (var trig in trigs) {
+    AutoCmds[trig] =
+    AutoCmds['arc'+trig] =
+      1;
+
+    LatexCmds[trig+'h'] =
+    LatexCmds['a'+trig] =
+    LatexCmds['a'+trig+'h'] =
+    LatexCmds['arc'+trig+'h'] =
+      UnItalicized;
+  }
+
+  for (var fn in AutoCmds)
+    LatexCmds[fn] = UnItalicized;
+}());
+
 
 function VanillaSymbol(ch, html) {
   Symbol.call(this, ch, '<span>'+(html || ch)+'</span>');
@@ -515,43 +587,4 @@ LatexCmds.cap = LatexCmds.intersect = LatexCmds.intersection =
 LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
 
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
-
-
-function NonItalicizedFunction(replacedFragment, fn) {
-  Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
-}
-_ = NonItalicizedFunction.prototype = new Symbol;
-_.respace = function()
-{
-  this.jQ[0].className =
-    (this.next instanceof SupSub || this.next instanceof Bracket) ?
-    '' : 'non-italicized-function';
-};
-
-LatexCmds.ln =
-LatexCmds.lg =
-LatexCmds.log =
-LatexCmds.span =
-LatexCmds.proj =
-LatexCmds.det =
-LatexCmds.dim =
-LatexCmds.min =
-LatexCmds.max =
-LatexCmds.mod =
-LatexCmds.lcm =
-LatexCmds.gcd =
-LatexCmds.gcf =
-LatexCmds.hcf =
-LatexCmds.lim = NonItalicizedFunction;
-
-(function() {
-  var trig = ['sin', 'cos', 'tan', 'sec', 'cosec', 'csc', 'cotan', 'cot'];
-  for (var i in trig) {
-    LatexCmds[trig[i]] =
-    LatexCmds[trig[i]+'h'] =
-    LatexCmds['a'+trig[i]] = LatexCmds['arc'+trig[i]] =
-    LatexCmds['a'+trig[i]+'h'] = LatexCmds['arc'+trig[i]+'h'] =
-      NonItalicizedFunction;
-  }
-}());
 
