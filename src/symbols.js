@@ -214,7 +214,16 @@ LatexCmds.forall = proto(Symbol, function(replacedFragment, latex) {
 function BinaryOperator(cmd, html, text) {
   Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>', text);
 }
-BinaryOperator.prototype = new Symbol; //so instanceof will work
+_ = BinaryOperator.prototype = new Symbol; //so instanceof will work
+_.insertAt = function(cursor) {
+  var cmd = cursor.prev.cmd + this.cmd;
+  if (cmd === '<=')
+    cursor.backspace().insertNew(new BinaryOperator('\\le ', '&le;'));
+  else if (cmd === '>=')
+    cursor.backspace().insertNew(new BinaryOperator('\\ge ', '&ge;'));
+  else
+    MathCommand.prototype.insertAt.apply(this, arguments);
+};
 
 function PlusMinus(cmd, html) {
   VanillaSymbol.apply(this, arguments);
