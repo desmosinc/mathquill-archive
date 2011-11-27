@@ -319,6 +319,8 @@ _.keydown = function(e)
     }
     else if (this.cursor.parent.prev)
       this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
+    else if (this.cursor.next.cmd === '^') //TODO: better architecture to not need a special case for this
+      this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
     else if (this.cursor.prev)
       this.cursor.clearSelection().prependTo(this.cursor.parent);
     else if (this.cursor.parent !== this)
@@ -346,6 +348,8 @@ _.keydown = function(e)
     }
     else if (this.cursor.parent.next)
       this.cursor.clearSelection().prependTo(this.cursor.parent.next);
+    else if (this.cursor.next.cmd === '_') //TODO: better architecture to not need a special case for this
+      this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
     else if (this.cursor.next)
       this.cursor.clearSelection().appendTo(this.cursor.parent);
     else if (this.cursor.parent !== this)

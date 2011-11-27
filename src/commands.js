@@ -142,8 +142,8 @@ _.respace = function() {
 };
 _.keydown = function(e) {
   if (!e.ctrlKey && !e.metaKey && !e.shiftKey
-      && ((e.which === 38 && this.cmd === '_')
-          || (e.which === 40 && this.cmd === '^'))) {
+      && ((e.which === 38 && !(this.cursor.next.cmd === '^') && this.cmd === '_')
+          || (e.which === 40 && !(this.cursor.next.cmd === '_') && this.cmd === '^'))) {
     this.cursor.clearSelection().insertBefore(this);
     return;
   }
