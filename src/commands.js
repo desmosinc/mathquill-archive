@@ -79,6 +79,9 @@ function SupSub(cmd, html, text, replacedFragment) {
   this.init(cmd, [ '<'+html+'/>', '<span class="'+html+'"/>' ], [ text ], replacedFragment);
 }
 _ = SupSub.prototype = new MathCommand;
+_.placeCursor = function(cursor) {
+  this.cursor = cursor.appendTo(this.firstChild);
+};
 _.latex = function() {
   var latex = this.firstChild.latex();
   if (latex.length === 1)
@@ -136,6 +139,15 @@ _.respace = function() {
   }
 
   return this;
+};
+_.keydown = function(e) {
+  if (!e.ctrlKey && !e.metaKey && !e.shiftKey
+      && ((e.which === 38 && this.cmd === '_')
+          || (e.which === 40 && this.cmd === '^'))) {
+    this.cursor.clearSelection().insertBefore(this);
+    return;
+  }
+  return this.parent.keydown(e);
 };
 
 LatexCmds.subscript = LatexCmds._ = proto(SupSub, function(replacedFragment) {
