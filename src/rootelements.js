@@ -308,23 +308,12 @@ _.keydown = function(e)
     break;
   case 38: //up
   case 'Up':
-    if (e.ctrlKey) break;
+    if (e.ctrlKey || e.shiftKey) break;
 
-    if (e.shiftKey) {
-      if (this.cursor.prev)
-        while (this.cursor.prev)
-          this.cursor.selectLeft();
-      else
-        this.cursor.selectLeft();
-    }
-    else if (this.cursor.parent.prev)
+    if (this.cursor.parent.prev)
       this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
     else if (this.cursor.next.cmd === '^') //TODO: better architecture to not need a special case for this
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
-    else if (this.cursor.prev)
-      this.cursor.clearSelection().prependTo(this.cursor.parent);
-    else if (this.cursor.parent !== this)
-      this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
     break;
   case 39: //right
   case 'Right':
@@ -337,23 +326,12 @@ _.keydown = function(e)
     break;
   case 40: //down
   case 'Down':
-    if (e.ctrlKey) break;
+    if (e.ctrlKey || e.shiftKey) break;
 
-    if (e.shiftKey) {
-      if (this.cursor.next)
-        while (this.cursor.next)
-          this.cursor.selectRight();
-      else
-        this.cursor.selectRight();
-    }
-    else if (this.cursor.parent.next)
+    if (this.cursor.parent.next)
       this.cursor.clearSelection().prependTo(this.cursor.parent.next);
     else if (this.cursor.next.cmd === '_') //TODO: better architecture to not need a special case for this
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
-    else if (this.cursor.next)
-      this.cursor.clearSelection().appendTo(this.cursor.parent);
-    else if (this.cursor.parent !== this)
-      this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
     break;
   case 46: //delete
   case 'Del':
