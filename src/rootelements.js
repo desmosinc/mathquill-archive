@@ -247,8 +247,12 @@ _.keydown = function(e)
     if (e.ctrlKey)
       while (this.cursor.prev || this.cursor.selection)
         this.cursor.backspace();
-    else
-      this.cursor.backspace();
+    else {
+   	  if( this.isEmpty() )
+		  this.triggerSpecialEvent( "upwardDelete" );	  
+	  else
+	      this.cursor.backspace();
+    }
     break;
   case 27: //may as well be the same as tab until we figure out what to do with it
   case 'Esc':
@@ -280,6 +284,7 @@ _.keydown = function(e)
     break;
   case 13: //enter
   case 'Enter':
+  	this.triggerSpecialEvent( "enterPressed" );
     break;
   case 35: //end
   case 'End':
@@ -314,6 +319,9 @@ _.keydown = function(e)
       this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
     else if (this.cursor.next.cmd === '^') //TODO: better architecture to not need a special case for this
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
+      
+      console.log('up pressed:');
+      
     break;
   case 39: //right
   case 'Right':
@@ -332,6 +340,9 @@ _.keydown = function(e)
       this.cursor.clearSelection().prependTo(this.cursor.parent.next);
     else if (this.cursor.next.cmd === '_') //TODO: better architecture to not need a special case for this
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
+      
+     console.log('down pressed:');
+      
     break;
   case 46: //delete
   case 'Del':
@@ -339,8 +350,12 @@ _.keydown = function(e)
     if (e.ctrlKey)
       while (this.cursor.next || this.cursor.selection)
         this.cursor.deleteForward();
-    else
-      this.cursor.deleteForward();
+    else {
+          if( this.isEmpty() )
+		  this.triggerSpecialEvent( "downwardDelete" );  
+	  else
+	      this.cursor.deleteForward();
+    }
     break;
   case 65: //the 'A' key, as in Ctrl+A Select All
   case 'A':
@@ -356,15 +371,30 @@ _.keydown = function(e)
     }
   default:
     this.skipTextInput = false;
+    this.triggerSpecialEvent("render");
     return true;
   }
   this.skipTextInput = true;
+  this.triggerSpecialEvent("render");
   return false;
 };
 _.textInput = function(ch) {
-  if (!this.skipTextInput)
+  if (!this.skipTextInput) {
     this.cursor.write(ch);
+	this.triggerSpecialEvent("render");
+  }
 };
+
+//triggers a special event occured:
+//	1) pressed up and was at 'top' of equation
+//  2) pressed down and was at 'bottom' of equation
+//  3) pressed backspace and equation was empty
+//  4) the equation was rendered
+//  5) etc
+_.triggerSpecialEvent = function(eventName){
+	var jQ = this.jQ;
+	setTimeout( function(){ jQ.trigger(eventName)}, 1 );
+}
 
 function RootMathCommand(cursor) {
   this.init('$');

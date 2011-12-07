@@ -22,8 +22,10 @@ $.fn.mathquill = function(cmd, latex) {
     if (arguments.length > 1) {
       return this.each(function() {
         var data = $(this).data(jQueryDataKey);
-        if (data && data.block && data.block.renderLatex)
+        if (data && data.block && data.block.renderLatex){
           data.block.renderLatex(latex);
+          data.block.triggerSpecialEvent( 'render' );
+        }
       });
     }
 
