@@ -317,8 +317,10 @@ _.keydown = function(e)
 
     if (this.cursor.parent.prev)
       this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
-    else if (this.cursor.next.cmd === '^') //TODO: better architecture to not need a special case for this
+    else if (this.cursor.next.cmd === '^') //TODO: better architecture to not need a special case for these
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
+    else if (this.cursor.next && this.cursor.next.next.cmd === '^' && this.cursor.next.next.respaced)
+      this.cursor.clearSelection().prependTo(this.cursor.next.next.firstChild);
       
       console.log('up pressed:');
       
@@ -338,8 +340,10 @@ _.keydown = function(e)
 
     if (this.cursor.parent.next)
       this.cursor.clearSelection().prependTo(this.cursor.parent.next);
-    else if (this.cursor.next.cmd === '_') //TODO: better architecture to not need a special case for this
+    else if (this.cursor.next.cmd === '_') //TODO: better architecture to not need a special case for these
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
+    else if (this.cursor.next && this.cursor.next.next.cmd === '_' && this.cursor.next.next.respaced)
+      this.cursor.clearSelection().prependTo(this.cursor.next.next.firstChild);
       
      console.log('down pressed:');
       
