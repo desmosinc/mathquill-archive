@@ -249,9 +249,9 @@ _.keydown = function(e)
         this.cursor.backspace();
     else {
    	  if( this.isEmpty() )
-		  this.triggerSpecialEvent( "upwardDelete" );	  
-	  else
-	      this.cursor.backspace();
+        this.triggerSpecialEvent( "upwardDelete" );
+      else
+        this.cursor.backspace();
     }
     break;
   case 27: //may as well be the same as tab until we figure out what to do with it
