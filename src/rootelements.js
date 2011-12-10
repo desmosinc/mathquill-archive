@@ -250,8 +250,17 @@ _.keydown = function(e)
     else {
    	  if( this.isEmpty() )
         this.triggerSpecialEvent( "upwardDelete" );
-      else
+      else {
+        var cmd = this.cursor.prev.cmd;
         this.cursor.backspace();
+        //FIXME HACK shouldn't be here, should be with the rest of the autocmds code
+        if (cmd) {
+          cmd = cmd.slice(1,-1);
+          if (!this.cursor.selection && AutoCmds.hasOwnProperty(cmd))
+            for (var i = 0; i < cmd.length - 1; i += 1)
+              this.cursor.insertNew(new Variable(cmd.charAt(i)));
+        }
+      }
     }
     break;
   case 27: //may as well be the same as tab until we figure out what to do with it
