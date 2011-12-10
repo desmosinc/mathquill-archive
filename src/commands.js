@@ -151,16 +151,25 @@ _.respace = function() {
   return this;
 };
 _.keydown = function(e) {
-  if (!e.ctrlKey && !e.metaKey && !e.shiftKey
-      && ((e.which === 38 && !(this.cursor.next.cmd === '^') && this.cmd === '_')
-          || (e.which === 40 && !(this.cursor.next.cmd === '_') && this.cmd === '^'))) {
+  if (e.ctrlKey || e.metaKey || e.shiftKey)
+    return this.parent.keydown(e);
+  //e.which === 37 <=> Left key
+  else if (e.which === 37 && !this.cursor.prev && this.respaced)
+    this.cursor.clearSelection().appendTo(this.prev);
+  //e.which === 39 <=> Right key
+  else if (e.which === 39 && !this.cursor.next && this.next.respaced)
+    this.cursor.clearSelection().prependTo(this.next);
+  //e.which === 38 <=> Up, 40 <=> Down key
+  else if ((e.which === 38 && this.cmd === '_' && !(this.cursor.next.cmd === '^'))
+        || (e.which === 40 && this.cmd === '^' && !(this.cursor.next.cmd === '_'))
+  ) {
     if (this.respaced)
       this.cursor.clearSelection().insertBefore(this.prev);
     else
       this.cursor.clearSelection().insertBefore(this);
-    return;
   }
-  return this.parent.keydown(e);
+  else
+    return this.parent.keydown(e);
 };
 
 LatexCmds.subscript = LatexCmds._ = proto(SupSub, function(replacedFragment) {
