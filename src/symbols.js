@@ -20,7 +20,7 @@ _.insertAt = function(cursor) {
     return;
   }
   else { //and test if there's an autocommand here, starting with the longest possible and slicing
-    for (var i = 0; i < cmd.length; i += 1) {
+    while (cmd.length) {
       if (AutoCmds.hasOwnProperty(cmd)) {
         for (var i = 1; i < cmd.length; i += 1) cursor.backspace();
         cursor.insertNew(new UnItalicized(undefined, cmd));
