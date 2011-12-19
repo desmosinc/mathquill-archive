@@ -9,8 +9,8 @@ function Variable(ch, html) {
 }
 _ = Variable.prototype = new Symbol;
 _.insertAt = function(cursor) {
-  var cmd = this.cmd;
   //want the longest possible autocommand, so assemble longest series of letters (Variables) first
+  var cmd = this.cmd;
   for (var i = 0, prev = cursor.prev; i < 8 && prev && prev instanceof Variable; i += 1, prev = prev.prev)
     cmd = prev.cmd + cmd;
   //and check for autocommand before that, since autocommands may be prefixes of longer autocommands
