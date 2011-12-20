@@ -261,6 +261,7 @@ _.keydown = function(e)
         }
       }
     }
+    this.triggerSpecialEvent('render');
     break;
   case 27: //may as well be the same as tab until we figure out what to do with it
   case 'Esc':
@@ -368,6 +369,7 @@ _.keydown = function(e)
 	  else
 	      this.cursor.deleteForward();
     }
+    this.triggerSpecialEvent('render');
     break;
   case 65: //the 'A' key, as in Ctrl+A Select All
   case 'A':
@@ -383,11 +385,9 @@ _.keydown = function(e)
     }
   default:
     this.skipTextInput = false;
-    this.triggerSpecialEvent("render");
     return true;
   }
   this.skipTextInput = true;
-  this.triggerSpecialEvent("render");
   return false;
 };
 _.textInput = function(ch) {
