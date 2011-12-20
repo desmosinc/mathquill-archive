@@ -163,10 +163,7 @@ _.keydown = function(e) {
   else if ((e.which === 38 && this.cmd === '_' && !(this.cursor.next.cmd === '^'))
         || (e.which === 40 && this.cmd === '^' && !(this.cursor.next.cmd === '_'))
   ) {
-    if (this.respaced)
-      this.cursor.clearSelection().insertBefore(this.prev);
-    else
-      this.cursor.clearSelection().insertBefore(this);
+    this.cursor.clearSelection().insertBefore(this.respaced ? this.prev : this);
   }
   else
     return this.parent.keydown(e);
