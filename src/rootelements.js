@@ -329,9 +329,9 @@ _.keydown = function(e)
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
     else if (this.cursor.next && this.cursor.next.next.cmd === '^' && this.cursor.next.next.respaced)
       this.cursor.clearSelection().prependTo(this.cursor.next.next.firstChild);
-      
-      console.log('up pressed:');
-      
+    else
+      this.triggerSpecialEvent('signalUp');
+
     break;
   case 39: //right
   case 'Right':
@@ -352,9 +352,9 @@ _.keydown = function(e)
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
     else if (this.cursor.next && this.cursor.next.next.cmd === '_' && this.cursor.next.next.respaced)
       this.cursor.clearSelection().prependTo(this.cursor.next.next.firstChild);
-      
-     console.log('down pressed:');
-      
+    else
+      this.triggerSpecialEvent('signalDown');
+
     break;
   case 46: //delete
   case 'Del':
