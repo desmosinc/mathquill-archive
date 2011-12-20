@@ -124,7 +124,7 @@ _.respace = function() {
   this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced;
   if (this.respaced) {
     var fontSize = +this.jQ.css('fontSize').slice(0,-2),
-      prevWidth = this.prev.jQ.outerWidth()
+      prevWidth = this.prev.jQ.outerWidth(),
       thisWidth = this.jQ.outerWidth();
     this.jQ.css({
       left: (this.limit && this.cmd === '_' ? -.25 : 0) - prevWidth/fontSize + 'em',
