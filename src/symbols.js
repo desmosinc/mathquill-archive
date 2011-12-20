@@ -16,14 +16,15 @@ _.insertAt = function(cursor) {
   //and check for autocommand before that, since autocommands may be prefixes of longer autocommands
   if (prev instanceof UnItalicized && AutoCmds.hasOwnProperty(prev.text() + cmd)) {
     for (var i = 0; i < cmd.length; i += 1) cursor.backspace();
-    cursor.insertNew(new UnItalicized(undefined, prev.text() + cmd));
+    cmd = prev.text() + cmd;
+    cursor.insertNew(new LatexCmds[cmd](undefined, cmd));
     return;
   }
   else { //and test if there's an autocommand here, starting with the longest possible and slicing
     while (cmd.length) {
       if (AutoCmds.hasOwnProperty(cmd)) {
         for (var i = 1; i < cmd.length; i += 1) cursor.backspace();
-        cursor.insertNew(new UnItalicized(undefined, cmd));
+        cursor.insertNew(new LatexCmds[cmd](undefined, cmd));
         return;
       }
       cmd = cmd.slice(1);
@@ -90,6 +91,12 @@ var AutoCmds = {
   for (var fn in AutoCmds)
     LatexCmds[fn] = UnItalicized;
 }());
+
+//do this *after* LatexCmds[fn in AutoCmds] = UnItalicized
+AutoCmds.sqrt =
+AutoCmds.sum =
+AutoCmds.pi =
+  1;
 
 
 function VanillaSymbol(ch, html) {
