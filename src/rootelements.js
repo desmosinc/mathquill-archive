@@ -251,14 +251,13 @@ _.keydown = function(e)
    	  if( this.isEmpty() )
         this.triggerSpecialEvent( "upwardDelete" );
       else {
-        var cmd = this.cursor.prev.cmd;
+        var cmd = this.cursor.prev;
         this.cursor.backspace();
         //FIXME HACK shouldn't be here, should be with the rest of the autocmds code
-        if (!this.cursor.selection && cmd) {
-          cmd = cmd.slice(1,-1);
-          if (AutoCmds.hasOwnProperty(cmd))
-            for (var i = 0; i < cmd.length - 1; i += 1)
-              this.cursor.insertNew(new Variable(cmd.charAt(i)));
+        if (!this.cursor.selection && cmd instanceof UnItalicized) {
+          cmd = cmd.cmd.slice(1,-1);
+          for (var i = 0; i < cmd.length - 1; i += 1)
+            this.cursor.insertNew(new Variable(cmd.charAt(i)));
         }
       }
     }
