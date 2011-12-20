@@ -281,14 +281,14 @@
   margin-left: .2em;
   min-width: .5em;
 }
-.mathquill-rendered-math sup.limit, .mathquill-rendered-math sub.limit,
+.mathquill-rendered-math sup.int, .mathquill-rendered-math sub.int,
 .mathquill-rendered-math sup.nthroot {
   font-size: 80%;
 }
-.mathquill-rendered-math sup.limit, .mathquill-rendered-math sup.nthroot {
+.mathquill-rendered-math sup.int, .mathquill-rendered-math sup.nthroot {
   vertical-align: .8em;
 }
-.mathquill-rendered-math sub.limit {
+.mathquill-rendered-math sub.int {
   vertical-align: -.6em;
 }
 
