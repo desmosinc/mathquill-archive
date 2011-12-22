@@ -28,6 +28,7 @@
 .mathquill-rendered-math .sup,
 .mathquill-rendered-math .sub,
 .mathquill-rendered-math .fraction,
+.mathquill-rendered-math .large-operator,
 .mathquill-rendered-math .sqrt-prefix,
 .mathquill-rendered-math .sqrt-stem,
 .mathquill-rendered-math .paren,
@@ -37,10 +38,10 @@
   display: inline-block;
   padding-top: .075em;
 }
-.mathquill-rendered-math .fraction, x:-moz-any-link { /* Firefox 2 (and older?) only */
+.mathquill-rendered-math .fraction, .mathquill-rendered-math .large-operator, x:-moz-any-link { /* Firefox 2 (and older?) only */
   display: -moz-groupbox; /* because display:inline-block is FUBAR in Gecko < 1.9.0 */
 }
-.mathquill-rendered-math .fraction, x:-moz-any-link, x:default { /* Firefox 3+ (Gecko 1.9.0+) */
+.mathquill-rendered-math .fraction, .mathquill-rendered-math .large-operator, x:-moz-any-link, x:default { /* Firefox 3+ (Gecko 1.9.0+) */
   display: inline-block;
 }
 .mathquill-editable, .mathquill-embedded-latex .mathquill-editable {
@@ -106,6 +107,7 @@
 .mathquill-rendered-math .selection .sup,
 .mathquill-rendered-math .selection .sub,
 .mathquill-rendered-math .selection .fraction,
+.mathquill-rendered-math .selection .large-operator,
 .mathquill-rendered-math .selection .sqrt-prefix,
 .mathquill-rendered-math .selection .sqrt-stem,
 .mathquill-rendered-math .selection .paren,
@@ -127,6 +129,7 @@
 .mathquill-rendered-math .selection.blur .sup,
 .mathquill-rendered-math .selection.blur .sub,
 .mathquill-rendered-math .selection.blur .fraction,
+.mathquill-rendered-math .selection.blur .large-operator,
 .mathquill-rendered-math .selection.blur .sqrt-prefix,
 .mathquill-rendered-math .selection.blur .sqrt-stem,
 .mathquill-rendered-math .selection.blur .paren,
@@ -147,6 +150,7 @@
 .mathquill-rendered-math .selection .selection.blur .sup,
 .mathquill-rendered-math .selection .selection.blur .sub,
 .mathquill-rendered-math .selection .selection.blur .fraction,
+.mathquill-rendered-math .selection .selection.blur .large-operator,
 .mathquill-rendered-math .selection .selection.blur .sqrt-prefix,
 .mathquill-rendered-math .selection .selection.blur .sqrt-stem,
 .mathquill-rendered-math .selection .selection.blur .paren,
@@ -165,6 +169,7 @@
 .mathquill-rendered-math .selection.blur .selection.blur .sup,
 .mathquill-rendered-math .selection.blur .selection.blur .sub,
 .mathquill-rendered-math .selection.blur .selection.blur .fraction,
+.mathquill-rendered-math .selection.blur .selection.blur .large-operator,
 .mathquill-rendered-math .selection.blur .selection.blur .sqrt-prefix,
 .mathquill-rendered-math .selection.blur .selection.blur .sqrt-stem,
 .mathquill-rendered-math .selection.blur .selection.blur .paren,
@@ -342,6 +347,21 @@
 }
 .mathquill-rendered-math sup .denominator, .mathquill-rendered-math sub .denominator {
   padding-top: 0;
+}
+
+.mathquill-rendered-math .large-operator {
+  text-align: center;
+}
+.mathquill-rendered-math .large-operator .from, .mathquill-rendered-math .large-operator big, .mathquill-rendered-math .large-operator .to  {
+  display: block;
+}
+.mathquill-rendered-math .large-operator .from, .mathquill-rendered-math .large-operator .to  {
+  font-size: 80%;
+}
+.mathquill-rendered-math .large-operator .from {
+  margin-top: -.1em;
+  float: right; /* take out of normal flow to manipulate baseline */
+  width: 100%;
 }
 
 .mathquill-rendered-math .latex-command-input {

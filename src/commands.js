@@ -80,6 +80,31 @@ function SupSub(cmd, html, text, replacedFragment) {
 }
 _ = SupSub.prototype = new MathCommand;
 _.placeCursor = function(cursor) {
+  //TODO: should there be a better place for this?
+  if (this.prev instanceof BigSymbol && this.prev.cmd !== '\\int ') {
+    var bigSym = this.prev, block = this.firstChild,
+      firstChild = {_: 'firstChild', '^': 'lastChild'}[this.cmd],
+      lastChild = {_: 'lastChild', '^': 'firstChild'}[this.cmd],
+      append = {_: 'append', '^': 'prepend'}[this.cmd],
+      prev = {_: 'prev', '^': 'next'}[this.cmd],
+      next = {_: 'next', '^': 'prev'}[this.cmd];
+    bigSym.jQ[append](
+      $('<span class="'+{_: 'from', '^': 'to'}[this.cmd]+'"></span>')[append](
+        block.jQ.removeClass('sup sub')
+      )
+    );
+    block.parent = bigSym;
+    bigSym[firstChild] = block;
+    if (bigSym[lastChild]) {
+      bigSym[lastChild][prev] = block;
+      block[next] = bigSym[lastChild];
+    }
+    else
+      bigSym[lastChild] = block;
+    this.isEmpty = function(){ return true; };//FIXME hack so backspace deletes this
+    cursor.backspace().appendTo(block);
+    return;
+  }
   this.cursor = cursor.appendTo(this.firstChild);
 };
 _.latex = function() {
