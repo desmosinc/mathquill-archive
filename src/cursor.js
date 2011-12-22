@@ -209,7 +209,7 @@ _.writeLatex = function(latex) {
         cmd = cursor.prev || cursor.parent.parent;
 
         if (cursor.prev) //was a close-paren, so break recursion
-          return;
+          return cursor.appendTo(cursor.prev.lastChild);
         else //was an open-paren, hack to put the following latex
           latex.unshift('{'); //in the ParenBlock in the math DOM
       }
@@ -249,9 +249,8 @@ _.writeLatex = function(latex) {
           else
             break;
         }
-        cmd = cursor.parent.parent;
+        cursor.insertAfter(cursor.parent.parent);
       }
-      cursor.insertAfter(cmd);
     }
   }(this));
   return this.hide();
