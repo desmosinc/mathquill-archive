@@ -343,6 +343,11 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
 //sum, product, coproduct, integral
 function BigSymbol(ch, html) {
   Symbol.call(this, ch, '<span class="large-operator"><big>'+html+'</big></span>');
+  //FIXME HACK
+  if (ch === '\\sum ')
+    this.placeCursor = function(cursor) {
+      cursor.writeLatex('^{}_{i=}').appendTo(this.firstChild).show();
+    };
 }
 _ = BigSymbol.prototype = new Symbol; //so instanceof will work
 _.isEmpty = MathCommand.prototype.isEmpty;
