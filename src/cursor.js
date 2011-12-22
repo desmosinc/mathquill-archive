@@ -234,16 +234,23 @@ _.writeLatex = function(latex) {
 
         cursor.insertNew(cmd);
       }
-      cmd.eachChild(function(child) {
-        cursor.appendTo(child);
-        var token = latex.shift();
-        if (!token) return false;
+      if (!cursor.prev) {
+        while (true) {
+          var token = latex.shift();
+          if (!token) return false;
 
-        if (token === '{')
-          writeLatexBlock(cursor);
-        else
-          cursor.insertCh(token);
-      });
+          if (token === '{')
+            writeLatexBlock(cursor);
+          else
+            cursor.insertCh(token);
+
+          if (cursor.parent.next)
+            cursor.prependTo(cursor.parent.next);
+          else
+            break;
+        }
+        cmd = cursor.parent.parent;
+      }
       cursor.insertAfter(cmd);
     }
   }(this));
