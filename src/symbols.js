@@ -77,13 +77,13 @@ var AutoCmds = {
   var trigs = { sin: 1, cos: 1, tan: 1, sec: 1, cosec: 1, csc: 1, cotan: 1, cot: 1, ctg: 1 };
   for (var trig in trigs) {
     AutoCmds[trig] =
-    AutoCmds['a'+trig] =
+    AutoCmds['arc'+trig] =
     AutoCmds[trig+'h'] = 
-    AutoCmds['a'+trig+'h'] = 1; 
+    AutoCmds['arc'+trig+'h'] = 1; 
 
     LatexCmds[trig+'h'] =
-    LatexCmds['a'+trig] =
-    LatexCmds['a'+trig+'h'] =
+    LatexCmds['arc'+trig] =
+    //LatexCmds['a'+trig+'h'] =
     LatexCmds['arc'+trig+'h'] =
       UnItalicized;
   }
