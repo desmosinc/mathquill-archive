@@ -176,7 +176,19 @@ _.respace = function() {
   return this;
 };
 _.keydown = function(e) {
-  if (e.ctrlKey || e.metaKey || e.shiftKey)
+  if (this.cursor.parent.parent !== this || e.ctrlKey || e.metaKey)
+    return this.parent.keydown(e);
+  //e.which === 9 <=> Tab key
+  else if (e.which === 9) {
+    e.preventDefault();
+    if (e.shiftKey && this.respaced)
+      this.cursor.clearSelection().appendTo(this.prev.firstChild);
+    else if (!e.shiftKey && this.next.respaced)
+      this.cursor.clearSelection().prependTo(this.next.firstChild);
+    else
+      return this.parent.keydown(e);
+  }
+  else if (e.shiftKey)
     return this.parent.keydown(e);
   //e.which === 37 <=> Left key
   else if (e.which === 37 && !this.cursor.prev && this.respaced)
