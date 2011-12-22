@@ -79,13 +79,7 @@ var AutoCmds = {
     AutoCmds[trig] =
     AutoCmds['arc'+trig] =
     AutoCmds[trig+'h'] = 
-    AutoCmds['arc'+trig+'h'] = 1; 
-
-    LatexCmds[trig+'h'] =
-    LatexCmds['arc'+trig] =
-    //LatexCmds['a'+trig+'h'] =
-    LatexCmds['arc'+trig+'h'] =
-      UnItalicized;
+    AutoCmds['arc'+trig+'h'] = 1;
   }
 
   for (var fn in AutoCmds)
