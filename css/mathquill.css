@@ -414,7 +414,10 @@
   display: block;
 }
 
-.mathquill-rendered-math .un-italicized {
+.mathquill-rendered-math var.un-italicized {
+  font-family: Symbola, "Times New Roman", serif;
+}
+.mathquill-rendered-math var.un-italicized.last {
   padding-right: .2em;
 }
 
