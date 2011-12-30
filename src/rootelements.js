@@ -323,7 +323,7 @@ _.keydown = function(e)
     else if (this.cursor.next && this.cursor.next.next.cmd === '^' && this.cursor.next.next.respaced)
       this.cursor.clearSelection().prependTo(this.cursor.next.next.firstChild);
     else
-      this.triggerSpecialEvent('signalUp');
+      this.triggerSpecialEvent('upPressed');
 
     break;
   case 39: //right
@@ -346,7 +346,7 @@ _.keydown = function(e)
     else if (this.cursor.next && this.cursor.next.next.cmd === '_' && this.cursor.next.next.respaced)
       this.cursor.clearSelection().prependTo(this.cursor.next.next.firstChild);
     else
-      this.triggerSpecialEvent('signalDown');
+      this.triggerSpecialEvent('downPressed');
 
     break;
   case 46: //delete
