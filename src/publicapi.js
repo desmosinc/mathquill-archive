@@ -81,6 +81,18 @@ $.fn.mathquill = function(cmd, latex) {
           cursor.hide().parent.blur();
         }
       });
+  case 'moveStart':
+    var blockId = $(this).attr(mqBlockId),
+      block = blockId && MathElement[blockId];
+    if (block && block.cursor)
+      block.cursor.prependTo(block);
+    break;
+  case 'moveEnd':
+    var blockId = $(this).attr(mqBlockId),
+      block = blockId && MathElement[blockId];
+    if (block && block.cursor)
+      block.cursor.appendTo(block);
+    break;
   default:
     var textbox = cmd === 'textbox',
       editable = textbox || cmd === 'editable',
