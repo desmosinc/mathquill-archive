@@ -51,6 +51,16 @@ $.fn.mathquill = function(cmd, latex) {
           block.blur();
         }
       });
+  case 'moveStart':
+  	var data = this.data(jQueryDataKey);
+  	if( data && data.block )
+	   	data.block.cursor.prependTo( data.block );
+  	break;
+  case 'moveEnd':
+    var data = this.data(jQueryDataKey);
+  	if( data && data.block )
+	   	data.block.cursor.appendTo( data.block );
+  	break;
   default:
     var textbox = cmd === 'textbox',
       editable = textbox || cmd === 'editable',
