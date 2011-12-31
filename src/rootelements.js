@@ -147,7 +147,7 @@ function createRoot(jQ, root, textbox, editable) {
   jQ.bind('cut', function(e) {
     setTextareaSelection();
     if (cursor.selection)
-      setTimeout(function(){ cursor.deleteSelection(); cursor.redraw(); });
+      setTimeout(function(){ cursor.deleteSelection(); cursor.redraw(); cursor.root.triggerSpecialEvent("render"); });
     e.stopPropagation();
   }).bind('copy', function(e) {
     setTextareaSelection();
@@ -168,6 +168,8 @@ function createRoot(jQ, root, textbox, editable) {
       latex = '\\text{' + latex + '}';
     cursor.writeLatex(latex).show();
     textarea.val('');
+    
+    cursor.root.triggerSpecialEvent("render");
   }
 
   //keyboard events and text input, see Wiki page "Keyboard Events"
