@@ -99,7 +99,7 @@ function VanillaSymbol(ch, html) {
 }
 VanillaSymbol.prototype = Symbol.prototype;
 
-CharCmds[' '] = bind(VanillaSymbol, '\\:', ' ');
+CharCmds[' '] = bind(VanillaSymbol, '\\space', ' ');
 
 LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 
@@ -468,6 +468,7 @@ LatexCmds.rightharpoondown = bind(VanillaSymbol, '\\rightharpoondown ', '&#8641;
 LatexCmds.nwarrow = bind(VanillaSymbol, '\\nwarrow ', '&#8598;');
 
 //Misc
+LatexCmds.space = bind(VanillaSymbol, '\\space', '&nbsp;');
 LatexCmds.ldots = bind(VanillaSymbol, '\\ldots ', '&#8230;');
 LatexCmds.cdots = bind(VanillaSymbol, '\\cdots ', '&#8943;');
 LatexCmds.vdots = bind(VanillaSymbol, '\\vdots ', '&#8942;');
