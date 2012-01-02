@@ -8,6 +8,22 @@ function Variable(ch, html) {
   Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
 }
 _ = Variable.prototype = new Symbol;
+_.insertAt = function(cursor) {
+  //want the longest possible autocommand, so assemble longest series of letters (Variables) first
+  var cmd = this.cmd;
+  for (var i = 0, prev = cursor.prev; i < MAX_AUTOCMD_LEN - 1 && prev && prev instanceof Variable; i += 1, prev = prev.prev)
+    cmd = prev.cmd + cmd;
+  //then test if there's an autocommand here, starting with the longest possible and slicing
+  while (cmd.length) {
+    if (AutoCmds.hasOwnProperty(cmd)) {
+      for (var i = 1; i < cmd.length; i += 1) cursor.backspace();
+      cursor.insertNew(new LatexCmds[cmd](undefined, cmd));
+      return;
+    }
+    cmd = cmd.slice(1);
+  }
+  MathCommand.prototype.insertAt.apply(this, arguments);
+};
 _.respace = function() {
   //TODO: in better architecture, should be done in createBefore and backspace
   //respace is called too often, inefficient
@@ -26,9 +42,8 @@ _.respace = function() {
 
   //test if there's an autocommand here, going through substrings from longest to shortest
   outer: for (var i = 0, first = prev.next || this.parent.firstChild; i < cmd.length; i += 1, first = first.next) {
-    for (var len = min(MAX_AUTOCMD_LEN, cmd.length - i); len > 0; len -= 1) {
-      var autocmd = cmd.slice(i, i + len);
-      if (AutoCmds.hasOwnProperty(autocmd)) {
+    for (var len = min(MAX_UNITALICIZED_LEN, cmd.length - i); len > 0; len -= 1) {
+      if (UnItalicizedCmds.hasOwnProperty(cmd.slice(i, i + len))) {
         for (var j = 0, letter = first; j < len; j += 1, letter = letter.next) {
           letter.jQ.addClass('un-italicized');
           var last = letter;
@@ -62,7 +77,7 @@ _.insertAt = function(cursor) {
 };
 //backslashless commands, words where adjacent letters (Variables)
 //that form them automatically are turned into commands
-var AutoCmds = {
+var UnItalicizedCmds = {
   ln: 1,
   lg: 1,
   log: 1,
@@ -78,18 +93,22 @@ var AutoCmds = {
   gcf: 1,
   hcf: 1,
   lim: 1
-}, MAX_AUTOCMD_LEN = 9;
+}, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
+  sqrt: 1,
+  sum: 1,
+  pi: 1
+}, MAX_AUTOCMD_LEN = 4;
 
 (function() {
   var trigs = { sin: 1, cos: 1, tan: 1, sec: 1, cosec: 1, csc: 1, cotan: 1, cot: 1, ctg: 1 };
   for (var trig in trigs) {
-    AutoCmds[trig] =
-    AutoCmds['arc'+trig] =
-    AutoCmds[trig+'h'] = 
-    AutoCmds['arc'+trig+'h'] = 1;
+    UnItalicizedCmds[trig] =
+    UnItalicizedCmds['arc'+trig] =
+    UnItalicizedCmds[trig+'h'] =
+    UnItalicizedCmds['arc'+trig+'h'] = 1;
   }
 
-  for (var fn in AutoCmds)
+  for (var fn in UnItalicizedCmds)
     LatexCmds[fn] = UnItalicized;
 }());
 
