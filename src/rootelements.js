@@ -22,7 +22,9 @@ function createRoot(jQ, root, textbox, editable) {
   root.renderLatex(contents.text());
 
   //textarea stuff
-  var textareaSpan = root.textarea = $('<span class="textarea"><textarea></textarea></span>'),
+  var textareaSpan = root.textarea = $.browser.webkit && /Mobile/.test(navigator.userAgent) ?
+      $('<span class="textarea"><span tabindex=0></span></span>')
+    : $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
   var textareaSelectionTimeout;
