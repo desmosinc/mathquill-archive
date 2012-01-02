@@ -318,8 +318,13 @@ _.keydown = function(e)
   case 'Up':
     if (e.ctrlKey || e.shiftKey) break;
 
-    if (this.cursor.parent.prev)
-      this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
+    var ancestor = this.cursor.parent, ancestor_prev;
+    while (ancestor && !ancestor_prev) {
+      ancestor_prev = ancestor.prev;
+      ancestor = ancestor.parent.parent;
+    }
+    if (ancestor_prev)
+      this.cursor.clearSelection().appendTo(ancestor_prev);
     else if (this.cursor.next.cmd === '^') //TODO: better architecture to not need a special case for these
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
     else if (this.cursor.next && this.cursor.next.next.cmd === '^' && this.cursor.next.next.respaced)
@@ -341,8 +346,13 @@ _.keydown = function(e)
   case 'Down':
     if (e.ctrlKey || e.shiftKey) break;
 
-    if (this.cursor.parent.next)
-      this.cursor.clearSelection().prependTo(this.cursor.parent.next);
+    var ancestor = this.cursor.parent, ancestor_next;
+    while (ancestor && !ancestor_next) {
+      ancestor_next = ancestor.next;
+      ancestor = ancestor.parent.parent;
+    }
+    if (ancestor_next)
+      this.cursor.clearSelection().prependTo(ancestor_next);
     else if (this.cursor.next.cmd === '_') //TODO: better architecture to not need a special case for these
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
     else if (this.cursor.next && this.cursor.next.next.cmd === '_' && this.cursor.next.next.respaced)
