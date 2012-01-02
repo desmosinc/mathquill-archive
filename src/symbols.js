@@ -369,7 +369,7 @@ function BigSymbol(ch, html) {
   //FIXME HACK
   if (ch === '\\sum ')
     this.placeCursor = function(cursor) {
-      cursor.writeLatex('^{}_{i=}').appendTo(this.firstChild).show();
+      this.cursor = cursor.writeLatex('^{}_{i=}').appendTo(this.firstChild).show();
     };
 }
 _ = BigSymbol.prototype = new Symbol; //so instanceof will work
@@ -382,6 +382,22 @@ _.latex = function() {
   function simplify(latex) {
     return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
   }
+};
+_.keydown = function(e) {
+  if (this.cursor.parent.parent !== this || e.ctrlKey || e.metaKey)
+    return this.parent.keydown(e);
+  //e.which === 38 <=> Up key
+  else if (e.which === 38) {
+    if (this.cursor.parent === this.firstChild)
+      this.cursor.clearSelection().prependTo(this.lastChild);
+  }
+  //e.which === 40 <=> Down key
+  else if (e.which === 40) {
+    if (this.cursor.parent === this.lastChild)
+      this.cursor.clearSelection().appendTo(this.firstChild);
+  }
+  else
+    return this.parent.keydown(e);
 };
 
 LatexCmds['∑'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
