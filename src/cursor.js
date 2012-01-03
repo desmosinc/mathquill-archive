@@ -105,8 +105,10 @@ _.moveLeft = function() {
     this.insertBefore(this.selection.prev.next || this.parent.firstChild).clearSelection();
   else {
     if (this.prev) {
-      if (this.prev.lastChild)
-        this.appendTo(this.prev.lastChild)
+      if (this.prev.cmd === '^' && this.prev.respaced) //FIXME HACK
+        this.appendTo(this.prev.prev.firstChild);
+      else if (this.prev.firstChild)
+        this.appendTo(this.prev.firstChild)
       else
         this.hopLeft();
     }
@@ -123,7 +125,9 @@ _.moveRight = function() {
     this.insertAfter(this.selection.next.prev || this.parent.lastChild).clearSelection();
   else {
     if (this.next) {
-      if (this.next.firstChild)
+      if (this.next.next.cmd === '_' && this.next.next.respaced) //FIXME HACK
+        this.prependTo(this.next.next.firstChild);
+      else if (this.next.firstChild)
         this.prependTo(this.next.firstChild)
       else
         this.hopRight();
