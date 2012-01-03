@@ -203,7 +203,7 @@ _.keydown = function(e) {
     if (!this.cursor.prev || this.cursor.next)
       this.cursor.clearSelection().insertBefore(this.respaced ? this.prev : this);
     else
-      this.cursor.clearSelection().insertAfter(this.respaced ? this : this.next);
+      this.cursor.clearSelection().insertAfter(this.respaced ? this.prev : this);
   }
   else
     return this.parent.keydown(e);
