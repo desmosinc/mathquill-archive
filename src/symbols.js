@@ -366,14 +366,22 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
 //sum, product, coproduct, integral
 function BigSymbol(ch, html) {
   Symbol.call(this, ch, '<span class="large-operator"><big>'+html+'</big></span>');
-  //FIXME HACK
-  if (ch === '\\sum ')
-    this.placeCursor = function(cursor) {
-      this.cursor = cursor.writeLatex('^{}_{i=}').appendTo(this.firstChild).show();
-    };
 }
 _ = BigSymbol.prototype = new Symbol; //so instanceof will work
 _.isEmpty = MathCommand.prototype.isEmpty;
+_.insertAt = function(cursor, isWriteLatex) {
+  //FIXME HACK
+  if (this.cmd === '\\sum ')
+    if (isWriteLatex)
+      this.placeCursor = function(cursor) {
+        this.cursor = cursor;
+      };
+    else
+      this.placeCursor = function(cursor) {
+        this.cursor = cursor.writeLatex('^{}_{i=}').appendTo(this.firstChild).show();
+      };
+  MathCommand.prototype.insertAt.apply(this, arguments);
+};
 _.latex = function() {
   var fromLatex = this.firstChild ? '_'+simplify(this.firstChild.latex()) : '',
     toLatex = this.lastChild ? '^'+simplify(this.lastChild.latex()) : '';

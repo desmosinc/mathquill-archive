@@ -217,7 +217,7 @@ _.writeLatex = function(latex) {
         token = token.slice(1);
         var cmd = LatexCmds[token];
         if (cmd)
-          cursor.insertNew(cmd = new cmd(undefined, token));
+          cursor.insertNew(cmd = new cmd(undefined, token), true); //FIX ME HACK isWriteLatex
         else {
           cmd = new TextBlock(token);
           cursor.insertNew(cmd).insertAfter(cmd);
@@ -281,8 +281,8 @@ _.insertCh = function(ch) {
 
   return this.insertNew(cmd);
 };
-_.insertNew = function(cmd) {
-  cmd.insertAt(this);
+_.insertNew = function(cmd, isWriteLatex) { //FIXME HACK isWriteLatex
+  cmd.insertAt(this, isWriteLatex);
   return this;
 };
 _.unwrapGramp = function() {
