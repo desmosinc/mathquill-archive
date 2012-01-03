@@ -111,9 +111,7 @@ _.moveLeft = function() {
         this.hopLeft();
     }
     else { //we're at the beginning of a block
-      if (this.parent.prev)
-        this.appendTo(this.parent.prev);
-      else if (this.parent !== this.root)
+      if (this.parent !== this.root)
         this.insertBefore(this.parent.parent);
       //else we're at the beginning of the root, so do nothing.
     }
@@ -131,9 +129,7 @@ _.moveRight = function() {
         this.hopRight();
     }
     else { //we're at the end of a block
-      if (this.parent.next)
-        this.prependTo(this.parent.next);
-      else if (this.parent !== this.root)
+      if (this.parent !== this.root)
         this.insertAfter(this.parent.parent);
       //else we're at the end of the root, so do nothing.
     }
