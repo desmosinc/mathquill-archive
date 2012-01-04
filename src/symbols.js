@@ -38,16 +38,20 @@ _.respace = function() {
   //removeClass from all the things before figuring out what's an autocmd, if any
   (new MathFragment(this.parent, prev, next)).each(function(el) {
     el.jQ.removeClass('un-italicized last');
+    delete el.isFirstLetter;
+    delete el.isLastLetter;
   });
 
   //test if there's an autocommand here, going through substrings from longest to shortest
   outer: for (var i = 0, first = prev.next || this.parent.firstChild; i < cmd.length; i += 1, first = first.next) {
     for (var len = min(MAX_UNITALICIZED_LEN, cmd.length - i); len > 0; len -= 1) {
       if (UnItalicizedCmds.hasOwnProperty(cmd.slice(i, i + len))) {
+        first.isFirstLetter = true;
         for (var j = 0, letter = first; j < len; j += 1, letter = letter.next) {
           letter.jQ.addClass('un-italicized');
           var last = letter;
         }
+        last.isLastLetter = true;
         if (!(last.next instanceof SupSub || last.next instanceof Bracket))
           last.jQ.addClass('last');
         i += len - 1;
@@ -56,6 +60,13 @@ _.respace = function() {
       }
     }
   }
+};
+_.latex = function() {
+  if (this.isFirstLetter)
+    return '\\' + this.cmd;
+  else if (this.isLastLetter)
+    return this.cmd + ' ';
+  return this.cmd;
 };
 _.text = function() {
   var text = this.cmd;
