@@ -129,7 +129,7 @@ function VanillaSymbol(ch, html) {
 }
 VanillaSymbol.prototype = Symbol.prototype;
 
-CharCmds[' '] = bind(VanillaSymbol, '\\space', ' ');
+CharCmds[' '] = bind(VanillaSymbol, '\\space ', ' ');
 
 LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 
