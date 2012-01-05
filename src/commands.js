@@ -192,10 +192,10 @@ _.keydown = function(e) {
     return this.parent.keydown(e);
   //e.which === 37 <=> Left key
   else if (e.which === 37 && !this.cursor.prev && this.respaced)
-    this.cursor.clearSelection().appendTo(this.prev.firstChild);
+    this.cursor.clearSelection().insertBefore(this.prev);
   //e.which === 39 <=> Right key
   else if (e.which === 39 && !this.cursor.next && this.next.respaced)
-    this.cursor.clearSelection().prependTo(this.next.firstChild);
+    this.cursor.clearSelection().insertAfter(this.next);
   //e.which === 38 <=> Up, 40 <=> Down key
   else if ((e.which === 38 && this.cmd === '_' && !(this.cursor.next.cmd === '^'))
         || (e.which === 40 && this.cmd === '^' && !(this.cursor.next.cmd === '_'))
