@@ -320,19 +320,21 @@ _.keydown = function(e)
   case 'Up':
     if (e.ctrlKey || e.shiftKey) break;
 
-    var ancestor = this.cursor.parent, ancestor_prev;
-    while (ancestor && !ancestor_prev) {
-      ancestor_prev = ancestor.prev;
-      ancestor = ancestor.parent.parent;
-    }
-    if (ancestor_prev)
-      this.cursor.clearSelection().appendTo(ancestor_prev);
-    else if (this.cursor.next.cmd === '^') //TODO: better architecture to not need a special case for these
+    if (this.cursor.next.cmd === '^') //TODO: better architecture to not need a special case for these
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
     else if (this.cursor.next && this.cursor.next.next.cmd === '^' && this.cursor.next.next.respaced)
       this.cursor.clearSelection().prependTo(this.cursor.next.next.firstChild);
-    else
-      this.triggerSpecialEvent('upPressed');
+    else {
+      var ancestor = this.cursor.parent, ancestor_prev;
+      while (ancestor && !ancestor_prev) {
+        ancestor_prev = ancestor.prev;
+        ancestor = ancestor.parent.parent;
+      }
+      if (ancestor_prev)
+        this.cursor.clearSelection().appendTo(ancestor_prev);
+      else
+        this.triggerSpecialEvent('upPressed');
+    }
 
     break;
   case 39: //right
@@ -348,19 +350,21 @@ _.keydown = function(e)
   case 'Down':
     if (e.ctrlKey || e.shiftKey) break;
 
-    var ancestor = this.cursor.parent, ancestor_next;
-    while (ancestor && !ancestor_next) {
-      ancestor_next = ancestor.next;
-      ancestor = ancestor.parent.parent;
-    }
-    if (ancestor_next)
-      this.cursor.clearSelection().prependTo(ancestor_next);
-    else if (this.cursor.next.cmd === '_') //TODO: better architecture to not need a special case for these
+    if (this.cursor.next.cmd === '_') //TODO: better architecture to not need a special case for these
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
     else if (this.cursor.next && this.cursor.next.next.cmd === '_' && this.cursor.next.next.respaced)
       this.cursor.clearSelection().prependTo(this.cursor.next.next.firstChild);
-    else
-      this.triggerSpecialEvent('downPressed');
+    else {
+      var ancestor = this.cursor.parent, ancestor_next;
+      while (ancestor && !ancestor_next) {
+        ancestor_next = ancestor.next;
+        ancestor = ancestor.parent.parent;
+      }
+      if (ancestor_next)
+        this.cursor.clearSelection().prependTo(ancestor_next);
+      else
+        this.triggerSpecialEvent('downPressed');
+    }
 
     break;
   case 46: //delete
