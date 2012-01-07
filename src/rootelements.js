@@ -324,6 +324,10 @@ _.keydown = function(e)
       this.cursor.clearSelection().prependTo(this.cursor.next.lastChild);
     else if (this.cursor.prev.cmd === '\\sum ')
       this.cursor.clearSelection().appendTo(this.cursor.prev.lastChild);
+    else if (this.cursor.next instanceof Fraction)
+      this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
+    else if (this.cursor.prev instanceof Fraction)
+      this.cursor.clearSelection().appendTo(this.cursor.prev.firstChild);
     else if (this.cursor.next.cmd === '^')
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
     else if (this.cursor.next && this.cursor.next.next.cmd === '^' && this.cursor.next.next.respaced)
@@ -358,6 +362,10 @@ _.keydown = function(e)
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
     else if (this.cursor.prev.cmd === '\\sum ')
       this.cursor.clearSelection().appendTo(this.cursor.prev.firstChild);
+    else if (this.cursor.next instanceof Fraction)
+      this.cursor.clearSelection().prependTo(this.cursor.next.lastChild);
+    else if (this.cursor.prev instanceof Fraction)
+      this.cursor.clearSelection().appendTo(this.cursor.prev.lastChild);
     else if (this.cursor.next.cmd === '_')
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
     else if (this.cursor.next && this.cursor.next.next.cmd === '_' && this.cursor.next.next.respaced)
