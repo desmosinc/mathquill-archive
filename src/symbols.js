@@ -408,12 +408,12 @@ _.keydown = function(e) {
   //e.which === 38 <=> Up key
   else if (e.which === 38) {
     if (this.cursor.parent === this.firstChild)
-      this.cursor.clearSelection().prependTo(this.lastChild);
+      this.cursor.clearSelection()[this.cursor.prev || !this.cursor.next ? 'insertAfter' : 'insertBefore'](this);
   }
   //e.which === 40 <=> Down key
   else if (e.which === 40) {
     if (this.cursor.parent === this.lastChild)
-      this.cursor.clearSelection().appendTo(this.firstChild);
+      this.cursor.clearSelection()[this.cursor.prev || !this.cursor.next ? 'insertAfter' : 'insertBefore'](this);
   }
   else
     return this.parent.keydown(e);
