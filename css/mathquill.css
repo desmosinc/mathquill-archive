@@ -352,8 +352,11 @@
 .mathquill-rendered-math .large-operator {
   text-align: center;
 }
-.mathquill-rendered-math .large-operator .from, .mathquill-rendered-math .large-operator big, .mathquill-rendered-math .large-operator .to  {
+.mathquill-rendered-math .large-operator .from, .mathquill-rendered-math .large-operator .to  {
   display: block;
+}
+.mathquill-rendered-math big {
+  display: inline-block;
 }
 .mathquill-rendered-math .large-operator .from, .mathquill-rendered-math .large-operator .to  {
   font-size: 80%;
