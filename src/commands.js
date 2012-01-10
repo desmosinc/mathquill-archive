@@ -323,17 +323,6 @@ _.initBlocks = function(replacedFragment) { //FIXME: possible Law of Demeter vio
   var block = this.blockjQ = this.firstChild.jQ;
   this.bracketjQs = block.prev().add(block.next());
 };
-//Want to auto-expand paren to end of block
-_.placeCursor = function(cursor) { //TODO: better architecture so this can be done more cleanly, highjacking MathCommand::placeCursor doesn't seem like the right place to do this
-  if (this.firstChild.isEmpty() && this.next) {
-    //FIXME: Law of Demeter violation, shouldn't know here that MathCommand::initBlocks does some initialization that MathFragment::blockify doesn't
-    var newBlock = new MathFragment(this.parent, this, 0).blockify();
-    newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data(jQueryDataKey, { block: newBlock });
-    newBlock.parent = this;
-    this.firstChild = this.lastChild = newBlock;
-  }
-  cursor.prependTo(this.firstChild);
-};
 _.latex = function() {
   return this.cmd + this.firstChild.latex() + this.end;
 };
@@ -355,22 +344,14 @@ function CloseBracket(open, close, cmd, end, replacedFragment) {
 }
 _ = CloseBracket.prototype = new Bracket;
 _.placeCursor = function(cursor) {
-  //if my parent is a matching open-paren, and I was not passed
-  //a selection fragment, then close the open-paren here,
-  //i.e. move everything after me in the open-paren to
-  //after the paren group just closed
-  if (this.firstChild.isEmpty()) {
-    //FIXME: Law of Demeter violation, shouldn't know here that MathCommand::initBlocks does some initialization that MathFragment::blockify doesn't
-    var newBlock = this.prev ? new MathFragment(this.parent, 0, this).blockify() : new MathBlock;
-    newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data(jQueryDataKey, { block: newBlock });
-    newBlock.parent = this;
-    this.firstChild = this.lastChild = newBlock;
-    if (this.parent.parent.end === this.end) {
-      cursor.insertBefore(this).backspace().insertAfter(this);
-    }
+  //if I'm at the end of my parent who is a matching open-paren, and I was not passed
+  //  a selection fragment, get rid of me and put cursor after my parent
+  if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
+    cursor.backspace().insertAfter(this.parent.parent);
+  else {
+    this.firstChild.blur();
+    this.redraw();
   }
-  this.firstChild.blur();
-  this.redraw();
 };
 
 LatexCmds.rbrace = CharCmds['}'] = proto(CloseBracket, function(replacedFragment) {
@@ -408,7 +389,12 @@ function Pipes(replacedFragment) {
   Paren.call(this, '|', '|', replacedFragment);
 }
 _ = Pipes.prototype = new Paren;
-_.placeCursor = MathCommand.prototype.placeCursor;
+_.placeCursor = function(cursor) {
+  if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
+    cursor.backspace().insertAfter(this.parent.parent);
+  else
+    cursor.appendTo(this.firstChild);
+};
 
 LatexCmds.lpipe = LatexCmds.rpipe = CharCmds['|'] = Pipes;
 
