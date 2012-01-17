@@ -166,8 +166,8 @@ function createRoot(jQ, root, textbox, editable) {
     var latex = textarea.val();
     if (latex.slice(0,1) === '$' && latex.slice(-1) === '$')
       latex = latex.slice(1, -1);
-    else
-      latex = '\\text{' + latex + '}';
+    //else
+    //  latex = '\\text{' + latex + '}';
     cursor.writeLatex(latex).show();
     textarea.val('');
     
