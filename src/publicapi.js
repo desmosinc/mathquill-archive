@@ -61,6 +61,12 @@ $.fn.mathquill = function(cmd, latex) {
   	if( data && data.block )
 	   	data.block.cursor.appendTo( data.block );
   	break;
+  case 'selection':
+    var data = this.data(jQueryDataKey);
+  	if( data && data.block )
+      return data.block.cursor.selection ? '$'+data.block.cursor.selection.latex()+'$' : '';
+    else
+      return undefined;
   default:
     var textbox = cmd === 'textbox',
       editable = textbox || cmd === 'editable',
