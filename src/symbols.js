@@ -103,6 +103,7 @@ var UnItalicizedCmds = {
   gcd: 1,
   gcf: 1,
   hcf: 1,
+  exp: 1,
   lim: 1
 }, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
   sqrt: 1,
