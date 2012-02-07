@@ -8,7 +8,7 @@ are all over the place.
 ## Usage
 
 (Note: Requires [jQuery 1.4.3+](http://jquery.com).
-[Google CDN-hosted copy](http://libraries.google.com) recommended.)
+[Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery) recommended.)
 
 To use MathQuill on your website you need to serve
 
@@ -55,11 +55,11 @@ Currently, MathQuill only supports a limited scripting API:
 
 * To access the LaTeX contents of a mathquill-ified element:
 
-    $('<span>x^{-1}</span>').mathquill().mathquill('latex') === 'x^{-1}'
+        $('<span>x^{-1}</span>').mathquill().mathquill('latex') === 'x^{-1}'
 
 * To render some LaTeX in a mathquill-ified element:
 
-    $('<span/>').mathquill().appendTo('body').mathquill('latex','a_n x^n')
+        $('<span/>').mathquill().appendTo('body').mathquill('latex','a_n x^n')
 
 ## Understanding The Source Code
 
