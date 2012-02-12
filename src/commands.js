@@ -374,14 +374,16 @@ _.placeCursor = function(cursor) {
   //i.e. move everything after me in the open-paren to
   //after the paren group just closed
   if (this.firstChild.isEmpty()) {
-    //FIXME: Law of Demeter violation, shouldn't know here that MathCommand::initBlocks does some initialization that MathFragment::blockify doesn't
-    var newBlock = this.prev ? new MathFragment(this.parent, 0, this).blockify() : new MathBlock;
-    newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data(jQueryDataKey, { block: newBlock });
-    newBlock.parent = this;
-    this.firstChild = this.lastChild = newBlock;
     if (this.parent.parent.end === this.end) {
+      //FIXME: Law of Demeter violation, shouldn't know here that MathCommand::initBlocks does some initialization that MathFragment::blockify doesn't
+      var newBlock = this.prev ? new MathFragment(this.parent, 0, this).blockify() : new MathBlock;
+      newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data(jQueryDataKey, { block: newBlock });
+      newBlock.parent = this;
+      this.firstChild = this.lastChild = newBlock;
       cursor.insertBefore(this).backspace().insertAfter(this);
     }
+    else
+      cursor.backspace();
   }
   this.firstChild.blur();
   this.redraw();
