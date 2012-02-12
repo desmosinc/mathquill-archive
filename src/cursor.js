@@ -349,6 +349,8 @@ _.backspace = function() {
   else if (this.prev) {
     if (this.prev.isEmpty())
       this.prev = this.prev.remove().prev;
+    else if (this.prev instanceof Bracket)
+      return this.appendTo(this.prev.firstChild).deleteForward();
     else
       this.selectLeft();
   }
@@ -372,6 +374,8 @@ _.deleteForward = function() {
   else if (this.next) {
     if (this.next.isEmpty())
       this.next = this.next.remove().next;
+    else if (this.next instanceof Bracket)
+      return this.prependTo(this.next.firstChild).backspace();
     else
       this.selectRight();
   }
