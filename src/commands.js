@@ -381,11 +381,11 @@ _.placeCursor = function(cursor) {
       newBlock.parent = this;
       this.firstChild = this.lastChild = newBlock;
       cursor.insertBefore(this).backspace().insertAfter(this);
+      this.firstChild.blur();
     }
     else
-      cursor.backspace();
+      cursor.appendTo(this.firstChild);
   }
-  this.firstChild.blur();
   this.redraw();
 };
 
