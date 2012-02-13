@@ -92,11 +92,14 @@ var UnItalicizedCmds = {
   ln: 1,
   lg: 1,
   log: 1,
-  span: 1,
-  proj: 1,
-  det: 1,
-  dim: 1,
   min: 1,
+  nCr: 1,
+  nPr: 1,
+  gcd: 1,
+  lcm: 1,
+  ceil: 1,
+  exp: 1,
+  abs: 1,
   max: 1,
   mod: 1,
   lcm: 1,
@@ -108,8 +111,10 @@ var UnItalicizedCmds = {
 }, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
   sqrt: 1,
   sum: 1,
-  pi: 1
-}, MAX_AUTOCMD_LEN = 4;
+  pi: 1,
+  theta: 1,
+  int: 1
+}, MAX_AUTOCMD_LEN = 5;
 
 (function() {
   var trigs = { sin: 1, cos: 1, tan: 1, sec: 1, cosec: 1, csc: 1, cotan: 1, cot: 1, ctg: 1 };
@@ -216,6 +221,7 @@ LatexCmds.varrho = //AMS and LaTeX
 
 //Greek constants, look best in un-italicised Times New Roman
 LatexCmds.pi = LatexCmds['π'] = bind(NonSymbolaSymbol,'\\pi ','&pi;');
+LatexCmds.theta = LatexCmds['θ'] = bind(NonSymbolaSymbol,'\\theta ','&theta;');
 LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','&lambda;');
 
 //uppercase greek letters
@@ -532,7 +538,7 @@ LatexCmds.rightharpoondown = bind(VanillaSymbol, '\\rightharpoondown ', '&#8641;
 LatexCmds.nwarrow = bind(VanillaSymbol, '\\nwarrow ', '&#8598;');
 
 //Misc
-LatexCmds.space = bind(VanillaSymbol, '\\space', '&nbsp;');
+LatexCmds.space = bind(VanillaSymbol, '\\space ', '&nbsp;');
 LatexCmds.ldots = bind(VanillaSymbol, '\\ldots ', '&#8230;');
 LatexCmds.cdots = bind(VanillaSymbol, '\\cdots ', '&#8943;');
 LatexCmds.vdots = bind(VanillaSymbol, '\\vdots ', '&#8942;');
