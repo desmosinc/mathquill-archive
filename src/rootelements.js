@@ -159,6 +159,13 @@ function createRoot(jQ, root, textbox, editable) {
     skipTextInput = true;
     setTimeout(paste);
     e.stopPropagation();
+  }).bind('select_all', function(e) {
+  	var cursor_parent = cursor.parent;
+  	while (cursor_parent.parent)
+  		cursor_parent = cursor_parent.parent;
+	cursor.clearSelection().appendTo(cursor_parent);
+	while (cursor.prev)
+		cursor.selectLeft();
   });
   function paste() {
     //FIXME HACK the parser in RootTextBlock needs to be moved to

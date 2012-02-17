@@ -260,7 +260,8 @@ _.placeCursor = function(cursor) { //TODO: better architecture so this can be do
         prev instanceof BigSymbol ||
         prev.isLastLetter ||
         prev.cmd === ',' ||
-        prev.cmd === ':'
+        prev.cmd === ':' ||
+        prev.cmd === '\\space '
       ) //lookbehind for operator
     )
       prev = prev.prev;
