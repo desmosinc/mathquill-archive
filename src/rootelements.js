@@ -152,11 +152,12 @@ function createRoot(jQ, root, textbox, editable) {
       setTimeout(function(){ cursor.deleteSelection(); cursor.redraw(); cursor.root.triggerSpecialEvent("render"); });
     e.stopPropagation();
   }).bind('copy', function(e) {
+    skipTextInput = true;
     setTextareaSelection();
-    skipTextInput = true;
     e.stopPropagation();
-  }).bind('paste', function(e) {
+  }).bind('paste', function(e, pasteText) {
     skipTextInput = true;
+    textarea.val(pasteText);
     setTimeout(paste);
     e.stopPropagation();
   }).bind('select_all', function(e) {
@@ -167,7 +168,7 @@ function createRoot(jQ, root, textbox, editable) {
 	while (cursor.prev)
 		cursor.selectLeft();
   });
-  function paste() {
+  function paste(paste) {
     //FIXME HACK the parser in RootTextBlock needs to be moved to
     //Cursor::writeLatex or something so this'll work with MathQuill textboxes
     var latex = textarea.val();
@@ -178,7 +179,8 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.writeLatex(latex).show();
     textarea.val('');
     
-    cursor.root.triggerSpecialEvent("render");
+    if (cursor.root)
+	    cursor.root.triggerSpecialEvent("render");
   }
 
   //keyboard events and text input, see Wiki page "Keyboard Events"

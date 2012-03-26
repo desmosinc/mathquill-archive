@@ -147,14 +147,14 @@ _.respace = function() {
       && this.prev.prev && this.prev.prev.cmd === '\\int '
     )
   ) {
-    if (!this.int) {
-      this.int = true;
+    if (!this['int']) {
+      this['int'] = true;
       this.jQ.addClass('int');
     }
   }
   else {
-    if (this.int) {
-      this.int = false;
+    if (this['int']) {
+      this['int'] = false;
       this.jQ.removeClass('int');
     }
   }
@@ -165,12 +165,12 @@ _.respace = function() {
       prevWidth = this.prev.jQ.outerWidth(),
       thisWidth = this.jQ.outerWidth();
     this.jQ.css({
-      left: (this.int && this.cmd === '_' ? -.25 : 0) - prevWidth/fontSize + 'em',
+      left: (this['int'] && this.cmd === '_' ? -.25 : 0) - prevWidth/fontSize + 'em',
       marginRight: .1 - min(thisWidth, prevWidth)/fontSize + 'em'
         //1px extra so it doesn't wrap in retarded browsers (Firefox 2, I think)
     });
   }
-  else if (this.int && this.cmd === '_') {
+  else if (this['int'] && this.cmd === '_') {
     this.jQ.css({
       left: '-.25em',
       marginRight: ''
@@ -258,7 +258,7 @@ _.placeCursor = function(cursor) { //TODO: better architecture so this can be do
         prev instanceof BinaryOperator ||
         prev instanceof TextBlock ||
         prev instanceof BigSymbol ||
-        prev.isLastLetter ||
+        //prev.isLastLetter || //COMMENTED OUT BY ELI so that cos(x)/  would put the entire cos(x) in the numerator
         prev.cmd === ',' ||
         prev.cmd === ':' ||
         prev.cmd === '\\space '
@@ -425,7 +425,12 @@ function Pipes(replacedFragment) {
   Paren.call(this, '|', '|', replacedFragment);
 }
 _ = Pipes.prototype = new Paren;
-_.placeCursor = MathCommand.prototype.placeCursor;
+_.placeCursor = function(cursor) {
+  if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
+    cursor.backspace().insertAfter(this.parent.parent);
+  else
+    cursor.appendTo(this.firstChild);
+};
 
 LatexCmds.lpipe = LatexCmds.rpipe = CharCmds['|'] = Pipes;
 

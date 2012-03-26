@@ -2,10 +2,14 @@
  * Symbols and Special Characters
  *********************************/
 
-LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var><span style="display:inline-block;width:0">&nbsp;</span>');
+//LatexCmds.f = bind(Symbol, 'f', '<var class="florin">f</var><span style="display:inline-block;width:0">&nbsp;</span>');
 
 function Variable(ch, html) {
-  Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
+  if (ch == 'f') {
+	  Symbol.call(this, ch, '<var class="florin">f</var>');
+  } else {
+	  Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
+  }
 }
 _ = Variable.prototype = new Symbol;
 _.insertAt = function(cursor) {
@@ -90,7 +94,6 @@ _.insertAt = function(cursor) {
 //that form them automatically are turned into commands
 var UnItalicizedCmds = {
   ln: 1,
-  lg: 1,
   log: 1,
   min: 1,
   nCr: 1,
@@ -105,9 +108,14 @@ var UnItalicizedCmds = {
   lcm: 1,
   gcd: 1,
   gcf: 1,
-  hcf: 1,
   exp: 1,
-  lim: 1
+  //line: 1,
+  //polygon: 1,
+  //dottedline: 1,
+  //dottedpolygon:1,
+  //stroke:1,
+  //fill:1,
+  floor: 1
 }, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
   sqrt: 1,
   sum: 1,
@@ -396,7 +404,7 @@ _.insertAt = function(cursor, isWriteLatex) {
       };
     else
       this.placeCursor = function(cursor) {
-        this.cursor = cursor.writeLatex('^{}_{i=}').appendTo(this.firstChild).show();
+        this.cursor = cursor.writeLatex('^{}_{n=}').appendTo(this.firstChild).show();
       };
   MathCommand.prototype.insertAt.apply(this, arguments);
 };
@@ -429,7 +437,7 @@ _.keydown = function(e) {
 LatexCmds['∑'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
 LatexCmds['∏'] = LatexCmds.prod = LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
 LatexCmds.coprod = LatexCmds.coproduct = bind(BigSymbol,'\\coprod ','&#8720;');
-LatexCmds['∫'] = LatexCmds.int = LatexCmds.integral = proto(BigSymbol, function() {
+LatexCmds['∫'] = LatexCmds['int'] = LatexCmds.integral = proto(BigSymbol, function() {
   Symbol.call(this, '\\int ', '<big>&int;</big>');
 });
 
