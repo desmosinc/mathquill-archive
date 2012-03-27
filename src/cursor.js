@@ -229,7 +229,7 @@ _.writeLatex = function(latex) {
         }
       }
       else {
-        if (token.match(/[a-zA-Z]/)) //exclude f because want florin
+        if (token.match(/[a-zA-Z]/))
           cmd = new Variable(token);
         else if (cmd = LatexCmds[token])
           cmd = new cmd;
@@ -270,7 +270,7 @@ _.insertCh = function(ch) {
   }
 
   var cmd;
-  if (ch.match(/^[a-zA-Z]$/)) //exclude f because want florin
+  if (ch.match(/^[a-zA-Z]$/))
     cmd = new Variable(ch);
   else if (cmd = CharCmds[ch] || LatexCmds[ch])
     cmd = new cmd(this.selection, ch);
