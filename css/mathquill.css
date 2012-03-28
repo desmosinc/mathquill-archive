@@ -8,6 +8,7 @@
  * 
  */
 
+/* JWM: we don't want this at desmos because we delay-load these fonts
 @font-face {
   font-family: Symbola;
   src: url(../font/Symbola.eot);
@@ -16,6 +17,7 @@
     url(../font/Symbola.otf) format("opentype"),
     url(../font/Symbola.svg#Symbola) format("svg");
 }
+*/
 
 .mathquill-editable,
 .mathquill-rendered-math,
