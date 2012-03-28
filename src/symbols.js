@@ -2,8 +2,6 @@
  * Symbols and Special Characters
  *********************************/
 
-//LatexCmds.f = bind(Symbol, 'f', '<var class="florin">f</var><span style="display:inline-block;width:0">&nbsp;</span>');
-
 function Variable(ch, html) {
   if (ch == 'f') {
 	  Symbol.call(this, ch, '<var class="florin">f</var>');
@@ -679,10 +677,10 @@ LatexCmds.oslash = LatexCmds.Oslash =
 LatexCmds.nothing = LatexCmds.varnothing =
   bind(BinaryOperator,'\\varnothing ','&empty;');
 
-LatexCmds.cup = LatexCmds.union = bind(VanillaSymbol,'\\cup ','&cup;');
+LatexCmds.cup = LatexCmds.union = bind(BinaryOperator,'\\cup ','&cup;');
 
 LatexCmds.cap = LatexCmds.intersect = LatexCmds.intersection =
-  bind(VanillaSymbol,'\\cap ','&cap;');
+  bind(BinaryOperator,'\\cap ','&cap;');
 
 LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
 
