@@ -212,7 +212,15 @@ function createRoot(jQ, root, textbox, editable) {
     //after keypress event, trigger virtual textInput event if text was
     //input to textarea
     skipTextInput = false;
-    setTimeout(textInput);
+    
+    //Hack by Eli
+    //In Safari, sometimes "textInput" was fired before the "copy" event was fired. The result was weird behavior where the selected text was being returned to the Mathquill element.
+    //Here we introduce a timeout on copy & paste events (again, just safari), that seems to do the trick in most places. Not beautiful, but it works...
+    if (e.metaKey && (e.keyCode == 99 || e.keyCode == 120)) {
+        setTimeout(textInput, 100);
+    } else {
+        setTimeout(textInput);    
+    }
   });
 
   function textInput() {
