@@ -176,11 +176,18 @@ function createRoot(jQ, root, textbox, editable) {
     setTextareaSelection();
     e.stopPropagation();
   })
+  //added by Eli to allow for custom paste content to be sent in from the outside
+  .bind('custom_paste', function(e, str) {
+    pasting = true;
+    setTimeout(paste, 0, str);
+    e.stopPropagation();
+  })
   .bind('paste', function(e) {
     pasting = true;
     setTimeout(paste);
     e.stopPropagation();
-  }).bind('select_all', function(e) {
+  })
+  .bind('select_all', function(e) {
   	var cursor_parent = cursor.parent;
   	while (cursor_parent.parent)
   		cursor_parent = cursor_parent.parent;
@@ -188,14 +195,14 @@ function createRoot(jQ, root, textbox, editable) {
 	while (cursor.prev)
 		cursor.selectLeft();
   });
-  function paste() {
+  function paste(str) {
     //FIXME HACK the parser in RootTextBlock needs to be moved to
     //Cursor::writeLatex or something so this'll work with MathQuill textboxes
-    var latex = textarea.val();
+    var latex = str || textarea.val();
     if (latex.slice(0,1) === '$' && latex.slice(-1) === '$') {
       latex = latex.slice(1, -1);
     }
-
+ 
     cursor.writeLatex(latex).show();
     textarea.val('');
     
