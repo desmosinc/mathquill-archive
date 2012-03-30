@@ -178,11 +178,13 @@ function createRoot(jQ, root, textbox, editable) {
   })
   //added by Eli to allow for custom paste content to be sent in from the outside
   .bind('custom_paste', function(e, str) {
-    paste(str)
+    pasting = true;
+    setTimeout(function() {paste(str);})
   })
   .bind('paste', function(e) {
+    pasting = true;
+    setTimeout(paste);
     e.stopPropagation();
-    paste();
   })
   .bind('select_all', function(e) {
   	var cursor_parent = cursor.parent;
@@ -205,6 +207,8 @@ function createRoot(jQ, root, textbox, editable) {
     
     if (cursor.root)
 	    cursor.root.triggerSpecialEvent("render");
+	
+	pasting = false;
   }
 
   //keyboard events and text input, see Wiki page "Keyboard Events"
