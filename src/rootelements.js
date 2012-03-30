@@ -179,8 +179,6 @@ function createRoot(jQ, root, textbox, editable) {
   //added by Eli to allow for custom paste content to be sent in from the outside
   .bind('custom_paste', function(e, str) {
     paste(str)
-    //pasting = true;
-    setTimeout(function(){paste(str)}, 0);
   })
   .bind('paste', function(e) {
     pasting = true;
