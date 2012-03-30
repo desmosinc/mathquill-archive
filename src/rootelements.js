@@ -178,7 +178,9 @@ function createRoot(jQ, root, textbox, editable) {
   })
   //added by Eli to allow for custom paste content to be sent in from the outside
   .bind('custom_paste', function(e, str) {
-    pasting = true;
+    //removed by Eli -- this looks like a change that Han made to more cleanly fix the problem with copy breaking Safari
+    //setting this to true meant that subsequent keystrokes would be ignored
+    //pasting = true;
     setTimeout(function(){paste(str)}, 0);
     e.stopPropagation();
   })
