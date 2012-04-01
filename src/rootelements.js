@@ -212,7 +212,7 @@ function createRoot(jQ, root, textbox, editable) {
   }
 
   //keyboard events and text input, see Wiki page "Keyboard Events"
-  var lastKeydn, lastKeydnHappened, lastKeypressWhich;
+  var lastKeydn, lastKeydnHappened, lastKeypressWhich, pasting=false;
   jQ.bind('keydown.mathquill', function(e) {
     lastKeydn = e;
     lastKeydnHappened = true;
@@ -245,6 +245,10 @@ function createRoot(jQ, root, textbox, editable) {
   });
 
   function textInput() {
+    if (pasting || (
+      'selectionStart' in textarea[0]
+      && textarea[0].selectionStart !== textarea[0].selectionEnd
+    )) return;
     var text = textarea.val();
     if (text) {
       textarea.val('');
