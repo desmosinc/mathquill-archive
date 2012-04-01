@@ -200,7 +200,8 @@ function createRoot(jQ, root, textbox, editable) {
   function paste(str) {
     //FIXME HACK the parser in RootTextBlock needs to be moved to
     //Cursor::writeLatex or something so this'll work with MathQuill textboxes
-    var latex = str || textarea.val();
+    //ADDED BY ELI: for some reason "1" is being passed in as the argument for str in paste
+    var latex = (typeof str == "string" ? str : textarea.val());
     if (latex.slice(0,1) === '$' && latex.slice(-1) === '$') {
       latex = latex.slice(1, -1);
     }
@@ -456,6 +457,7 @@ _.keydown = function(e)
   }
   this.skipTextInput = true;
   return false;
+  
 };
 _.textInput = function(ch) {
   if (!this.skipTextInput) {
