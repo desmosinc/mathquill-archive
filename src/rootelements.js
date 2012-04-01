@@ -212,11 +212,10 @@ function createRoot(jQ, root, textbox, editable) {
     if (cursor.root)
 	    cursor.root.triggerSpecialEvent("render");
     pasting = false;
-
   }
 
   //keyboard events and text input, see Wiki page "Keyboard Events"
-  var lastKeydn, lastKeydnHappened, lastKeypressWhich, pasting = false;
+  var lastKeydn, lastKeydnHappened, lastKeypressWhich, pasting=false;
   jQ.bind('keydown.mathquill', function(e) {
     lastKeydn = e;
     lastKeydnHappened = true;
