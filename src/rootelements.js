@@ -180,7 +180,7 @@ function createRoot(jQ, root, textbox, editable) {
   .bind('custom_paste', function(e, str) {
     //removed by Eli -- this looks like a change that Han made to more cleanly fix the problem with copy breaking Safari
     //setting this to true meant that subsequent keystrokes would be ignored
-    //pasting = true;
+    pasting = true;
     setTimeout(function(){paste(str)}, 0);
     e.stopPropagation();
   })
@@ -210,6 +210,8 @@ function createRoot(jQ, root, textbox, editable) {
     
     if (cursor.root)
 	    cursor.root.triggerSpecialEvent("render");
+    pasting = false;
+
   }
 
   //keyboard events and text input, see Wiki page "Keyboard Events"
