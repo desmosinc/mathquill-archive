@@ -113,7 +113,8 @@ var UnItalicizedCmds = {
   //dottedpolygon:1,
   //stroke:1,
   //fill:1,
-  floor: 1
+  floor: 1,
+  sign: 1
 }, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
   sqrt: 1,
   sum: 1,
