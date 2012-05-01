@@ -70,9 +70,6 @@
   user-select: text;
   -moz-user-select: text;
   -webkit-user-select: text;
-  width:1px; /* added by eli because this was still showing up in chrome */
-  height:1px; 
-  overflow:hidden;
 }
 
 .mathquill-editable .cursor {
