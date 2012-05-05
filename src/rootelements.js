@@ -205,12 +205,22 @@ function createRoot(jQ, root, textbox, editable) {
     if (latex.slice(0,1) === '$' && latex.slice(-1) === '$') {
       latex = latex.slice(1, -1);
     }
- 
-    cursor.writeLatex(latex).show();
+  
     textarea.val('');
+    //Hack by Eli -- don't exponentiate if there's nothing before the cursor?
+    if ((latex == "^" || latex == "_") && !cursor.prev) {
+    } else {
+
+        //Hack #2 by Eli: if you type "+" or "-" or "=" in an exponent, break out of it?
+        if ((latex == "+" || latex == "=" || latex == "-") && cursor.prev && cursor.parent && cursor.parent.parent && (cursor.parent.parent.cmd == "^" || cursor.parent.parent.cmd == "_")) {
+            cursor.moveRight();
+        }
+
+        cursor.writeLatex(latex).show();
     
-    if (cursor.root)
-	    cursor.root.triggerSpecialEvent("render");
+        if (cursor.root)
+	       cursor.root.triggerSpecialEvent("render");
+    }
     pasting = false;
   }
 
@@ -253,8 +263,24 @@ function createRoot(jQ, root, textbox, editable) {
       && textarea[0].selectionStart !== textarea[0].selectionEnd
     )) return;
     var text = textarea.val();
+    
+    
+    
+    
     if (text) {
-      textarea.val('');
+        textarea.val('');
+
+        //Hack by Eli -- don't exponentiate if there's nothing before the cursor?
+        if ((text == "^" || text == "_") && !cursor.prev) {
+            return;    
+        }
+
+        //Hack #2 by Eli: if you type "+" or "-" or "=" in an exponent, break out of it?
+        if ((text == "+" || text == "=" || text == "-") && cursor.prev && cursor.parent && cursor.parent.parent && (cursor.parent.parent.cmd == "^" || cursor.parent.parent.cmd == "_")) {
+            cursor.moveRight();
+        }
+
+
       for (var i = 0; i < text.length; i += 1) {
         cursor.parent.textInput(text.charAt(i));
       }

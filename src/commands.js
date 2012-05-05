@@ -196,6 +196,7 @@ _.respace = function() {
   return this;
 };
 _.keydown = function(e) {
+
   if (this.cursor.parent.parent !== this || e.ctrlKey || e.metaKey)
     return this.parent.keydown(e);
   //e.which === 9 <=> Tab key
@@ -238,6 +239,8 @@ LatexCmds.supscript =
 LatexCmds['^'] = proto(SupSub, function(replacedFragment) {
   SupSub.call(this, '^', 'sup', '**', replacedFragment);
 });
+
+
 
 function Fraction(replacedFragment) {
   this.init('\\frac', undefined, undefined, replacedFragment);
