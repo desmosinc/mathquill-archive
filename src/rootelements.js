@@ -212,7 +212,7 @@ function createRoot(jQ, root, textbox, editable) {
     } else {
 
         //Hack #2 by Eli: if you type "+" or "-" or "=" in an exponent, break out of it?
-        if ((latex == "+" || latex == "=" || latex == "-") && cursor.prev && cursor.parent && cursor.parent.parent && (cursor.parent.parent.cmd == "^" || cursor.parent.parent.cmd == "_")) {
+        if ((latex == "+" || latex == "=" || latex == "-") && cursor.prev && cursor.parent && cursor.parent.parent && (cursor.parent.parent.cmd == "^")) {
             cursor.moveRight();
         }
 
@@ -276,7 +276,7 @@ function createRoot(jQ, root, textbox, editable) {
         }
 
         //Hack #2 by Eli: if you type "+" or "-" or "=" in an exponent, break out of it?
-        if ((text == "+" || text == "=" || text == "-") && cursor.prev && cursor.parent && cursor.parent.parent && (cursor.parent.parent.cmd == "^" || cursor.parent.parent.cmd == "_")) {
+        if ((text == "+" || text == "=" || text == "-") && cursor.prev && cursor.parent && cursor.parent.parent && (cursor.parent.parent.cmd == "^")) {
             cursor.moveRight();
         }
 
