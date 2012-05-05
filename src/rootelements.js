@@ -404,9 +404,9 @@ _.keydown = function(e)
   case 'Up':
     if (e.ctrlKey || e.shiftKey) break;
 
-    if (this.cursor.next.cmd === '\\sum ') //TODO: better architecture to not need a special case for these
+    if (this.cursor.next.cmd === '\\sum ' || this.cursor.next.cmd === '\\prod ') //TODO: better architecture to not need a special case for these
       this.cursor.clearSelection().prependTo(this.cursor.next.lastChild);
-    else if (this.cursor.prev.cmd === '\\sum ')
+    else if (this.cursor.prev.cmd === '\\sum ' || this.cursor.prev.cmd === '\\prod ')
       this.cursor.clearSelection().appendTo(this.cursor.prev.lastChild);
     else if (this.cursor.next instanceof Fraction)
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
@@ -442,9 +442,9 @@ _.keydown = function(e)
   case 'Down':
     if (e.ctrlKey || e.shiftKey) break;
 
-    if (this.cursor.next.cmd === '\\sum ') //TODO: better architecture to not need a special case for these
+    if (this.cursor.next.cmd === '\\sum ' || this.cursor.next.cmd === '\\prod ') //TODO: better architecture to not need a special case for these
       this.cursor.clearSelection().prependTo(this.cursor.next.firstChild);
-    else if (this.cursor.prev.cmd === '\\sum ')
+    else if (this.cursor.prev.cmd === '\\sum ' || this.cursor.prev.cmd === '\\prod ')
       this.cursor.clearSelection().appendTo(this.cursor.prev.firstChild);
     else if (this.cursor.next instanceof Fraction)
       this.cursor.clearSelection().prependTo(this.cursor.next.lastChild);

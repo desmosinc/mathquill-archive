@@ -118,6 +118,7 @@ var UnItalicizedCmds = {
 }, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
   sqrt: 1,
   sum: 1,
+  prod: 1,
   pi: 1,
   theta: 1/*,
   int: 1*/
@@ -396,7 +397,7 @@ _ = BigSymbol.prototype = new Symbol; //so instanceof will work
 _.isEmpty = MathCommand.prototype.isEmpty;
 _.insertAt = function(cursor, isWriteLatex) {
   //FIXME HACK
-  if (this.cmd === '\\sum ')
+  if (this.cmd === '\\sum ' || this.cmd === '\\prod ')
     if (isWriteLatex)
       this.placeCursor = function(cursor) {
         this.cursor = cursor;
