@@ -107,7 +107,7 @@ _.moveLeft = function() {
     if (this.prev) {
       if (this.prev.cmd === '_' && this.prev.respaced) //FIXME HACKS
         this.appendTo(this.prev.prev.firstChild);
-      else if (this.prev.cmd === '\\sum ' || this.prev.cmd === '\\prod ')
+      else if (this.prev.cmd === '\\sum ' || this.prev.cmd === '\\prod ' || this.prev.cmd === '\\nthroot ')
         this.appendTo(this.prev.lastChild);
       else if (this.prev.firstChild)
         this.appendTo(this.prev.firstChild)
@@ -115,7 +115,10 @@ _.moveLeft = function() {
         this.hopLeft();
     }
     else { //we're at the beginning of a block
-      if (this.parent !== this.root)
+        //FIXME HACKS by eli: in nthroot, from the beginning of lastChild, move into firstChild & vice versa
+      if (this.parent.parent && this.parent.parent.cmd === "\\nthroot " && this.parent.prev) 
+        this.appendTo(this.parent.prev);        
+      else if (this.parent !== this.root)
         this.insertBefore(this.parent.parent);
       //else we're at the beginning of the root, so do nothing.
     }
@@ -137,7 +140,9 @@ _.moveRight = function() {
         this.hopRight();
     }
     else { //we're at the end of a block
-      if (this.parent !== this.root)
+      if (this.parent.parent && this.parent.parent.cmd === "\\nthroot " && this.parent.next) 
+        this.prependTo(this.parent.next);        
+      else if (this.parent !== this.root)
         this.insertAfter(this.parent.parent);
       //else we're at the end of the root, so do nothing.
     }

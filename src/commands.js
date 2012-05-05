@@ -313,6 +313,7 @@ LatexCmds.sqrt = LatexCmds['√'] = SquareRoot;
 
 function NthRoot(replacedFragment) {
   SquareRoot.call(this, replacedFragment);
+  this.cmd = '\\nthroot ';
   this.jQ = this.firstChild.jQ.detach().add(this.jQ);
 }
 _ = NthRoot.prototype = new SquareRoot;
