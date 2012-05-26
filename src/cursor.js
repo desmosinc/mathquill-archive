@@ -389,9 +389,17 @@ _.unwrapGramp = function() {
 _.backspace = function() {
   if (this.deleteSelection());
   else if (this.prev) {
-    if (this.prev.isEmpty())
-      this.prev = this.prev.remove().prev;
-    else if (this.prev instanceof Bracket)
+    if (this.prev.isEmpty()) {
+      if (this.prev.cmd && this.prev.cmd == "\\le ") {
+        this.prev = this.prev.remove().prev;
+        this.insertNew(new BinaryOperator('<', '<'));
+      } else if (this.prev.cmd && this.prev.cmd == "\\ge ") {
+        this.prev = this.prev.remove().prev;
+        this.insertNew(new BinaryOperator('>', '>'));
+      } else {
+        this.prev = this.prev.remove().prev;
+      }
+    } else if (this.prev instanceof Bracket)
       return this.appendTo(this.prev.firstChild).deleteForward();
     else
       this.selectLeft();
