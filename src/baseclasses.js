@@ -108,7 +108,7 @@ _.text = function() {
     return text + child.text() + (this.text_template[i] || '');
   });
 };
-_.insertAt = function(cursor) {
+_.insertAt = function(cursor, _, isRenderLatex) { //FIXME HACK isRenderLatex
   var cmd = this;
 
   cmd.parent = cursor.parent;
@@ -138,7 +138,8 @@ _.insertAt = function(cursor) {
 
   cmd.placeCursor(cursor);
 
-  cursor.redraw(); //this will soon be cmd.trigger('redraw')
+  if (!isRenderLatex) //FIXME HACK isRenderLatex
+    cursor.redraw(); //this will soon be cmd.trigger('redraw')
 };
 _.respace = $.noop; //placeholder for context-sensitive spacing
 _.placeCursor = function(cursor) {

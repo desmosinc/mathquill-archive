@@ -208,7 +208,7 @@ _.offset = function() {
   jQ.addClass('cursor');
   return offset;
 };
-_.writeLatex = function(latex) {
+_.writeLatex = function(latex, isRenderLatex) { //FIXME HACK isRenderLatex
   this.deleteSelection();
   latex = ( latex && latex.match(/\\text\{([^}]|\\\})*\}|\\[a-z]*|[^\s]/ig) ) || 0;
 
@@ -220,7 +220,7 @@ _.writeLatex = function(latex) {
       var cmd;
       if (token.slice(0, 6) === '\\text{') {
         cmd = new TextBlock(token.slice(6, -1));
-        cursor.insertNew(cmd).insertAfter(cmd);
+        cursor.insertNew(cmd, false, isRenderLatex).insertAfter(cmd); //FIXME HACK isRenderLatex
         continue; //skip recursing through children
       }
       else if (
@@ -234,7 +234,7 @@ _.writeLatex = function(latex) {
         if (token.slice(0, 1) === '\\') token = latex.shift();
         if (token === '\\') token = latex.shift();
 
-        cursor.insertCh(token);
+        cursor.insertCh(token, isRenderLatex); //FIXME HACK isRenderLatex
         cmd = cursor.prev || cursor.parent.parent;
 
         if (cursor.prev) //was a close-paren, so break recursion
@@ -246,10 +246,10 @@ _.writeLatex = function(latex) {
         token = token.slice(1);
         var cmd = LatexCmds[token];
         if (cmd)
-          cursor.insertNew(cmd = new cmd(undefined, token), true); //FIX ME HACK isWriteLatex
+          cursor.insertNew(cmd = new cmd(undefined, token), true, isRenderLatex); //FIX ME HACK is{Write,Render}Latex
         else {
           cmd = new TextBlock(token);
-          cursor.insertNew(cmd).insertAfter(cmd);
+          cursor.insertNew(cmd, false, isRenderLatex).insertAfter(cmd); //FIXME HACK isRenderLatex
           continue; //skip recursing through children
         }
       }
@@ -261,7 +261,7 @@ _.writeLatex = function(latex) {
         else
           cmd = new VanillaSymbol(token);
 
-        cursor.insertNew(cmd);
+        cursor.insertNew(cmd, false, isRenderLatex); //FIXME HACK isRenderLatex
       }
       if (!cursor.prev) {
         while (true) {
@@ -271,7 +271,7 @@ _.writeLatex = function(latex) {
           if (token === '{')
             writeLatexBlock(cursor);
           else
-            cursor.insertCh(token);
+            cursor.insertCh(token, isRenderLatex); //FIXME HACK isRenderLatex
 
           if (cursor.parent.next)
             cursor.prependTo(cursor.parent.next);
@@ -287,7 +287,7 @@ _.writeLatex = function(latex) {
 _.write = function(ch) {
   return this.show().insertCh(ch);
 };
-_.insertCh = function(ch) {
+_.insertCh = function(ch, isRenderLatex) { //FIXME HACK isRenderLatex
   if (this.selection) {
     //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
     this.prev = this.selection.prev;
@@ -308,10 +308,10 @@ _.insertCh = function(ch) {
     delete this.selection;
   }
 
-  return this.insertNew(cmd);
+  return this.insertNew(cmd, false, isRenderLatex); //FIXME HACK isRenderLatex
 };
-_.insertNew = function(cmd, isWriteLatex) { //FIXME HACK isWriteLatex
-  cmd.insertAt(this, isWriteLatex);
+_.insertNew = function(cmd, isWriteLatex, isRenderLatex) { //FIXME HACK is{Write,Render}Latex
+  cmd.insertAt(this, isWriteLatex, isRenderLatex);
   return this;
 };
 _.insertCmd = function(latexCmd, replacedFragment) {

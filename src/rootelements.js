@@ -315,7 +315,7 @@ _.renderLatex = function(latex) {
       parent = jQ.parent();
 
   jQ.detach();
-  this.cursor.appendTo(this).writeLatex(latex);
+  this.cursor.appendTo(this).writeLatex(latex, true);
 
   // Put. the element. back.
   // if there's no next element, it's at the end of its parent
