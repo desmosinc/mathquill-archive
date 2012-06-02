@@ -114,8 +114,9 @@ var UnItalicizedCmds = {
   //stroke:1,
   //fill:1,
   floor: 1,
-  sign: 1
-}, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
+  sign: 1,
+  round: 1
+}, MAX_UNITALICIZED_LEN = 5, AutoCmds = {
   sqrt: 1,
   nthroot: 1,
   sum: 1,
@@ -443,6 +444,7 @@ LatexCmds['∫'] = LatexCmds['int'] = LatexCmds.integral = proto(BigSymbol, func
 });
 
 
+/*
 
 //the canonical sets of numbers
 LatexCmds.N = LatexCmds.naturals = LatexCmds.Naturals =
@@ -475,7 +477,7 @@ LatexCmds.H = LatexCmds.Hamiltonian = LatexCmds.quaternions = LatexCmds.Quaterni
 //spacing
 LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','    ');
 LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','        ');
-/* spacing special characters, gonna have to implement this in LatexCommandInput::textInput somehow
+spacing special characters, gonna have to implement this in LatexCommandInput::textInput somehow
 case ',':
   return new VanillaSymbol('\\, ',' ');
 case ':':
@@ -484,7 +486,9 @@ case ';':
   return new VanillaSymbol('\\; ','   ');
 case '!':
   return new Symbol('\\! ','<span style="margin-right:-.2em"></span>');
-*/
+
+
+
 
 //binary operators
 LatexCmds.diamond = bind(VanillaSymbol, '\\diamond ', '&#9671;');
@@ -547,7 +551,9 @@ LatexCmds.rightharpoondown = bind(VanillaSymbol, '\\rightharpoondown ', '&#8641;
 LatexCmds.nwarrow = bind(VanillaSymbol, '\\nwarrow ', '&#8598;');
 
 //Misc
+*/
 LatexCmds.space = bind(VanillaSymbol, '\\space ', '&nbsp;');
+/*
 LatexCmds.ldots = bind(VanillaSymbol, '\\ldots ', '&#8230;');
 LatexCmds.cdots = bind(VanillaSymbol, '\\cdots ', '&#8943;');
 LatexCmds.vdots = bind(VanillaSymbol, '\\vdots ', '&#8942;');
@@ -668,12 +674,12 @@ LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
 LatexCmds.xist = //LOL
 LatexCmds.xists = LatexCmds.exist = LatexCmds.exists =
   bind(VanillaSymbol,'\\exists ','&exist;');
-
+*/
 LatexCmds.and = LatexCmds.land = LatexCmds.wedge =
   bind(VanillaSymbol,'\\wedge ','&and;');
 
 LatexCmds.or = LatexCmds.lor = LatexCmds.vee = bind(VanillaSymbol,'\\vee ','&or;');
-
+/*
 LatexCmds.o = LatexCmds.O =
 LatexCmds.empty = LatexCmds.emptyset =
 LatexCmds.oslash = LatexCmds.Oslash =
@@ -688,4 +694,4 @@ LatexCmds.cap = LatexCmds.intersect = LatexCmds.intersection =
 LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
 
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
-
+*/
