@@ -6,6 +6,13 @@
 //called) on jQuery-wrapped HTML DOM elements.
 $.fn.mathquill = function(cmd, latex) {
   switch (cmd) {
+  case 'focus':
+  case 'blur':
+    return this.each(function() {
+      var data = $(this).data(jQueryDataKey);
+      data && data.block && data.block.textarea
+        && data.block.textarea.children().trigger(cmd);
+    });
   case 'redraw':
     this.find(':not(:has(:first))').each(function() {
       var data = $(this).data(jQueryDataKey);

@@ -143,21 +143,16 @@ function createRoot(jQ, root, textbox, editable) {
     }
     else
       cursor.show();
-    e.stopPropagation();
   }).blur(function(e) {
     blurred = true;
     cursor.hide().parent.blur();
     if (cursor.selection)
       cursor.selection.jQ.addClass('blur');
-    e.stopPropagation();
-  });
+  }).blur();
 
-  jQ.bind('focus.mathquill blur.mathquill', function(e) {
-    textarea.trigger(e);
-  }).bind('mousedown.mathquill', function() {
+  jQ.bind('mousedown.mathquill', function() {
     setTimeout(focus);
-  }).bind('click.mathquill', focus) //stupid Mobile Safari
-  .blur();
+  }).bind('click.mathquill', focus); //stupid Mobile Safari
   function focus() {
     if (blurred)
       textarea.focus();
