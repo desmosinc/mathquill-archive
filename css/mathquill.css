@@ -38,7 +38,6 @@
 .mathquill-rendered-math .block {
   display: -moz-inline-box;
   display: inline-block;
-  padding-top: .075em;
 }
 .mathquill-rendered-math .fraction, .mathquill-rendered-math .large-operator, x:-moz-any-link { /* Firefox 2 (and older?) only */
   display: -moz-groupbox; /* because display:inline-block is FUBAR in Gecko < 1.9.0 */
@@ -201,6 +200,7 @@
 }
 .mathquill-rendered-math var, .mathquill-rendered-math .text, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", Symbola, serif;
+  line-height: .9;
 }
 .mathquill-rendered-math * {
   font-size: inherit;
@@ -236,6 +236,7 @@
 
 .mathquill-rendered-math .font {
   font: 1em "Times New Roman", Symbola, serif;
+  line-height: .9;
 }
 .mathquill-rendered-math .font * {
   font-family: inherit;
@@ -335,7 +336,6 @@
 }
 .mathquill-rendered-math .numerator, .mathquill-rendered-math .denominator {
   display: block;
-  padding-top: .075em;
 }
 .mathquill-rendered-math .numerator {
   padding-left: .1em;
@@ -428,6 +428,7 @@
 
 .mathquill-rendered-math var.un-italicized {
   font-family: Symbola, "Times New Roman", serif;
+  line-height: .9;
   font-style: normal;
 }
 .mathquill-rendered-math var.un-italicized.last {
