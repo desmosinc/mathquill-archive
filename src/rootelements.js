@@ -26,7 +26,8 @@ function createRoot(jQ, root, textbox, editable) {
   var textareaSpan = root.textarea = $.browser.webkit && /Mobile/.test(navigator.userAgent) ?
       $('<span class="textarea"><span tabindex=0></span></span>')
     : $('<span class="textarea"><textarea></textarea></span>'),
-    textarea = textareaSpan.children();
+    textarea = textareaSpan.children(),
+    blurred;
 
   /******
    * TODO [Han]: Document this
@@ -132,6 +133,7 @@ function createRoot(jQ, root, textbox, editable) {
 
   //focus and blur handling
   textarea.focus(function(e) {
+    blurred = false;
     if (!cursor.parent)
       cursor.appendTo(root);
     cursor.parent.jQ.addClass('hasCursor');
@@ -142,6 +144,7 @@ function createRoot(jQ, root, textbox, editable) {
     else
       cursor.show();
   }).blur(function(e) {
+    blurred = true;
     cursor.hide().parent.blur();
     if (cursor.selection)
       cursor.selection.jQ.addClass('blur');
@@ -151,7 +154,8 @@ function createRoot(jQ, root, textbox, editable) {
     setTimeout(focus);
   }).bind('click.mathquill', focus); //stupid Mobile Safari
   function focus() {
-    textarea.focus();
+    if (blurred)
+      textarea.focus();
   }
 
   //clipboard event handling
