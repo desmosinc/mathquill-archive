@@ -107,7 +107,7 @@ function createRoot(jQ, root, textbox, editable) {
     jQ.mousemove(mousemove);
     $(document).mousemove(docmousemove).mouseup(mouseup);
 
-    e.stopPropagation();
+    return false;
   });
 
   if (!editable) {
