@@ -28,10 +28,13 @@ $.fn.mathquill = function(cmd, latex) {
   case 'latex':
     if (arguments.length > 1) {
       return this.each(function() {
-        var data = $(this).data(jQueryDataKey);
-        if (data && data.block && data.block.renderLatex){
-          data.block.renderLatex(latex);
-          data.block.triggerSpecialEvent( 'render' );
+        var data = $(this).data(jQueryDataKey),
+          block = data && data.block;
+        if (block && block.renderLatex){
+          block.renderLatex(latex);
+          if (block.blurred)
+            block.cursor.hide().parent.blur();
+          block.triggerSpecialEvent( 'render' );
         }
       });
     }
@@ -53,8 +56,12 @@ $.fn.mathquill = function(cmd, latex) {
           block = data && data.block,
           cursor = block && block.cursor;
 
-        if (cursor)
-          cursor.writeLatex(latex).parent.blur();
+        if (cursor) {
+          cursor.writeLatex(latex);
+          if (block.blurred) {
+            cursor.hide().parent.blur();
+          }
+        }
       });
   case 'cmd':
     if (arguments.length > 1)
@@ -76,7 +83,8 @@ $.fn.mathquill = function(cmd, latex) {
           }
           else
             cursor.insertCh(latex);
-          cursor.hide().parent.blur();
+          if (block.blurred)
+            cursor.hide().parent.blur();
         }
       });
   case 'moveStart':

@@ -287,6 +287,8 @@ function createRoot(jQ, root, textbox, editable) {
       if (cursor.selection || textareaSelectionTimeout !== undefined)
         setTextareaSelection();
     }
+    if (root.blurred)
+      cursor.hide().parent.blur();
   }
 }
 
@@ -321,7 +323,6 @@ _.renderLatex = function(latex) {
 
   // XXX HACK ALERT
   this.jQ.mathquill('redraw');
-  this.blur();
 };
 _.keydown = function(e)
 {
@@ -572,7 +573,7 @@ _.renderLatex = function(latex) {
       var root = new RootMathCommand(cursor);
       cursor.insertNew(root);
       root.firstChild.renderLatex(chunk);
-      cursor.show().insertAfter(root);
+      cursor.insertAfter(root);
     }
     else {
       for (var j = 0; j < chunk.length; j += 1)

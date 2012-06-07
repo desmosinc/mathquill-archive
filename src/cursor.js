@@ -282,7 +282,7 @@ _.writeLatex = function(latex, isRenderLatex) { //FIXME HACK isRenderLatex
       }
     }
   }(this));
-  return this.hide();
+  return this;
 };
 _.write = function(ch) {
   return this.show().insertCh(ch);
