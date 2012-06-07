@@ -70,6 +70,12 @@
   -moz-user-select: text;
   -webkit-user-select: text;
 }
+.mathquill-editable .textarea span { /* to be focusable, need to be visible, i.e. nonzero height/width; Mobile Safari needs tabindex=0 span instead of textarea to not pull up on-screen keyboard */
+  position: absolute;
+  display: inline-block;
+  height: 1px;
+  width: 1px;
+}
 
 .mathquill-editable .cursor {
   border-left: 1px solid black;
