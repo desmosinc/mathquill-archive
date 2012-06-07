@@ -266,7 +266,7 @@ _.writeLatex = function(latex, isRenderLatex) { //FIXME HACK isRenderLatex
       if (!cursor.prev) {
         while (true) {
           var token = latex.shift();
-          if (!token) return false;
+          if (!token) return;
 
           if (token === '{')
             writeLatexBlock(cursor);
