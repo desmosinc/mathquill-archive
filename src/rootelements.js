@@ -97,6 +97,9 @@ function createRoot(jQ, root, textbox, editable) {
       $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
+    if (root.blurred)
+      textarea.focus();
+
     cursor.blink = $.noop;
     cursor.seek($(e.target), e.pageX, e.pageY);
 
@@ -148,14 +151,6 @@ function createRoot(jQ, root, textbox, editable) {
     if (cursor.selection)
       cursor.selection.jQ.addClass('blur');
   }).blur();
-
-  jQ.bind('mousedown.mathquill', function() {
-    setTimeout(focus);
-  }).bind('click.mathquill', focus); //stupid Mobile Safari
-  function focus() {
-    if (root.blurred)
-      textarea.focus();
-  }
 
   //clipboard event handling
   jQ.bind('cut', function(e) {
