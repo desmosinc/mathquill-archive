@@ -106,6 +106,17 @@ $.fn.mathquill = function(cmd, latex) {
       return data.block.cursor.selection ? '$'+data.block.cursor.selection.latex()+'$' : '';
     else
       return undefined;
+  case 'clearSelection':
+    return this.each(function() {
+      var data = $(this).data(jQueryDataKey),
+        block = data && data.block,
+        cursor = block && block.cursor;
+      if (cursor) {
+        cursor.clearSelection();
+        if (block.blurred)
+          cursor.hide().parent.blur();
+      }
+    });
   default:
     var textbox = cmd === 'textbox',
       editable = textbox || cmd === 'editable',
