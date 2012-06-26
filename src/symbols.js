@@ -32,9 +32,10 @@ _.respace = function() {
 
   //want the longest possible autocommand, so assemble longest series of letters (Variables)
   var cmd = this.cmd;
-  for (var prev = this.prev; prev instanceof Variable; prev = prev.prev)
+  if (cmd.length > 1) return;
+  for (var prev = this.prev; prev instanceof Variable && prev.cmd.length === 1; prev = prev.prev)
     cmd = prev.cmd + cmd;
-  for (var next = this.next; next instanceof Variable; next = next.next)
+  for (var next = this.next; next instanceof Variable && next.cmd.length === 1; next = next.next)
     cmd += next.cmd;
 
   //removeClass from all the things before figuring out what's an autocmd, if any
