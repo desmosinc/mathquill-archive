@@ -23,7 +23,7 @@ function createRoot(jQ, root, textbox, editable) {
   root.renderLatex(contents.text());
 
   //textarea stuff
-  var textareaSpan = root.textarea = $.browser.webkit && /Mobile/.test(navigator.userAgent) ?
+  var textareaSpan = root.textarea = 'ontouchstart' in window ?
       $('<span class="textarea"><span tabindex=0></span></span>')
     : $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
