@@ -167,6 +167,7 @@ function createRoot(jQ, root, textbox, editable) {
     }
 
     e.stopPropagation();
+    root.triggerSpecialEvent('render');
   })
   .bind('copy', function(e) {
     setTextareaSelection();
