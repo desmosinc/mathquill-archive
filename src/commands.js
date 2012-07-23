@@ -81,7 +81,7 @@ LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="n
 
 var SupSub = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tag, text) {
-    _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf">&0</'+tag+'>', [ text ]);
+    _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf"><span class="non-leaf '+tag+'">&0</span></'+tag+'>', [ text ]);
   };
   _.finalizeTree = function() {
     //TODO: use inheritance
