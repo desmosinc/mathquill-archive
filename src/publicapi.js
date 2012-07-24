@@ -29,8 +29,10 @@ $.fn.mathquill = function(cmd, latex) {
       return this.each(function() {
         var blockId = $(this).attr(mqBlockId),
           block = blockId && MathElement[blockId];
-        if (block)
+        if (block) {
           block.renderLatex(latex);
+          block.triggerSpecialEvent('render');
+        }
       });
     }
 

@@ -136,10 +136,12 @@ function createRoot(jQ, root, textbox, editable) {
         setTimeout(function() {
           cursor.prepareEdit();
           cursor.parent.bubble('redraw');
+          root.triggerSpecialEvent('render');
         });
       }
 
       e.stopPropagation();
+      root.triggerSpecialEvent('render');
     },
     paste: function(text) {
       // FIXME HACK the parser in RootTextBlock needs to be moved to
@@ -153,6 +155,7 @@ function createRoot(jQ, root, textbox, editable) {
       }
 
       cursor.writeLatex(text).show();
+      root.triggerSpecialEvent('render');
     }
   });
 
@@ -204,6 +207,8 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     this.cursor.writeLatex(latex);
   };
+  _.up = function() { this.triggerSpecialEvent('upPressed'); };
+  _.down = function() { this.triggerSpecialEvent('downPressed'); };
   _.onKey = function(key, e) {
     switch (key) {
     case 'Ctrl-Shift-Backspace':
@@ -215,7 +220,11 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     case 'Shift-Backspace':
     case 'Backspace':
-      this.cursor.backspace();
+      if (this.isEmpty()) this.triggerSpecialEvent('upwardDelete');
+      else {
+        this.cursor.backspace();
+        this.triggerSpecialEvent('render');
+      }
       break;
 
     // Tab or Esc -> go one block right if it exists, else escape right.
@@ -252,7 +261,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       break;
 
     // Prevent newlines from showing up
-    case 'Enter': break;
+    case 'Enter': this.triggerSpecialEvent('enterPressed'); break;
 
 
     // End -> move to the end of the current block.
@@ -332,12 +341,20 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Ctrl-Up': break;
     case 'Ctrl-Down': break;
 
-    case 'Del':
-      if (e.ctrlKey)
-        while (this.cursor.next || this.cursor.selection)
-          this.cursor.deleteForward();
-      else
+    case 'Ctrl-Shift-Del':
+    case 'Ctrl-Del':
+      while (this.cursor.next || this.cursor.selection) {
         this.cursor.deleteForward();
+      }
+      break;
+
+    case 'Shift-Del':
+    case 'Del':
+      if (this.isEmpty()) this.triggerSpecialEvent('downwardDelete');
+      else {
+        this.cursor.deleteForward();
+        this.triggerSpecialEvent('render');
+      }
       break;
 
     case 'Meta-A':
@@ -357,7 +374,19 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   };
   _.onText = function(ch) {
     this.cursor.write(ch);
+    this.triggerSpecialEvent('render');
     return false;
+  };
+
+  //triggers a special event occured:
+  //  1) pressed up and was at 'top' of equation
+  //  2) pressed down and was at 'bottom' of equation
+  //  3) pressed backspace and equation was empty
+  //  4) the equation was rendered
+  //  5) etc
+  _.triggerSpecialEvent = function(eventName) {
+    var jQ = this.jQ;
+    setTimeout(function(){ jQ.trigger(eventName); }, 1);
   };
 });
 
