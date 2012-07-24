@@ -398,6 +398,11 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
 var BigSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
     _super.init.call(this, ch, '<span class="large-operator non-leaf"><big>'+html+'</big></span>');
+    //FIXME HACK
+    if (ch === '\\sum ')
+      this.placeCursor = function(cursor) {
+        cursor.writeLatex('^{}_{n=}').appendTo(this.firstChild).show();
+      };
   };
   _.isEmpty = MathCommand.prototype.isEmpty;
   _.latex = function() {
