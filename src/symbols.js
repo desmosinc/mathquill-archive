@@ -272,6 +272,15 @@ var BinaryOperator = P(Symbol, function(_, _super) {
       ctrlSeq, '<span class="binary-operator">'+html+'</span>', text
     );
   };
+  _.createBefore = function(cursor) {
+    var ctrlSeq = cursor.prev.ctrlSeq + this.ctrlSeq;
+    if (ctrlSeq === '<=')
+      cursor.backspace().insertNew(BinaryOperator('\\le ', '&le;'));
+    else if (ctrlSeq === '>=')
+      cursor.backspace().insertNew(BinaryOperator('\\ge ', '&ge;'));
+    else
+      _super.createBefore.apply(this, arguments);
+  };
 });
 
 var PlusMinus = P(BinaryOperator, function(_) {
