@@ -97,21 +97,21 @@ var SupSub = P(MathCommand, function(_, _super) {
       this.up = this.firstChild;
       this.firstChild.down = insertBeforeUnlessAtEnd;
     }
-    function insertBeforeUnlessAtEnd(cursor) {
-      // cursor.insertBefore(cmd), unless cursor at the end of block, and every
-      // ancestor cmd is at the end of every ancestor block
-      var cmd = this.parent, ancestorCmd = cursor;
-      do {
-        if (ancestorCmd.next) {
-          cursor.insertBefore(cmd);
-          return false;
-        }
-        ancestorCmd = ancestorCmd.parent.parent;
-      } while (ancestorCmd !== cmd);
-      cursor.insertAfter(cmd);
-      return false;
-    }
   };
+  function insertBeforeUnlessAtEnd(cursor) {
+    // cursor.insertBefore(cmd), unless cursor at the end of block, and every
+    // ancestor cmd is at the end of every ancestor block
+    var cmd = this.parent, ancestorCmd = cursor;
+    do {
+      if (ancestorCmd.next) {
+        cursor.insertBefore(cmd);
+        return false;
+      }
+      ancestorCmd = ancestorCmd.parent.parent;
+    } while (ancestorCmd !== cmd);
+    cursor.insertAfter(cmd);
+    return false;
+  }
   _.latex = function() {
     var latex = this.firstChild.latex();
     if (latex.length === 1)
@@ -173,6 +173,25 @@ var SupSub = P(MathCommand, function(_, _super) {
         left: '',
         marginRight: ''
       });
+    }
+
+    if (this.respaced) {
+      if (this.ctrlSeq === '^') this.down = this.firstChild.down = this.prev.firstChild;
+      else this.up = this.firstChild.up = this.prev.firstChild;
+    }
+    else if (this.next.respaced) {
+      if (this.ctrlSeq === '_') this.up = this.firstChild.up = this.next.firstChild;
+      else this.down = this.firstChild.down = this.next.firstChild;
+    }
+    else {
+      if (this.ctrlSeq === '_') {
+        delete this.up;
+        this.firstChild.up = insertBeforeUnlessAtEnd;
+      }
+      else {
+        delete this.down;
+        this.firstChild.down = insertBeforeUnlessAtEnd;
+      }
     }
 
     if (this.next instanceof SupSub)
