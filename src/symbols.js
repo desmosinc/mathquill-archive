@@ -397,14 +397,28 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
 //sum, product, coproduct, integral
 var BigSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<big>'+html+'</big>');
+    _super.init.call(this, ch, '<span class="large-operator non-leaf"><big>'+html+'</big></span>');
+  };
+  _.isEmpty = MathCommand.prototype.isEmpty;
+  _.latex = function() {
+    var fromLatex = this.firstChild ? '_'+simplify(this.firstChild.latex()) : '',
+      toLatex = this.lastChild ? '^'+simplify(this.lastChild.latex()) : '';
+    return this.ctrlSeq + fromLatex + toLatex;
+
+    function simplify(latex) {
+      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
+    }
   };
 });
 
 LatexCmds['∑'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
 LatexCmds['∏'] = LatexCmds.prod = LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
 LatexCmds.coprod = LatexCmds.coproduct = bind(BigSymbol,'\\coprod ','&#8720;');
-LatexCmds['∫'] = LatexCmds['int'] = LatexCmds.integral = bind(BigSymbol,'\\int ','&int;');
+LatexCmds['∫'] = LatexCmds['int'] = LatexCmds.integral = P(BigSymbol, function(_) {
+  _.init = function() {
+    Symbol.prototype.init.call(this, '\\int ', '<big>&int;</big>');
+  };
+});
 
 
 

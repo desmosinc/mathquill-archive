@@ -89,6 +89,23 @@ var SupSub = P(MathCommand, function(_, _super) {
       this.ctrlSeq === '^' || this.ctrlSeq === '_'
     );
 
+    if (this.prev instanceof BigSymbol && this.prev.ctrlSeq !== '\\int ') {
+      var bigSym = this.prev, block = this.firstChild;
+      if (this.ctrlSeq === '_') {
+        block.adopt(bigSym, 0, bigSym.firstChild);
+        $('<span class="from"></span>').append(block.jQ.removeClass('sub'))
+        .appendTo(bigSym.jQ);
+      }
+      else {
+        block.adopt(bigSym, bigSym.lastChild, 0);
+        $('<span class="to"></span>').append(block.jQ.removeClass('sup'))
+        .prependTo(bigSym.jQ);
+      }
+      this.disown();
+      this.placeCursor = function(cursor) { cursor.appendTo(block); };
+      return;
+    }
+
     if (this.ctrlSeq === '_') {
       this.down = this.firstChild;
       this.firstChild.up = insertBeforeUnlessAtEnd;
