@@ -376,6 +376,17 @@ var Bracket = P(MathCommand, function(_, _super) {
     var jQ = this.jQ;
     this.bracketjQs = jQ.children(':first').add(jQ.children(':last'));
   };
+  //When typed, auto-expand paren to end of block
+  _.finalizeTree = function() {
+    if (this.firstChild.isEmpty() && this.next) {
+      var nextAll = MathFragment(this.next, this.parent.lastChild).disown();
+      nextAll.adopt(this.firstChild, 0, 0);
+      nextAll.jQ.appendTo(this.firstChild.jQ);
+    }
+  };
+  _.placeCursor = function(cursor) {
+    cursor.prependTo(this.firstChild);
+  };
   _.latex = function() {
     return this.ctrlSeq + this.firstChild.latex() + this.end;
   };
@@ -438,14 +449,28 @@ LatexCmds.lang = bind(Bracket, '&lang;','&rang;','\\langle ','\\rangle ');
 // Closing bracket matching opening bracket above
 var CloseBracket = P(Bracket, function(_, _super) {
   _.createBefore = function(cursor) {
-    // if I'm at the end of my parent who is a matching open-paren,
-    // and I am not replacing a selection fragment, don't create me,
-    // just put cursor after my parent
-    if (!cursor.next && cursor.parent.parent && cursor.parent.parent.end === this.end && !this.replacedFragment)
-      cursor.insertAfter(cursor.parent.parent);
-    else
+    // if I'm replacing a selection fragment, just wrap in parens
+    if (this.replacedFragment) return _super.createBefore.call(this, cursor);
+
+    // elsewise, if my parent is a matching open-paren, then close it here,
+    // i.e. move everything after me in the open-paren to after the parens
+    var openParen = cursor.parent.parent;
+    if (openParen.ctrlSeq === this.ctrlSeq) {
+      if (cursor.next) {
+        var nextAll = MathFragment(cursor.next, openParen.firstChild.lastChild).disown();
+        nextAll.adopt(openParen.parent, openParen, openParen.next);
+        nextAll.jQ.insertAfter(openParen.jQ);
+      }
+      cursor.insertAfter(openParen);
+    }
+    // or if not, make empty paren group and put cursor inside it
+    // (I think this behavior is weird - Han)
+    else {
       _super.createBefore.call(this, cursor);
+      cursor.appendTo(this.firstChild); // FIXME HACK
+    }
   };
+  _.finalizeTree = noop;
   _.placeCursor = function(cursor) {
     this.firstChild.blur();
     cursor.insertAfter(this);
@@ -487,7 +512,7 @@ CharCmds['|'] = P(Paren, function(_, _super) {
     _super.init.call(this, '|', '|');
   }
 
-  _.createBefore = CloseBracket.prototype.createBefore;
+  _.createBefore = MathCommand.prototype.createBefore;
 });
 
 var TextBlock =
