@@ -191,6 +191,9 @@ function createRoot(jQ, root, textbox, editable) {
   jQ.bind('select_all', function(e) {
     cursor.prepareMove().appendTo(root);
     while (cursor.prev) cursor.selectLeft();
+  })
+  .bind('paste', function(e, customPasteText) {
+    textarea.val(customPasteText);
   });
 }
 
