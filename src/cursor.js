@@ -389,12 +389,16 @@ var Cursor = P(function(_) {
     else if (this.prev) {
       if (this.prev.isEmpty())
         this.prev = this.prev.remove().prev;
+      else if (this.prev instanceof Bracket)
+        return this.appendTo(this.prev.firstChild).deleteForward();
       else
         this.selectLeft();
     }
     else if (this.parent !== this.root) {
       if (this.parent.parent.isEmpty())
         return this.insertAfter(this.parent.parent).backspace();
+      else if (this.next instanceof Bracket)
+        return this.prependTo(this.next.firstChild).backspace();
       else
         this.unwrapGramp();
     }
