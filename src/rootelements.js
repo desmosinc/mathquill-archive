@@ -187,6 +187,11 @@ function createRoot(jQ, root, textbox, editable) {
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
   }).blur();
+
+  jQ.bind('select_all', function(e) {
+    cursor.prepareMove().appendTo(root);
+    while (cursor.prev) cursor.selectLeft();
+  });
 }
 
 var RootMathBlock = P(MathBlock, function(_, _super) {
