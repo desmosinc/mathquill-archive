@@ -152,9 +152,6 @@ function createRoot(jQ, root, textbox, editable) {
       if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
         text = text.slice(1, -1);
       }
-      else {
-        text = '\\text{' + text + '}';
-      }
 
       cursor.writeLatex(text).show();
       root.triggerSpecialEvent('render');
