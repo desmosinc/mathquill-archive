@@ -297,7 +297,8 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
           prev instanceof TextBlock ||
           prev instanceof BigSymbol ||
           prev.ctrlSeq === ',' ||
-          prev.ctrlSeq === ':'
+          prev.ctrlSeq === ':' ||
+          prev.ctrlSeq === '\\space '
         ) //lookbehind for operator
       )
         prev = prev.prev;
