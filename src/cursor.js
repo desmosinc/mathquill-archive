@@ -296,7 +296,7 @@ var Cursor = P(function(_) {
   };
   _.insertCh = function(ch) {
     var cmd;
-    if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
+    if (ch.match(/^[a-z]$/i))
       cmd = Variable(ch);
     else if (cmd = CharCmds[ch] || LatexCmds[ch])
       cmd = cmd(ch);
