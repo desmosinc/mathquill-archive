@@ -192,8 +192,13 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.prepareMove().appendTo(root);
     while (cursor.prev) cursor.selectLeft();
   })
-  .bind('paste', function(e, customPasteText) {
-    textarea.val(customPasteText);
+  .bind('custom_paste', function(e, text) {
+    if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
+      text = text.slice(1, -1);
+    }
+
+    cursor.writeLatex(text).show();
+    root.triggerSpecialEvent('render');
   });
 }
 
