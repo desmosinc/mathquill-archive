@@ -156,14 +156,14 @@ var SupSub = P(MathCommand, function(_, _super) {
         && this.prev.prev && this.prev.prev.ctrlSeq === '\\int '
       )
     ) {
-      if (!this.int) {
-        this.int = true;
+      if (!this['int']) {
+        this['int'] = true;
         this.jQ.addClass('int');
       }
     }
     else {
-      if (this.int) {
-        this.int = false;
+      if (this['int']) {
+        this['int'] = false;
         this.jQ.removeClass('int');
       }
     }
@@ -174,12 +174,12 @@ var SupSub = P(MathCommand, function(_, _super) {
         prevWidth = this.prev.jQ.outerWidth(),
         thisWidth = this.jQ.outerWidth();
       this.jQ.css({
-        left: (this.int && this.ctrlSeq === '_' ? -.25 : 0) - prevWidth/fontSize + 'em',
+        left: (this['int'] && this.ctrlSeq === '_' ? -.25 : 0) - prevWidth/fontSize + 'em',
         marginRight: .1 - min(thisWidth, prevWidth)/fontSize + 'em'
           //1px extra so it doesn't wrap in retarded browsers (Firefox 2, I think)
       });
     }
-    else if (this.int && this.ctrlSeq === '_') {
+    else if (this['int'] && this.ctrlSeq === '_') {
       this.jQ.css({
         left: '-.25em',
         marginRight: ''
