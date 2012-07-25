@@ -102,11 +102,11 @@ var Cursor = P(function(_) {
     if (this.prev) {
       // FIXME HACKS: skip respaced exponents, because we're pretending they're
       // part of the same command as their corresponding subscripts,
-      // and \sum's top child is last rather than first
+      // and BigSymbol's top child is last rather than first
       if (this.prev.ctrlSeq === '_' && this.prev.respaced) {
         this.appendTo(this.prev.prev.firstChild);
       }
-      else if (this.prev.ctrlSeq === '\\sum ') this.appendTo(this.prev.lastChild);
+      else if (this.prev instanceof BigSymbol && this.prev.ctrlSeq !== '\\int ') this.appendTo(this.prev.lastChild);
       else if (this.prev.lastChild) this.appendTo(this.prev.firstChild)
       else this.hopLeft();
     }
@@ -119,11 +119,11 @@ var Cursor = P(function(_) {
     if (this.next) {
       // FIXME HACK skip respaced subscripts, because we're pretending they're
       // part of the same command as their corresponding exponents,
-      // and \sum's top child is last rather than first
+      // and BigSymbol's top child is last rather than first
       if (this.next.ctrlSeq === '_' && this.next.next.respaced) {
         this.prependTo(this.next.next.firstChild);
       }
-      else if (this.next.ctrlSeq === '\\sum ') this.prependTo(this.next.lastChild);
+      else if (this.prev instanceof BigSymbol && this.prev.ctrlSeq !== '\\int ') this.prependTo(this.next.lastChild);
       else if (this.next.firstChild) this.prependTo(this.next.firstChild)
       else this.hopRight();
     }
