@@ -515,7 +515,13 @@ CharCmds['|'] = P(Paren, function(_, _super) {
     _super.init.call(this, '|', '|');
   }
 
-  _.createBefore = MathCommand.prototype.createBefore;
+  _.createBefore = function(cursor) {
+    if (!cursor.next && cursor.parent.parent && cursor.parent.parent.end === this.end && !this.replacedFragment)
+      cursor.insertAfter(cursor.parent.parent);
+    else
+      MathCommand.prototype.createBefore.call(this, cursor);
+  };
+  _.finalizeTree = noop;
 });
 
 var TextBlock =
