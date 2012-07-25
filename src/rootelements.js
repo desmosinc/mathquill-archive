@@ -385,6 +385,16 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     return false;
   };
   _.onText = function(ch) {
+    //Hack by Eli: don't exponentiate if there's nothing before the cursor
+    if ((ch == '^' || ch == '_') && !this.cursor.prev) return;
+
+    //Hack #2 by Eli: if you type '+' or '-' or '=' in an exponent, break out of it
+    if ((ch == '+' || ch == '=' || ch == '-') && this.cursor.parent.parent.ctrlSeq === '^'
+      && !this.cursor.next && this.cursor.prev
+    ) {
+      this.cursor.moveRight();
+    }
+
     this.cursor.write(ch);
     this.triggerSpecialEvent('render');
     return false;
