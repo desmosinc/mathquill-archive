@@ -122,11 +122,12 @@ var UnItalicizedCmds = {
   sign: 1
 }, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
   sqrt: 1,
+  nthroot: 1,
   sum: 1,
   pi: 1,
   theta: 1/*,
   int: 1*/
-}, MAX_AUTOCMD_LEN = 5;
+}, MAX_AUTOCMD_LEN = 7;
 
 (function() {
   var trigs = { sin: 1, cos: 1, tan: 1, sec: 1, cosec: 1, csc: 1, cotan: 1, cot: 1, ctg: 1 };
