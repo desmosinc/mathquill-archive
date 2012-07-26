@@ -293,7 +293,7 @@ var Cursor = P(function(_) {
       self.parent.bubble('redraw');
     }
 
-    return this.hide();
+    return this;
   };
   _.write = function(ch) {
     clearUpDownCache(this);
