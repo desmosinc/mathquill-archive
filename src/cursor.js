@@ -100,28 +100,36 @@ var Cursor = P(function(_) {
   };
   _.moveLeftWithin = function(block) {
     if (this.prev) {
-      if (this.prev.lastChild) this.appendTo(this.prev.lastChild)
+      // FIXME HACKS: skip respaced exponents, because we're pretending they're
+      // part of the same command as their corresponding subscripts,
+      // and \sum's top child is last rather than first
+      if (this.prev.ctrlSeq === '_' && this.prev.respaced) {
+        this.appendTo(this.prev.prev.firstChild);
+      }
+      else if (this.prev.ctrlSeq === '\\sum ') this.appendTo(this.prev.lastChild);
+      else if (this.prev.lastChild) this.appendTo(this.prev.firstChild)
       else this.hopLeft();
     }
     else {
-      // we're at the beginning of the containing block, so do nothing.
-      if (this.parent === block) return;
-
-      if (this.parent.prev) this.appendTo(this.parent.prev);
-      else this.insertBefore(this.parent.parent);
+      // unless we're at the beginning of the containing block, escape left
+      if (this.parent !== block) this.insertBefore(this.parent.parent);
     }
   };
   _.moveRightWithin = function(block) {
     if (this.next) {
-      if (this.next.firstChild) this.prependTo(this.next.firstChild)
+      // FIXME HACK skip respaced subscripts, because we're pretending they're
+      // part of the same command as their corresponding exponents,
+      // and \sum's top child is last rather than first
+      if (this.next.ctrlSeq === '_' && this.next.next.respaced) {
+        this.prependTo(this.next.next.firstChild);
+      }
+      else if (this.next.ctrlSeq === '\\sum ') this.prependTo(this.next.lastChild);
+      else if (this.next.firstChild) this.prependTo(this.next.firstChild)
       else this.hopRight();
     }
     else {
-      // we're at the end of the containing block, so do nothing.
-      if (this.parent === block) return;
-
-      if (this.parent.next) this.prependTo(this.parent.next);
-      else this.insertAfter(this.parent.parent);
+      // unless we're at the beginning of the containing block, escape left
+      if (this.parent !== block) this.insertAfter(this.parent.parent);
     }
   };
   _.moveLeft = function() {
