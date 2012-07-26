@@ -199,6 +199,46 @@ var SupSub = P(MathCommand, function(_, _super) {
 
     return this;
   };
+
+  _.onKey = function(key, e) {
+    if (this.getCursor().parent.parent !== this) return;
+
+    switch (key) {
+    case 'Tab':
+      if (this.next.respaced) {
+        this.getCursor().prepareMove().prependTo(this.next.firstChild);
+        e.preventDefault();
+        return false;
+      }
+      break;
+    case 'Shift-Tab':
+      if (this.respaced) {
+        this.getCursor().prepareMove().appendTo(this.prev.firstChild);
+        e.preventDefault();
+        return false;
+      }
+      break;
+    case 'Left':
+      if (!this.getCursor().prev && this.respaced) {
+        this.getCursor().prepareMove().insertBefore(this.prev);
+        return false;
+      }
+      break;
+    case 'Right':
+      if (!this.getCursor().next && this.next.respaced) {
+        this.getCursor().prepareMove().insertAfter(this.next);
+        return false;
+      }
+    }
+  };
+  _.getCursor = function() {
+    var cursor;
+    for (var ancestor = this.parent; !cursor; ancestor = ancestor.parent) {
+      cursor = ancestor.cursor;
+    }
+    this.getCursor = function() { return cursor; };
+    return this.getCursor();
+  };
 });
 
 LatexCmds.subscript =
