@@ -29,9 +29,10 @@ var Variable = P(Symbol, function(_, _super) {
 
     //want the longest possible autocommand, so assemble longest series of letters (Variables)
     var ctrlSeq = this.ctrlSeq;
-    for (var prev = this.prev; prev instanceof Variable; prev = prev.prev)
+    if (ctrlSeq.length > 1) return;
+    for (var prev = this.prev; prev instanceof Variable && prev.ctrlSeq.length === 1; prev = prev.prev)
       ctrlSeq = prev.ctrlSeq + ctrlSeq;
-    for (var next = this.next; next instanceof Variable; next = next.next)
+    for (var next = this.next; next instanceof Variable && next.ctrlSeq.length === 1; next = next.next)
       ctrlSeq += next.ctrlSeq;
 
     //removeClass from all the things before figuring out what's an autocmd, if any
