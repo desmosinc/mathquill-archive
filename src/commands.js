@@ -360,6 +360,30 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   _.latex = function() {
     return '\\sqrt['+this.firstChild.latex()+']{'+this.lastChild.latex()+'}';
   };
+  _.onKey = function(key, e) {
+    if (this.getCursor().parent.parent !== this) return;
+
+    switch (key) {
+    case 'Right':
+      if (this.getCursor().next) return;
+    case 'Tab':
+      if (this.getCursor().parent === this.firstChild) {
+        this.getCursor().prepareMove().prependTo(this.lastChild);
+        e.preventDefault();
+        return false;
+      }
+      break;
+    case 'Left':
+      if (this.getCursor().prev) return;
+    case 'Shift-Tab':
+      if (this.getCursor().parent === this.lastChild) {
+        this.getCursor().prepareMove().appendTo(this.firstChild);
+        e.preventDefault();
+        return false;
+      }
+    }
+  };
+  _.getCursor = SupSub.prototype.getCursor;
 });
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)

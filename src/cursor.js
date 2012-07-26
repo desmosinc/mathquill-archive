@@ -102,11 +102,16 @@ var Cursor = P(function(_) {
     if (this.prev) {
       // FIXME HACKS: skip respaced exponents, because we're pretending they're
       // part of the same command as their corresponding subscripts,
-      // and BigSymbol's top child is last rather than first
+      // and BigSymbol's top child is last rather than first,
+      // and from the right moving left, we want to go into NthRoot's body,
+      // which is its lastChild.
       if (this.prev.ctrlSeq === '_' && this.prev.respaced) {
         this.appendTo(this.prev.prev.firstChild);
       }
-      else if (this.prev instanceof BigSymbol && this.prev.ctrlSeq !== '\\int ') this.appendTo(this.prev.lastChild);
+      else if (
+        this.prev instanceof NthRoot
+        || (this.prev instanceof BigSymbol && this.prev.ctrlSeq !== '\\int ')
+      ) this.appendTo(this.prev.lastChild);
       else if (this.prev.lastChild) this.appendTo(this.prev.firstChild)
       else this.hopLeft();
     }
