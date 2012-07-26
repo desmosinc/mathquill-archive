@@ -392,8 +392,12 @@ var Cursor = P(function(_) {
 
     if (this.deleteSelection()); // pass
     else if (this.prev) {
-      if (this.prev.isEmpty())
+      if (this.prev.isEmpty()) {
+        if (this.prev.ctrlSeq === '\\le ') var ins = LatexCmds['<']('<');
+        else if (this.prev.ctrlSeq === '\\ge ') var ins = LatexCmds['>']('>');
         this.prev = this.prev.remove().prev;
+        if (ins) this.insertNew(ins);
+      }
       else if (this.prev instanceof Bracket)
         return this.appendTo(this.prev.firstChild).deleteForward();
       else
