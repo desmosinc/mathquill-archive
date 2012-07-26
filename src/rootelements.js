@@ -92,7 +92,7 @@ function createRoot(jQ, root, textbox, editable) {
       $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
-    setTimeout(function() { textarea.focus(); });
+    setTimeout(function() { if (root.blurred) textarea.focus(); });
       // preventDefault won't prevent focus on mousedown in IE<9
       // that means immediately after this mousedown, whatever was
       // mousedown-ed will receive focus
@@ -167,6 +167,7 @@ function createRoot(jQ, root, textbox, editable) {
 
   //focus and blur handling
   textarea.focus(function(e) {
+    root.blurred = false;
     if (!cursor.parent)
       cursor.appendTo(root);
     cursor.parent.jQ.addClass('hasCursor');
@@ -176,16 +177,11 @@ function createRoot(jQ, root, textbox, editable) {
     }
     else
       cursor.show();
-    e.stopPropagation();
   }).blur(function(e) {
+    root.blurred = true;
     cursor.hide().parent.blur();
     if (cursor.selection)
       cursor.selection.jQ.addClass('blur');
-    e.stopPropagation();
-  });
-
-  jQ.bind('focus.mathquill blur.mathquill', function(e) {
-    textarea.trigger(e);
   }).blur();
 
   jQ.bind('select_all', function(e) {

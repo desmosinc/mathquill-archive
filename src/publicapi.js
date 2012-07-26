@@ -6,6 +6,14 @@
 //called) on jQuery-wrapped HTML DOM elements.
 $.fn.mathquill = function(cmd, latex) {
   switch (cmd) {
+  case 'focus':
+  case 'blur':
+    return this.each(function() {
+      var blockId = $(this).attr(mqBlockId),
+        block = blockId && MathElement[blockId];
+      if (block && block.textarea)
+        block.textarea.children().trigger(cmd);
+    });
   case 'redraw':
     return this.each(function() {
       var blockId = $(this).attr(mqBlockId),
