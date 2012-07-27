@@ -424,28 +424,6 @@ var BigSymbol = P(Symbol, function(_, _super) {
       return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
     }
   };
-  _.finalizeTree = function() {
-    this.up = this.lastChild;
-    this.lastChild.down = insertAfterUnlessAtBeginning;
-
-    this.down = this.firstChild;
-    this.firstChild.up = insertAfterUnlessAtBeginning;
-
-    function insertAfterUnlessAtBeginning(cursor) {
-      // cursor.insertAfter(cmd), unless cursor at the beginning of block, and every
-      // ancestor cmd is at the beginning of every ancestor block
-      var cmd = this.parent, ancestorCmd = cursor;
-      do {
-        if (ancestorCmd.prev) {
-          cursor.insertAfter(cmd);
-          return false;
-        }
-        ancestorCmd = ancestorCmd.parent.parent;
-      } while (ancestorCmd !== cmd);
-      cursor.insertBefore(cmd);
-      return false;
-    }
-  };
 });
 
 LatexCmds['∑'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');

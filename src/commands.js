@@ -95,13 +95,18 @@ var SupSub = P(MathCommand, function(_, _super) {
         block.adopt(bigSym, 0, bigSym.firstChild);
         $('<span class="from"></span>').append(block.jQ.removeClass('sub'))
         .appendTo(bigSym.jQ);
+        bigSym.down = block;
+        block.up = insertAfterUnlessAtBeginning;
       }
       else {
         block.adopt(bigSym, bigSym.lastChild, 0);
         $('<span class="to"></span>').append(block.jQ.removeClass('sup'))
         .prependTo(bigSym.jQ);
+        bigSym.up = block;
+        block.down = insertAfterUnlessAtBeginning;
       }
       this.disown();
+      this.respace = noop; // don't let SupSub::respace reset the .up/.down ptrs
       return;
     }
 
@@ -114,6 +119,20 @@ var SupSub = P(MathCommand, function(_, _super) {
       this.firstChild.down = insertBeforeUnlessAtEnd;
     }
   };
+  function insertAfterUnlessAtBeginning(cursor) {
+    // cursor.insertAfter(cmd), unless cursor at the beginning of block, and every
+    // ancestor cmd is at the beginning of every ancestor block
+    var cmd = this.parent, ancestorCmd = cursor;
+    do {
+      if (ancestorCmd.prev) {
+        cursor.insertAfter(cmd);
+        return false;
+      }
+      ancestorCmd = ancestorCmd.parent.parent;
+    } while (ancestorCmd !== cmd);
+    cursor.insertBefore(cmd);
+    return false;
+  }
   function insertBeforeUnlessAtEnd(cursor) {
     // cursor.insertBefore(cmd), unless cursor at the end of block, and every
     // ancestor cmd is at the end of every ancestor block
