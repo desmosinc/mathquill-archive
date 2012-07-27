@@ -128,7 +128,7 @@ var Cursor = P(function(_) {
       if (this.next.ctrlSeq === '_' && this.next.next.respaced) {
         this.prependTo(this.next.next.firstChild);
       }
-      else if (this.prev instanceof BigSymbol && this.prev.ctrlSeq !== '\\int ') this.prependTo(this.next.lastChild);
+      else if (this.next instanceof BigSymbol && this.next.ctrlSeq !== '\\int ') this.prependTo(this.next.lastChild);
       else if (this.next.firstChild) this.prependTo(this.next.firstChild)
       else this.hopRight();
     }
