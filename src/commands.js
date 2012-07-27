@@ -102,7 +102,6 @@ var SupSub = P(MathCommand, function(_, _super) {
         .prependTo(bigSym.jQ);
       }
       this.disown();
-      this.placeCursor = function(cursor) { cursor.appendTo(block); };
       return;
     }
 
