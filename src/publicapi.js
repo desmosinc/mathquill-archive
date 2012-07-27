@@ -93,6 +93,12 @@ $.fn.mathquill = function(cmd, latex) {
     if (block && block.cursor)
       block.cursor.appendTo(block);
     break;
+  case 'selection':
+    var blockId = $(this).attr(mqBlockId),
+      block = blockId && MathElement[blockId],
+      cursor = block && block.cursor;
+    if (!cursor) return;
+    return cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
   default:
     var textbox = cmd === 'textbox',
       editable = textbox || cmd === 'editable',
