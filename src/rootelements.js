@@ -354,6 +354,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       while (this.cursor.next || this.cursor.selection) {
         this.cursor.deleteForward();
       }
+      this.triggerSpecialEvent('render');
       break;
 
     case 'Shift-Del':
