@@ -8,6 +8,68 @@ var Variable = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
     _super.init.call(this, ch, '<var>'+(html || ch)+'</var>');
   }
+  _.createBefore = function(cursor) {
+    //want the longest possible autocommand, so assemble longest series of letters (Variables) first
+    var ctrlSeq = this.ctrlSeq;
+    for (var i = 0, prev = cursor.prev; i < MAX_AUTOCMD_LEN - 1 && prev && prev instanceof Variable; i += 1, prev = prev.prev)
+      ctrlSeq = prev.ctrlSeq + ctrlSeq;
+    //then test if there's an autocommand here, starting with the longest possible and slicing
+    while (ctrlSeq.length) {
+      if (AutoCmds.hasOwnProperty(ctrlSeq)) {
+        for (var i = 1; i < ctrlSeq.length; i += 1) cursor.backspace();
+        cursor.insertNew(LatexCmds[ctrlSeq](ctrlSeq));
+        return;
+      }
+      ctrlSeq = ctrlSeq.slice(1);
+    }
+    _super.createBefore.apply(this, arguments);
+  };
+  _.respace =
+  _.finalizeTree = function() {
+    //TODO: in better architecture, should be done in createBefore and backspace
+    //respace is called too often, inefficient
+
+    //want the longest possible autocommand, so assemble longest series of letters (Variables)
+    var ctrlSeq = this.ctrlSeq;
+    for (var prev = this.prev; prev instanceof Variable; prev = prev.prev)
+      ctrlSeq = prev.ctrlSeq + ctrlSeq;
+    for (var next = this.next; next instanceof Variable; next = next.next)
+      ctrlSeq += next.ctrlSeq;
+
+    //removeClass from all the things before figuring out what's an autocmd, if any
+    MathFragment(prev.next || this.parent.firstChild, next.prev || this.parent.lastChild)
+    .each(function(el) {
+      el.jQ.removeClass('un-italicized last');
+      delete el.isFirstLetter;
+      delete el.isLastLetter;
+    });
+
+    //test if there's an autocommand here, going through substrings from longest to shortest
+    outer: for (var i = 0, first = prev.next || this.parent.firstChild; i < ctrlSeq.length; i += 1, first = first.next) {
+      for (var len = min(MAX_UNITALICIZED_LEN, ctrlSeq.length - i); len > 0; len -= 1) {
+        if (UnItalicizedCmds.hasOwnProperty(ctrlSeq.slice(i, i + len))) {
+          first.isFirstLetter = true;
+          for (var j = 0, letter = first; j < len; j += 1, letter = letter.next) {
+            letter.jQ.addClass('un-italicized');
+            var last = letter;
+          }
+          last.isLastLetter = true;
+          if (!(last.next instanceof SupSub || last.next instanceof Bracket))
+            last.jQ.addClass('last');
+          i += len - 1;
+          first = last;
+          continue outer;
+        }
+      }
+    }
+  };
+  _.latex = function() {
+    return (
+      this.isFirstLetter ? '\\' + this.ctrlSeq :
+      this.isLastLetter ? this.ctrlSeq + ' ' :
+      this.ctrlSeq
+    );
+  };
   _.text = function() {
     var text = this.ctrlSeq;
     if (this.prev && !(this.prev instanceof Variable)
@@ -19,6 +81,67 @@ var Variable = P(Symbol, function(_, _super) {
     return text;
   };
 });
+
+var UnItalicized = P(Symbol, function(_, _super) {
+  _.init = function(fn) {
+    this.ctrlSeq = fn;
+  };
+  _.createBefore = function(cursor) {
+    cursor.writeLatex(this.ctrlSeq).show();
+  };
+  _.parser = function() {
+    var fn = this.ctrlSeq;
+    var block = MathBlock();
+    for (var i = 0; i < fn.length; i += 1) {
+      Variable(fn.charAt(i)).adopt(block, block.lastChild, 0);
+    }
+    return Parser.succeed(block.children());
+  };
+});
+
+//backslashless commands, words where adjacent letters (Variables)
+//that form them automatically are turned into commands
+var UnItalicizedCmds = {
+  ln: 1,
+  log: 1,
+  min: 1,
+  nCr: 1,
+  nPr: 1,
+  gcd: 1,
+  lcm: 1,
+  ceil: 1,
+  exp: 1,
+  abs: 1,
+  max: 1,
+  mod: 1,
+  lcm: 1,
+  gcd: 1,
+  gcf: 1,
+  hcf: 1,
+  lim: 1,
+  exp: 1,
+  floor: 1,
+  sign: 1
+}, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
+  sqrt: 1,
+  sum: 1,
+  pi: 1,
+  theta: 1,
+  int: 1
+}, MAX_AUTOCMD_LEN = 5;
+
+(function() {
+  var trigs = { sin: 1, cos: 1, tan: 1, sec: 1, cosec: 1, csc: 1, cotan: 1, cot: 1, ctg: 1 };
+  for (var trig in trigs) {
+    UnItalicizedCmds[trig] =
+    UnItalicizedCmds['arc'+trig] =
+    UnItalicizedCmds[trig+'h'] =
+    UnItalicizedCmds['arc'+trig+'h'] = 1;
+  }
+
+  for (var fn in UnItalicizedCmds)
+    LatexCmds[fn] = UnItalicized;
+}());
 
 var VanillaSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
@@ -116,6 +239,7 @@ LatexCmds.varrho = //AMS and LaTeX
 
 //Greek constants, look best in un-italicised Times New Roman
 LatexCmds.pi = LatexCmds['π'] = bind(NonSymbolaSymbol,'\\pi ','&pi;');
+LatexCmds.theta = LatexCmds['θ'] = bind(NonSymbolaSymbol,'\\theta ','&theta;');
 LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','&lambda;');
 
 //uppercase greek letters
@@ -387,7 +511,7 @@ LatexCmds.rightharpoondown = bind(VanillaSymbol, '\\rightharpoondown ', '&#8641;
 LatexCmds.nwarrow = bind(VanillaSymbol, '\\nwarrow ', '&#8598;');
 
 //Misc
-LatexCmds.space = bind(VanillaSymbol, '\\space', '&nbsp;');
+LatexCmds.space = bind(VanillaSymbol, '\\space ', '&nbsp;');
 LatexCmds.ldots = bind(VanillaSymbol, '\\ldots ', '&#8230;');
 LatexCmds.cdots = bind(VanillaSymbol, '\\cdots ', '&#8943;');
 LatexCmds.vdots = bind(VanillaSymbol, '\\vdots ', '&#8942;');
@@ -528,44 +652,3 @@ LatexCmds.cap = LatexCmds.intersect = LatexCmds.intersection =
 LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
 
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
-
-
-var NonItalicizedFunction = P(Symbol, function(_, _super) {
-  _.init = function(fn) {
-    _super.init.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
-  };
-  _.respace = function()
-  {
-    this.jQ[0].className =
-      (this.next instanceof SupSub || this.next instanceof Bracket) ?
-      '' : 'non-italicized-function';
-  };
-});
-
-LatexCmds.ln =
-LatexCmds.lg =
-LatexCmds.log =
-LatexCmds.span =
-LatexCmds.proj =
-LatexCmds.det =
-LatexCmds.dim =
-LatexCmds.min =
-LatexCmds.max =
-LatexCmds.mod =
-LatexCmds.lcm =
-LatexCmds.gcd =
-LatexCmds.gcf =
-LatexCmds.hcf =
-LatexCmds.lim = NonItalicizedFunction;
-
-(function() {
-  var trig = ['sin', 'cos', 'tan', 'sec', 'cosec', 'csc', 'cotan', 'cot'];
-  for (var i in trig) {
-    LatexCmds[trig[i]] =
-    LatexCmds[trig[i]+'h'] =
-    LatexCmds['a'+trig[i]] = LatexCmds['arc'+trig[i]] =
-    LatexCmds['a'+trig[i]+'h'] = LatexCmds['arc'+trig[i]+'h'] =
-      NonItalicizedFunction;
-  }
-}());
-
