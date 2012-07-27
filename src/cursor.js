@@ -100,18 +100,10 @@ var Cursor = P(function(_) {
   };
   _.moveLeftWithin = function(block) {
     if (this.prev) {
-      // FIXME HACKS: skip respaced exponents, because we're pretending they're
-      // part of the same command as their corresponding subscripts,
-      // and BigSymbol's top child is last rather than first,
-      // and from the right moving left, we want to go into NthRoot's body,
+      // FIXME HACK: when moving right to left, want to go into NthRoot's body,
       // which is its lastChild.
-      if (this.prev.ctrlSeq === '_' && this.prev.respaced) {
-        this.appendTo(this.prev.prev.firstChild);
-      }
-      else if (
-        this.prev instanceof NthRoot
-        || (this.prev instanceof BigSymbol && this.prev.ctrlSeq !== '\\int ')
-      ) this.appendTo(this.prev.lastChild);
+      if (this.prev instanceof NthRoot) this.appendTo(this.prev.lastChild);
+      else if (this.prev.up instanceof MathBlock) this.appendTo(this.prev.up);
       else if (this.prev.firstChild) this.appendTo(this.prev.firstChild)
       else this.hopLeft();
     }
@@ -122,13 +114,7 @@ var Cursor = P(function(_) {
   };
   _.moveRightWithin = function(block) {
     if (this.next) {
-      // FIXME HACK skip respaced subscripts, because we're pretending they're
-      // part of the same command as their corresponding exponents,
-      // and BigSymbol's top child is last rather than first
-      if (this.next.ctrlSeq === '_' && this.next.next.respaced) {
-        this.prependTo(this.next.next.firstChild);
-      }
-      else if (this.next instanceof BigSymbol && this.next.ctrlSeq !== '\\int ') this.prependTo(this.next.lastChild);
+      if (this.next.up instanceof MathBlock) this.prependTo(this.next.up);
       else if (this.next.firstChild) this.prependTo(this.next.firstChild)
       else this.hopRight();
     }
