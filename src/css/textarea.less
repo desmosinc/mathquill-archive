@@ -15,4 +15,13 @@
     position: absolute;
     clip: rect(1em 1em 1em 1em);
   }
+  // to be focusable, need to be visible, i.e. nonzero height/width;
+  // Mobile Safari needs tabindex=0 span instead of textarea to not
+  // pull up on-screen keyboard
+  .textarea span {
+    position: absolute;
+    display: inline-block;
+    height: 1px;
+    width: 1px;
+  }
 }
