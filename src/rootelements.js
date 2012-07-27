@@ -213,7 +213,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     jQ.children().slice(1).remove();
     this.firstChild = this.lastChild = 0;
 
-    this.cursor.writeLatex(latex);
+    this.cursor.appendTo(this).writeLatex(latex);
   };
   _.up = function() { this.triggerSpecialEvent('upPressed'); };
   _.down = function() { this.triggerSpecialEvent('downPressed'); };
