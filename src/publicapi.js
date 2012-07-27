@@ -99,6 +99,16 @@ $.fn.mathquill = function(cmd, latex) {
       cursor = block && block.cursor;
     if (!cursor) return;
     return cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
+  case 'clearSelection':
+    return this.each(function() {
+      var blockId = $(this).attr(mqBlockId),
+        block = blockId && MathElement[blockId],
+        cursor = block && block.cursor;
+      if (cursor) {
+        cursor.clearSelection();
+        if (block.blurred) cursor.hide().parent.blur();
+      }
+    });
   default:
     var textbox = cmd === 'textbox',
       editable = textbox || cmd === 'editable',
