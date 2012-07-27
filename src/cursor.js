@@ -112,7 +112,7 @@ var Cursor = P(function(_) {
         this.prev instanceof NthRoot
         || (this.prev instanceof BigSymbol && this.prev.ctrlSeq !== '\\int ')
       ) this.appendTo(this.prev.lastChild);
-      else if (this.prev.lastChild) this.appendTo(this.prev.firstChild)
+      else if (this.prev.firstChild) this.appendTo(this.prev.firstChild)
       else this.hopLeft();
     }
     else {
