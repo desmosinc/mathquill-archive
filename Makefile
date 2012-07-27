@@ -100,7 +100,7 @@ test: dev $(BUILD_TEST)
 $(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO)
 	cat $^ > $@
 
-.PHONY dcg submodules
+.PHONY: dcg submodules
 dcg: submodules dev
 
 submodules:
