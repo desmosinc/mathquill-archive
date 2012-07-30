@@ -47,7 +47,7 @@ CLEAN += $(DIST)
 UGLIFY ?= uglifyjs
 UGLIFY_OPTS ?= --lift-vars
 
-LESSC ?= lessc
+LESSC ?= ./node_modules/less/bin/lessc
 LESS_OPTS ?=
 
 # environment constants
@@ -104,4 +104,4 @@ $(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO)
 dcg: submodules dev
 
 submodules:
-	cd "`git rev-parse --show-toplevel`" && git submodule update --init
+	cd "`git rev-parse --show-toplevel`" && git submodule update --init && npm install .
