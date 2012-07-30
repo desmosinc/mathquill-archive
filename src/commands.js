@@ -658,6 +658,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
       this.cursor.insertBefore(next);
       delete next.firstChild.focus;
     }
+    this.cursor.root.triggerSpecialEvent('render');
     return false;
   };
 });
@@ -796,6 +797,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.onKey = function(key, e) {
     if (key === 'Tab' || key === 'Enter') {
       this.renderCommand();
+      this.cursor.root.triggerSpecialEvent('render');
       e.preventDefault();
       return false;
     }
@@ -807,8 +809,10 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       return false;
     }
     this.renderCommand();
-    if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
+    if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty())) {
+      this.cursor.root.triggerSpecialEvent('render');
       return false;
+    }
   };
   _.renderCommand = function() {
     this.jQ = this.jQ.last();
