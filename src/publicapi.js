@@ -14,6 +14,18 @@ $.fn.mathquill = function(cmd, latex) {
       if (block && block.textarea)
         block.textarea.children().trigger(cmd);
     });
+  case 'onKey':
+  case 'onText':
+    return this.each(function() {
+      var blockId = $(this).attr(mqBlockId),
+        block = blockId && MathElement[blockId],
+        cursor = block && block.cursor;
+
+      if (cursor) {
+        cursor.parent.bubble(cmd, latex, { preventDefault: noop });
+        if (block.blurred) cursor.hide().parent.blur();
+      }
+    });
   case 'redraw':
     return this.each(function() {
       var blockId = $(this).attr(mqBlockId),
