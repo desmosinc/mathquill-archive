@@ -126,6 +126,7 @@ var UnItalicizedCmds = {
   sqrt: 1,
   nthroot: 1,
   sum: 1,
+  prod: 1,
   pi: 1,
   theta: 1/*,
   int: 1*/
