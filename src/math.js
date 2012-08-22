@@ -177,6 +177,10 @@ var MathCommand = P(MathElement, function(_, _super) {
     }));
   };
 
+  _.seek = function(pageX, cursor) {
+    cursor.insertAfter(this).seekHoriz(pageX, this.parent);
+  };
+
   // remove()
   _.remove = function() {
     this.disown()
@@ -330,6 +334,15 @@ var Symbol = P(MathCommand, function(_, _super) {
     replacedFragment.remove();
   };
   _.createBlocks = noop;
+
+  _.seek = function(pageX, cursor) {
+    // insert at whichever side the click was closer to
+    if (pageX - this.jQ.offset().left < this.jQ.outerWidth()/2)
+      cursor.insertBefore(this);
+    else
+      cursor.insertAfter(this);
+  };
+
   _.latex = function(){ return this.ctrlSeq; };
   _.text = function(){ return this.textTemplate; };
   _.placeCursor = noop;
@@ -356,6 +369,9 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.isEmpty = function() {
     return this.firstChild === 0 && this.lastChild === 0;
+  };
+  _.seek = function(pageX, cursor) {
+    cursor.appendTo(this).seekHoriz(pageX, this);
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');
