@@ -110,6 +110,7 @@ var Cursor = P(function(_) {
     else {
       // unless we're at the beginning of the containing block, escape left
       if (this.parent !== block) this.insertBefore(this.parent.parent);
+      else if (block.moveOutOf) block.moveOutOf('left', this);
     }
   };
   _.moveRightWithin = function(block) {
@@ -121,6 +122,7 @@ var Cursor = P(function(_) {
     else {
       // unless we're at the beginning of the containing block, escape left
       if (this.parent !== block) this.insertAfter(this.parent.parent);
+      else if (block.moveOutOf) block.moveOutOf('right', this);
     }
   };
   _.moveLeft = function() {
