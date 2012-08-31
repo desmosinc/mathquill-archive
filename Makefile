@@ -100,8 +100,13 @@ test: dev $(BUILD_TEST)
 $(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO)
 	cat $^ > $@
 
-.PHONY: dcg submodules
-dcg: submodules dev
+.PHONY: dcg
+dcg: .nodemodules .submodules dev
 
-submodules:
-	cd "`git rev-parse --show-toplevel`" && git submodule update --init && npm install .
+.submodules: .gitmodules
+	cd "`git rev-parse --show-toplevel`" && git submodule update --init
+	touch .submodules
+
+.nodemodules: package.json
+	npm install .
+	touch .nodemodules
