@@ -240,12 +240,11 @@ var Cursor = P(function(_) {
     var dist = offset(cursor).left - pageX;
     var prevDist;
 
-    do {
+    while (dist > 0 && (cursor.prev || cursor.parent !== block)) {
       cursor.moveLeftWithin(block);
       prevDist = dist;
       dist = offset(cursor).left - pageX;
     }
-    while (dist > 0 && (cursor.prev || cursor.parent !== block));
 
     if (-dist > prevDist) cursor.moveRightWithin(block);
 
