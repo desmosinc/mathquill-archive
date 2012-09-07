@@ -217,6 +217,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   };
   _.up = function() { this.triggerSpecialEvent('upPressed'); };
   _.down = function() { this.triggerSpecialEvent('downPressed'); };
+  _.moveOutOf = function(dir) { this.triggerSpecialEvent(dir+'Pressed'); };
   _.onKey = function(key, e) {
     switch (key) {
     case 'Ctrl-Shift-Backspace':
