@@ -505,8 +505,10 @@ var CloseBracket = P(Bracket, function(_, _super) {
         var nextAll = MathFragment(cursor.next, openParen.firstChild.lastChild).disown();
         nextAll.adopt(openParen.parent, openParen, openParen.next);
         nextAll.jQ.insertAfter(openParen.jQ);
+        if (cursor.next.respace) cursor.next.respace();
       }
       cursor.insertAfter(openParen);
+      openParen.bubble('redraw');
     }
     // or if not, make empty paren group and put cursor inside it
     // (I think this behavior is weird - Han)
