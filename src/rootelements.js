@@ -229,11 +229,8 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     case 'Shift-Backspace':
     case 'Backspace':
-      if (this.isEmpty()) this.triggerSpecialEvent('upwardDelete');
-      else {
-        this.cursor.backspace();
-        this.triggerSpecialEvent('render');
-      }
+      this.cursor.backspace();
+      this.triggerSpecialEvent('render');
       break;
 
     // Tab or Esc -> go one block right if it exists, else escape right.
@@ -361,11 +358,8 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     case 'Shift-Del':
     case 'Del':
-      if (this.isEmpty()) this.triggerSpecialEvent('downwardDelete');
-      else {
-        this.cursor.deleteForward();
-        this.triggerSpecialEvent('render');
-      }
+      this.cursor.deleteForward();
+      this.triggerSpecialEvent('render');
       break;
 
     case 'Meta-A':

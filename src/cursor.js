@@ -398,6 +398,7 @@ var Cursor = P(function(_) {
       else
         this.unwrapGramp();
     }
+    else this.root.triggerSpecialEvent('backspacePressed');
 
     if (this.prev)
       this.prev.respace();
@@ -424,6 +425,7 @@ var Cursor = P(function(_) {
       else
         this.unwrapGramp();
     }
+    else this.root.triggerSpecialEvent('delPressed');
 
     if (this.prev)
       this.prev.respace();
