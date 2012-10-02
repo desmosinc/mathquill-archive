@@ -20,8 +20,10 @@ function createRoot(jQ, root, textbox, editable) {
 
   root.renderLatex(contents.text());
 
-  //textarea stuff
-  var textareaSpan = root.textarea = 'ontouchstart' in window ?
+  var is_ios = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) !== null;
+  var is_android = navigator.userAgent.match(/(Android|Silk|Kindle)/i) !== null;
+  
+  var textareaSpan = root.textarea = (is_ios || is_android) ?
       $('<span class="textarea"><span tabindex=0></span></span>')
     : $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
