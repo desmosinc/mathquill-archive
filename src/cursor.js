@@ -241,7 +241,19 @@ var Cursor = P(function(_) {
     var prevDist;
 
     while (dist > 0 && (cursor.prev || cursor.parent !== block)) {
-      cursor.moveLeftWithin(block);
+      //FIXME HACK
+      //with x_1^2, when the cursor is in the exponent,
+      //moveLeftWithinBlock will move it in-between the subscript
+      //and the exponent, which is fine, but the next call to
+      //moveLeftWithinBlock will see that when moving horizontally
+      //into the subscript, the cursor should go to the "top" block
+      //which is in fact the exponent...ad nauseum.
+      //Gosh, if only moving horizontally into a node was delegated
+      //to its .moveToward() method or something.
+      if (!cursor.prev && cursor.parent.parent.respaced)
+        cursor.appendTo(cursor.parent.parent.prev.firstChild);
+      else
+        cursor.moveLeftWithin(block);
       prevDist = dist;
       dist = offset(cursor).left - pageX;
     }
