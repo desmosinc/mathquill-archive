@@ -151,11 +151,21 @@ var SupSub = P(MathCommand, function(_, _super) {
     return false;
   }
   _.latex = function() {
-    var latex = this.firstChild.latex();
-    if (latex.length === 1)
-      return this.ctrlSeq + latex;
-    else
-      return this.ctrlSeq + '{' + (latex || ' ') + '}';
+    if (this.ctrlSeq === '_' && this.respaced) return '';
+
+    var latex = '';
+
+    if (this.ctrlSeq === '^' && this.next.respaced) {
+      var block = this.next.firstChild.latex();
+      if (block.length === 1) latex += '_' + block;
+      else latex += '_{' + block + '}';
+    }
+
+    var block = this.firstChild.latex();
+    if (block.length === 1) latex += this.ctrlSeq + block;
+    else latex += this.ctrlSeq + '{' + (block || ' ') + '}';
+
+    return latex;
   };
   _.redraw = function() {
     if (this.prev)

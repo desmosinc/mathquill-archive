@@ -104,6 +104,18 @@ suite('latex', function() {
       el.mathquill('latex', 'x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
       assert.equal(el.mathquill('latex'), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
     });
+
+    test('normalizes _^', function() {
+      el.mathquill('latex', 'x_1^2');
+      assert.equal(el.mathquill('latex'), 'x_1^2');
+      el.mathquill('latex', 'x^2_1');
+      assert.equal(el.mathquill('latex'), 'x_1^2');
+
+      el.mathquill('latex', '\\left(stuff\\right)_{omg}^{lol}');
+      assert.equal(el.mathquill('latex'), '\\left(stuff\\right)_{omg}^{lol}');
+      el.mathquill('latex', '\\left(stuff\\right)^{lol}_{omg}');
+      assert.equal(el.mathquill('latex'), '\\left(stuff\\right)_{omg}^{lol}');
+    });
   });
 
   suite('error handling', function() {
