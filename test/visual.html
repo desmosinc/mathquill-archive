@@ -211,11 +211,6 @@ $('#dynamic-redraw tr').each(function() {
   td = math.eq(2).parent();
   math.eq(2).detach().mathquill('editable').mathquill('revert').appendTo(td).mathquill('redraw');
 });
-
-// test selecting from outside the mathquill editable
-$('.math-container').mousedown(function(e) {
-  $(this).find('.mathquill-editable').trigger(e);
-});
 </script>
 </body>
 </html>
