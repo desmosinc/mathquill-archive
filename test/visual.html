@@ -179,7 +179,7 @@ $.fn.prepend = function(el) {
 
 // test selecting from outside the mathquill editable
 $('.math-container').mousedown(function(e) {
-  $(this).find('.mathquill-editable').trigger(e);
+  $(this).find('.mathquill-editable').triggerHandler(e);
 });
 
 // Selection Tests

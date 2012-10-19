@@ -61,7 +61,7 @@ function createRoot(jQ, root, textbox, editable) {
         cursor.selectFrom(anticursor);
       }
 
-      return false;
+      e.preventDefault();
     }
 
     // docmousemove is attached to the document, so that
@@ -110,7 +110,7 @@ function createRoot(jQ, root, textbox, editable) {
     jQ.mousemove(mousemove);
     $(jQ[0].ownerDocument).mousemove(docmousemove).mouseup(mouseup);
 
-    return false;
+    e.preventDefault();
   });
 
   if (!editable) {
