@@ -186,8 +186,7 @@ access and point to elements in it to keep track of their location:
 
 * Some root elements can actually be in others, so rather than attaching
   handlers in the constructor, `createRoot()` is called on the actual root
-  element. Except `\editable{}`s need text input event handlers that aren't
-  attached to the static math containing them...it's a little messy.
+  element.
 * Event delegation is used in 2 ways:
   - in the HTML DOM, the root `span` element of each MathQuill thing is
     delegated all the events in it's own MathQuill thing
