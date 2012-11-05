@@ -581,8 +581,8 @@ CharCmds['|'] = P(Paren, function(_, _super) {
   _.finalizeTree = noop;
 });
 
+// DISABLED in DCG
 var TextBlock =
-CharCmds.$ =
 LatexCmds.text =
 LatexCmds.textnormal =
 LatexCmds.textrm =
