@@ -117,7 +117,7 @@ var UnItalicizedCmds = {
   gcd: 1,
   gcf: 1,
   hcf: 1,
-  lim: 1,
+//  lim: 1,
   exp: 1,
   floor: 1,
   sign: 1,
