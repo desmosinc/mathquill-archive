@@ -770,8 +770,9 @@ LatexCmds.lowercase =
   makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="text"');
 
 // input box to type a variety of LaTeX commands beginning with a backslash
+// DISABLED in DCG
 var LatexCommandInput =
-CharCmds['\\'] = P(MathCommand, function(_, _super) {
+P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\';
   _.replaces = function(replacedFragment) {
     this._replacedFragment = replacedFragment.disown();
