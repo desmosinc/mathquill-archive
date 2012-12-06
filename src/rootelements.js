@@ -31,7 +31,7 @@ function createRoot(jQ, root, textbox, editable) {
   /******
    * TODO [Han]: Document this
    */
-  var textareaSelectionTimeout;
+  var textareaSelectionTimeout, prevLatex;
   root.selectionChanged = function() {
     if (textareaSelectionTimeout === undefined) {
       textareaSelectionTimeout = setTimeout(setTextareaSelection);
@@ -41,7 +41,9 @@ function createRoot(jQ, root, textbox, editable) {
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
     var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
+    if (latex === prevLatex) return;
     textareaManager.select(latex);
+    prevLatex = latex;
     root.triggerSpecialEvent('selectionChanged');
   }
 
