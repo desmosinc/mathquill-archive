@@ -133,6 +133,7 @@ var Cursor = P(function(_) {
     else {
       this.moveLeftWithin(this.root);
     }
+    this.root.triggerSpecialEvent('cursorMoved');
     return this.show();
   };
   _.moveRight = function() {
@@ -143,6 +144,7 @@ var Cursor = P(function(_) {
     else {
       this.moveRightWithin(this.root);
     }
+    this.root.triggerSpecialEvent('cursorMoved');
     return this.show();
   };
 
