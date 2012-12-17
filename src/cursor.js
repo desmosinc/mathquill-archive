@@ -203,8 +203,10 @@ var Cursor = P(function(_) {
   _.seek = function(target, pageX, pageY) {
     clearUpDownCache(this);
     var cmd, block, cursor = this.clearSelection().show();
-    if (target.hasClass('empty')) {
-      cursor.prependTo(MathElement[target.attr(mqBlockId)]);
+
+    block = MathElement[target.attr(mqBlockId)];
+    if (block && target.hasClass('empty')) {
+      cursor.prependTo(block);
       return cursor;
     }
 
@@ -218,7 +220,6 @@ var Cursor = P(function(_) {
       return cursor;
     }
     if (!cmd) {
-      block = MathElement[target.attr(mqBlockId)];
       if (!block) { //if no MathQuill data, try parent, if still no, just start from the root
         target = target.parent();
         cmd = MathElement[target.attr(mqCmdId)];
