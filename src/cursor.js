@@ -219,14 +219,12 @@ var Cursor = P(function(_) {
 
       return cursor;
     }
-    if (!cmd) {
-      if (!block) { //if no MathQuill data, try parent, if still no, just start from the root
-        target = target.parent();
-        cmd = MathElement[target.attr(mqCmdId)];
-        if (!cmd) {
-          block = MathElement[target.attr(mqBlockId)];
-          if (!block) block = cursor.root;
-        }
+    if (!cmd && !block) { //if no MathQuill data, try parent, if still no, just start from the root
+      target = target.parent();
+      cmd = MathElement[target.attr(mqCmdId)];
+      if (!cmd) {
+        block = MathElement[target.attr(mqBlockId)];
+        if (!block) block = cursor.root;
       }
     }
 
