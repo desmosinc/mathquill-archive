@@ -120,7 +120,7 @@ var manageTextarea = (function() {
       }
     }
 
-    target.bind('keydown keypress keyup focusout paste', flush);
+    target.bind('keydown keypress input keyup focusout paste', flush);
 
 
     // -*- public methods -*- //
@@ -188,6 +188,31 @@ var manageTextarea = (function() {
         //   reliable as our tests are comprehensive
         // If anything like #40 or #71 is reported in IE < 9, see
         // b1318e5349160b665003e36d4eedd64101ceacd8
+
+        //updated by Eli
+        //in Safari, when text is selected inside of the textarea
+        //and then a key is pressed, there's a brief moment where
+        //the new text is selected. This circumvents that problem, by
+        //trying again a moment later
+        //this should be a no-op except in Safari
+        //NOTE / TODO: this still seems to introduce a problem with vertical
+        //alignment. In DCG, try:
+        // * type "1"
+        // * highlight the "1"
+        // * type "/"
+        // note that vertical alignment of the icon is broken
+        // it's only fixed when another action is taken that changes
+        // vertical alignment (i.e. a division inside of one of the
+        // division signs)
+        if (hasSelection()) {
+          setTimeout(function() {
+            if (!hasSelection())
+              popText(textCallback);
+          });
+        } else {
+          popText(textCallback);
+        }
+
         if (hasSelection()) return;
 
         popText(textCallback);
