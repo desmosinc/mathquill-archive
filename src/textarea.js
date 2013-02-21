@@ -120,7 +120,7 @@ var manageTextarea = (function() {
       }
     }
 
-    target.bind('keydown keypress input keyup focusout paste', flush);
+    target.bind('keydown keypress keyup focusout paste', flush);
 
 
     // -*- public methods -*- //
