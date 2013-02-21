@@ -387,7 +387,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     if ((ch == '^' || ch == '_') && !this.cursor.prev) return;
 
     //Hack #2 by Eli: if you type '+' or '-' or '=' in an exponent, break out of it
-    if ((ch == '+' || ch == '=' || ch == '-') && this.cursor.parent.parent.ctrlSeq === '^'
+    if ((ch == '+' || ch == '=' || ch == '-' || ch == '<' || ch == '>') && this.cursor.parent.parent.ctrlSeq === '^'
       && !this.cursor.next && this.cursor.prev
     ) {
       this.cursor.moveRight();
