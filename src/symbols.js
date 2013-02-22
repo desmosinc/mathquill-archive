@@ -128,6 +128,9 @@ var UnItalicizedCmds = {
   sum: 1,
   prod: 1,
   pi: 1,
+  phi: 1,
+  tau: 1,
+  gamma: 1,
   theta: 1/*,
   int: 1*/
 }, MAX_AUTOCMD_LEN = 7;
