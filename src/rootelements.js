@@ -397,6 +397,25 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       this.cursor.moveRight();
     }
 
+    //Hack #3 by Eli: if you type "^" just after a superscript, behave as though you just pressed up
+    //note: n
+    if (ch === '^' && this.cursor.prev instanceof SupSub && 
+      //note: need both of these, because if it's a superscript and subscript,
+      //those could appear in either order
+      (this.cursor.prev.ctrlSeq === '^' || this.cursor.prev.prev.ctrlSeq === '^')) {
+      this.cursor.moveUp();
+      return;
+    }
+    if (ch === '_' && this.cursor.prev instanceof SupSub && 
+      //note: need both of these, because if it's a superscript and subscript,
+      //those could appear in either order
+      (this.cursor.prev.ctrlSeq === '_' || this.cursor.prev.prev.ctrlSeq === '_')) {
+      this.cursor.moveDown();
+      return;
+    }
+
+
+
     this.cursor.write(ch);
     this.triggerSpecialEvent('render');
     return false;
