@@ -50,7 +50,14 @@ $.fn.mathquill = function(cmd, latex) {
         var blockId = $(this).attr(mqBlockId),
           block = blockId && MathElement[blockId];
         if (block) {
+
+          //fixes bug with highlighting everything and then setting state with latex
+          //https://github.com/desmosinc/knox/issues/1115
+          cursor = block && block.cursor;
+          if (cursor) cursor.clearSelection();
+
           block.renderLatex(latex);
+
           if (block.blurred) block.cursor.hide().parent.blur();
           block.triggerSpecialEvent('render');
         }
