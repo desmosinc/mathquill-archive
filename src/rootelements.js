@@ -327,10 +327,12 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Left': this.cursor.moveLeft(); break;
     case 'Shift-Left': this.cursor.selectLeft(); break;
     case 'Ctrl-Left': break;
+    case 'Meta-Left': break;
 
     case 'Right': this.cursor.moveRight(); break;
     case 'Shift-Right': this.cursor.selectRight(); break;
     case 'Ctrl-Right': break;
+    case 'Meta-Right': break;
 
     case 'Up': this.cursor.moveUp(); break;
     case 'Down': this.cursor.moveDown(); break;
@@ -351,7 +353,9 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       }
 
     case 'Ctrl-Up': break;
+    case 'Meta-Up': break;
     case 'Ctrl-Down': break;
+    case 'Meta-Down': break;
 
     case 'Ctrl-Shift-Del':
     case 'Ctrl-Del':
@@ -392,6 +396,25 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     ) {
       this.cursor.moveRight();
     }
+
+    //Hack #3 by Eli: if you type "^" just after a superscript, behave as though you just pressed up
+    //note: n
+    if (ch === '^' && this.cursor.prev instanceof SupSub && 
+      //note: need both of these, because if it's a superscript and subscript,
+      //those could appear in either order
+      (this.cursor.prev.ctrlSeq === '^' || this.cursor.prev.prev.ctrlSeq === '^')) {
+      this.cursor.moveUp();
+      return;
+    }
+    if (ch === '_' && this.cursor.prev instanceof SupSub && 
+      //note: need both of these, because if it's a superscript and subscript,
+      //those could appear in either order
+      (this.cursor.prev.ctrlSeq === '_' || this.cursor.prev.prev.ctrlSeq === '_')) {
+      this.cursor.moveDown();
+      return;
+    }
+
+
 
     this.cursor.write(ch);
     this.triggerSpecialEvent('render');
