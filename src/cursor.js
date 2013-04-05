@@ -183,8 +183,7 @@ var Cursor = P(function(_) {
                 }
               } else {
                 var pageX = offset(self).left;
-                self.appendTo(prop);
-                self.seekHoriz(pageX, prop);
+                prop.seek(pageX, self);
               }
             }
             break;
@@ -210,34 +209,6 @@ var Cursor = P(function(_) {
     pray('nodeId is the id of some Node that exists', node);
 
     node.seek(pageX, cursor);
-
-    return cursor;
-  };
-  _.seekHoriz = function(pageX, block) {
-    //move cursor to position closest to click
-    var cursor = this;
-    var dist = offset(cursor).left - pageX;
-    var prevDist;
-
-    while (dist > 0 && (cursor.prev || cursor.parent !== block)) {
-      //FIXME HACK
-      //with x_1^2, when the cursor is in the exponent,
-      //moveLeftWithinBlock will move it in-between the subscript
-      //and the exponent, which is fine, but the next call to
-      //moveLeftWithinBlock will see that when moving horizontally
-      //into the subscript, the cursor should go to the "top" block
-      //which is in fact the exponent...ad nauseum.
-      //Gosh, if only moving horizontally into a node was delegated
-      //to its .moveToward() method or something.
-      if (!cursor.prev && cursor.parent.parent.respaced)
-        cursor.appendTo(cursor.parent.parent.prev.firstChild);
-      else
-        cursor.moveLeftWithin(block);
-      prevDist = dist;
-      dist = offset(cursor).left - pageX;
-    }
-
-    if (-dist > prevDist) cursor.moveRightWithin(block);
 
     return cursor;
   };

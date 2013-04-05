@@ -178,7 +178,46 @@ var MathCommand = P(MathElement, function(_, _super) {
   };
 
   _.seek = function(pageX, cursor) {
-    cursor.insertAfter(this).seekHoriz(pageX, this.parent);
+    function getBounds(node) {
+      var bounds = {}
+      bounds.prev = node.jQ.offset().left;
+      bounds.next = bounds.prev + node.jQ.outerWidth();
+      return bounds;
+    }
+
+    var cmd = this;
+    var cmdBounds = getBounds(cmd);
+
+    if (pageX < cmdBounds.prev) return cursor.insertBefore(cmd);
+    if (pageX > cmdBounds.next) return cursor.insertAfter(cmd);
+
+    var leftLeftBound = cmdBounds.prev;
+    cmd.eachChild(function(block) {
+      var blockBounds = getBounds(block);
+      if (pageX < blockBounds.prev) {
+        // closer to this block's left bound, or the bound left of that?
+        if (pageX - leftLeftBound < blockBounds.prev - pageX) {
+          if (block.prev) cursor.appendTo(block.prev);
+          else cursor.insertBefore(cmd);
+        }
+        else cursor.prependTo(block);
+        return false;
+      }
+      else if (pageX > blockBounds.next) {
+        if (block.next) leftLeftBound = blockBounds.next; // continue to next block
+        else { // last (rightmost) block
+          // closer to this block's right bound, or the cmd's right bound?
+          if (cmdBounds.next - pageX < pageX - blockBounds.next) {
+            cursor.insertAfter(cmd);
+          }
+          else cursor.appendTo(block);
+        }
+      }
+      else {
+        block.seek(pageX, cursor);
+        return false;
+      }
+    });
   };
 
   // remove()
@@ -371,7 +410,13 @@ var MathBlock = P(MathElement, function(_) {
     return this.firstChild === 0 && this.lastChild === 0;
   };
   _.seek = function(pageX, cursor) {
-    cursor.appendTo(this).seekHoriz(pageX, this);
+    var node = this.lastChild;
+    if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {
+      return cursor.appendTo(this);
+    }
+    if (pageX < this.firstChild.jQ.offset().left) return cursor.prependTo(this);
+    while (pageX < node.jQ.offset().left) node = node.prev;
+    return node.seek(pageX, cursor);
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');
