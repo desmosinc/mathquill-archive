@@ -12,3 +12,5 @@
 # node/submodules tracker files for the 'dcg' make target
 .submodules
 .nodemodules
+
+.DS_Store
