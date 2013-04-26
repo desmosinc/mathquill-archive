@@ -68,11 +68,12 @@
   }
 
   .sans-serif {
-    font-family: sans-serif, Symbola, serif;
+    
+    font-family: @sans-serif;
   }
 
   .monospace {
-    font-family: monospace, Symbola, serif;
+    font-family: @monospace;
   }
 
   .overline {
@@ -186,8 +187,8 @@
   // non-italicized functions
   // like \sin, \cos, \ln, etc.
   .un-italicized {
-    font-family: Symbola, "Times New Roman", serif;
-    line-height: .9;
+    font-family: @times;
+    line-height: 1;
     font-style: normal;
   }
   var.un-italicized.last {
