@@ -87,6 +87,7 @@ var SupSub = P(MathCommand, function(_, _super) {
     _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf"><span class="non-leaf '+tag+'">&0</span></'+tag+'>', [ text ]);
   };
   _.finalizeTree = function() {
+    log('entered SupSub::finalizeTree');
     //TODO: use inheritance
     pray('SupSub is only _ and ^',
       this.ctrlSeq === '^' || this.ctrlSeq === '_'
@@ -121,6 +122,7 @@ var SupSub = P(MathCommand, function(_, _super) {
       this.up = this.firstChild;
       this.firstChild.down = insertBeforeUnlessAtEnd;
     }
+    log('finished SupSub::finalizeTree');
   };
   function insertAfterUnlessAtBeginning(cursor) {
     // cursor.insertAfter(cmd), unless cursor at the beginning of block, and every
@@ -311,8 +313,10 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   ;
   _.textTemplate = ['(', '/', ')'];
   _.finalizeTree = function() {
+    log('entered Fraction::finalizeTree');
     this.up = this.lastChild.up = this.firstChild;
     this.down = this.firstChild.down = this.lastChild;
+    log('finished Fraction::finalizeTree');
   };
 });
 
@@ -442,11 +446,13 @@ var Bracket = P(MathCommand, function(_, _super) {
   };
   //When typed, auto-expand paren to end of block
   _.finalizeTree = function() {
+    log('entered Bracket::finalizeTree');
     if (this.firstChild.isEmpty() && this.next) {
       var nextAll = MathFragment(this.next, this.parent.lastChild).disown();
       nextAll.adopt(this.firstChild, 0, 0);
       nextAll.jQ.appendTo(this.firstChild.jQ);
     }
+    log('finished Bracket::finalizeTree');
   };
   _.placeCursor = function(cursor) {
     cursor.prependTo(this.firstChild);

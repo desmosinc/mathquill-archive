@@ -46,21 +46,28 @@ $.fn.mathquill = function(cmd, latex) {
     });
   case 'latex':
     if (arguments.length > 1) {
+      log('about to do this.each (jQuery.fn.each)');
       return this.each(function() {
+        log('entered this.each, about to do .attr and MathElement[] lookup');
         var blockId = $(this).attr(mqBlockId),
           block = blockId && MathElement[blockId];
         if (block) {
+          log('done, there is a block!');
 
           //fixes bug with highlighting everything and then setting state with latex
           //https://github.com/desmosinc/knox/issues/1115
           cursor = block && block.cursor;
+          log('got cursor, about to do cursor.clearSelection()');
           if (cursor) cursor.clearSelection();
-
+          log('did cursor.clearSelection(), about to do block.renderLatex(latex)');
           block.renderLatex(latex);
-
+          log('did block.renderLatex(latex), about to maybe blur');
           if (block.blurred) block.cursor.hide().parent.blur();
+          log('blurred block, about to triggerSpecialEvent(\'render\')');
           block.triggerSpecialEvent('render');
+          log('done');
         }
+        else log('done, no block');
       });
     }
 

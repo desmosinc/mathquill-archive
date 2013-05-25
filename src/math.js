@@ -35,8 +35,6 @@ var MathElement = P(Node, function(_) {
   };
 
   _.postOrder = function(fn /*, args... */) {
-    var args = __slice.call(arguments, 1);
-
     if (typeof fn === 'string') {
       var methodName = fn;
       fn = function(el) {
@@ -70,20 +68,32 @@ var MathElement = P(Node, function(_) {
 
   _.finalizeInsert = function() {
     var self = this;
+    //log('entered finalizeInsert');
     self.postOrder('finalizeTree');
+    //log('postOrder-ed finalizeTree');
+
+    self.postOrder('nonexistentMethod');
+    //log('postOrder-ed nonexistentMethod');
 
     // note: this order is important.
     // empty elements need the empty box provided by blur to
     // be present in order for their dimensions to be measured
     // correctly in redraw.
     self.postOrder('blur');
+    //log('postOrder-ed blur');
 
     // adjust context-sensitive spacing
     self.postOrder('respace');
+    //log('postOrder-ed respace');
     if (self.next.respace) self.next.respace();
+    //log('maybe self.next.respaced');
     if (self.prev.respace) self.prev.respace();
+    //log('maybe self.prev.respaced');
 
     self.postOrder('redraw');
+    //log('postOrder-ed redraw');
+    self.bubble('redraw');
+    //log('bubble-d redraw');
     self.bubble('redraw');
   };
 });

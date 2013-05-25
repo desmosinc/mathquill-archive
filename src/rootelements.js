@@ -215,10 +215,16 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   _.renderLatex = function(latex) {
     var jQ = this.jQ;
 
+    log('got jQ, about to empty except for textarea');
     jQ.children().slice(1).remove();
+    log('emptied jQ, about to delete children from edit tree');
     this.firstChild = this.lastChild = 0;
 
-    this.cursor.appendTo(this).writeLatex(latex);
+    log('appending cursor');
+    this.cursor.appendTo(this);
+    log('appended cursor, this.cursor.writeLatex()');
+    this.cursor.writeLatex(latex);
+    log('wrote the latex');
   };
   _.up = function() { this.triggerSpecialEvent('upPressed'); };
   _.down = function() { this.triggerSpecialEvent('downPressed'); };
