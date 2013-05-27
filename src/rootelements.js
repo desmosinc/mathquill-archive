@@ -213,18 +213,40 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     });
   };
   _.renderLatex = function(latex) {
+    var all = Parser.all;
+    var eof = Parser.eof;
+
+    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+    log('parsed latex');
+    this.firstChild = this.lastChild = 0;
+    log('cleared children from edit tree');
+    if (block) {
+      block.children().adopt(this, 0, 0);
+      log('adopted into edit tree');
+    }
+
     var jQ = this.jQ;
 
-    log('got jQ, about to empty except for textarea');
-    jQ.children().slice(1).remove();
-    log('emptied jQ, about to delete children from edit tree');
-    this.firstChild = this.lastChild = 0;
+    if (this.textarea) this.textarea.detach();
+    log ('detached textarea');
+    if (block) {
+      var html = block.join('html');
+      log('generated html');
+      jQ.html(html);
+      log('set innerHTML');
+      MathElement.jQize(jQ);
+      log('jQize-d');
+      this.finalizeInsert();
+    }
+    else {
+      jQ.empty();
+      log('emptied jQ');
+    }
+    if (this.textarea) jQ.prepend(this.textarea);
+    log('prepended textarea');
 
-    log('appending cursor');
-    this.cursor.appendTo(this);
-    log('appended cursor, this.cursor.writeLatex()');
-    this.cursor.writeLatex(latex);
-    log('wrote the latex');
+    this.cursor.insertAt(this, this.lastChild, 0);
+    log('appended cursor');
   };
   _.up = function() { this.triggerSpecialEvent('upPressed'); };
   _.down = function() { this.triggerSpecialEvent('downPressed'); };
