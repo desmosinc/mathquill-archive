@@ -73,10 +73,7 @@ var Cursor = P(function(_) {
   };
   _.prependTo = function(el) {
     this.insertAt(el, 0, el.firstChild);
-    if (el.textarea) //never insert before textarea
-      this.jQ.insertAfter(el.textarea);
-    else
-      this.jQ.prependTo(el.jQ);
+    this.jQ.prependTo(el.jQ);
     el.focus();
     return this;
   };

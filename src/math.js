@@ -52,16 +52,22 @@ var MathElement = P(Node, function(_) {
   _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
 
   this.jQize = function(html) {
+    log('entered jQize');
     // Sets the .jQ of the entire math subtree rooted at this command.
     // Expects .createBlocks() to have been called already, since it
     // calls .html().
     var jQ = $(html);
+    log('re-wrapped in $()');
     jQ.find('*').andSelf().each(function() {
+      log('entered each');
       var jQ = $(this),
         cmdId = jQ.attr('mathquill-command-id'),
         blockId = jQ.attr('mathquill-block-id');
+      log('re-wrapped in $() and got attrs');
       if (cmdId) MathElement[cmdId].jQadd(jQ);
+      log('maybe jQadded to cmd');
       if (blockId) MathElement[blockId].jQadd(jQ);
+      log('maybe jQadded to block');
     });
     return jQ;
   };

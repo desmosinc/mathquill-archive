@@ -61,9 +61,7 @@ $.fn.mathquill = function(cmd, latex) {
           if (cursor) cursor.clearSelection();
           log('did cursor.clearSelection(), about to do block.renderLatex(latex)');
           block.renderLatex(latex);
-          log('did block.renderLatex(latex), about to maybe blur');
-          if (block.blurred) block.cursor.hide().parent.blur();
-          log('blurred block, about to triggerSpecialEvent(\'render\')');
+          log('did block.renderLatex(latex), about to triggerSpecialEvent(\'render\')');
           block.triggerSpecialEvent('render');
           log('done');
         }
@@ -79,10 +77,9 @@ $.fn.mathquill = function(cmd, latex) {
       block = blockId && MathElement[blockId];
     return block && block.text();
   case 'html':
-    return this.html().replace(/ ?hasCursor|hasCursor /, '')
+    return this.children(':last').html().replace(/ ?hasCursor|hasCursor /, '')
       .replace(/ class=(""|(?= |>))/g, '')
-      .replace(/<span class="?cursor( blink)?"?>.?<\/span>/i, '')
-      .replace(/<span class="?textarea"?><textarea><\/textarea><\/span>/i, '');
+      .replace(/<span class="?cursor( blink)?"?>.?<\/span>/i, '');
   case 'write':
     if (arguments.length > 1)
       return this.each(function() {
