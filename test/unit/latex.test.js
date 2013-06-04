@@ -118,6 +118,43 @@ suite('latex', function() {
     });
   });
 
+  suite('RootMathBlock::renderSliderLatex', function() {
+    var el;
+    setup(function() {
+      el = $('<span></span>').appendTo('#mock').mathquill('editable');
+    });
+    teardown(function() {
+      el.remove();
+    });
+
+    test('basic rendering', function() {
+      el.mathquill('sliderLatex', 'y=6.8');
+      assert.equal(el.mathquill('latex'), 'y=6.8');
+
+      el.mathquill('sliderLatex', 'y=-1');
+      assert.equal(el.mathquill('latex'), 'y=-1');
+    });
+
+    test('subscripts', function() {
+      el.mathquill('sliderLatex', 'x_0=0.1');
+      assert.equal(el.mathquill('latex'), 'x_0=0.1');
+
+      el.mathquill('sliderLatex', 'x_{pi}=3.14');
+      assert.equal(el.mathquill('latex'), 'x_{pi}=3.14');
+    });
+
+    test('error checking', function() {
+      assert.throws(function() { el.mathquill('sliderLatex', ''); });
+      assert.throws(function() { el.mathquill('sliderLatex', 'x'); });
+      assert.throws(function() { el.mathquill('sliderLatex', 'x='); });
+      assert.throws(function() { el.mathquill('sliderLatex', 'x_=0.1'); });
+      assert.throws(function() { el.mathquill('sliderLatex', 'x_{uh=0.1'); });
+      assert.throws(function() { el.mathquill('sliderLatex', 'x_{uh, what?}=0.1'); });
+      assert.throws(function() { el.mathquill('sliderLatex', 'x_abc=0.1'); });
+      assert.throws(function() { el.mathquill('sliderLatex', 'xy_i=0.1'); });
+    });
+  });
+
   suite('error handling', function() {
     var el;
     setup(function() {

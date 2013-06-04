@@ -247,6 +247,67 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     this.cursor.next = 0;
     log('appended cursor');
   };
+  _.renderSliderLatex = function(latex) {
+    function makeCmd(ch) {
+      if (ch.match(/^[a-z]$/i))
+        return Variable(ch);
+      else if (CharCmds[ch] || LatexCmds[ch])
+        return (CharCmds[ch] || LatexCmds[ch])(ch);
+      else
+        return VanillaSymbol(ch);
+    }
+
+    // valid assignment left-hand-sides: https://github.com/desmosinc/knox/blob/27709c6066a544f160123a6bd775829ec8cd7080/frontend/desmos/public/assets/grapher/jison/latex.jison#L13-L15
+    var matches = /^([a-z])(?:_([a-z0-9]|\{[a-z0-9]+\}))?=([-0-9.]+)$/i.exec(latex);
+    log('exec-ed regex');
+
+    pray('valid restricted slider LaTeX', matches);
+    var letter = matches[1];
+    var subscript = matches[2];
+    var value = matches[3];
+
+    this.firstChild = this.lastChild = 0;
+
+    letter = Variable(letter);
+
+    if (subscript) {
+      var sub = LatexCmds._('_');
+      var subBlock = MathBlock().adopt(sub, 0, 0);
+      sub.blocks = [ subBlock ];
+      if (subscript.length === 1) {
+        makeCmd(subscript).adopt(subBlock, subBlock.lastChild, 0);
+      }
+      else {
+        for (var i = 1; i < subscript.length - 1; i += 1) {
+          makeCmd(subscript.charAt(i)).adopt(subBlock, subBlock.lastChild, 0);
+        }
+      }
+    }
+
+    letter.adopt(this, this.lastChild, 0);
+    if (sub) sub.adopt(this, this.lastChild, 0);
+    LatexCmds['=']('=').adopt(this, this.lastChild, 0);
+    for (var i = 0; i < value.length; i += 1) {
+      makeCmd(value.charAt(i)).adopt(this, this.lastChild, 0);
+    }
+    log('parsed latex and adopted into edit tree');
+
+    var jQ = this.jQ;
+
+    var html = this.join('html');
+    log('generated html');
+    jQ.html(html);
+    log('set innerHTML');
+    MathElement.jQize(jQ);
+    log('jQize-d');
+    //this.finalizeInsert();
+    //log('this.finalizeInsert()');
+
+    this.cursor.parent = this;
+    this.cursor.prev = this.lastChild;
+    this.cursor.next = 0;
+    log('appended cursor');
+  };
   _.up = function() { this.triggerSpecialEvent('upPressed'); };
   _.down = function() { this.triggerSpecialEvent('downPressed'); };
   _.moveOutOf = function(dir) { this.triggerSpecialEvent(dir+'Pressed'); };

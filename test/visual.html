@@ -276,7 +276,7 @@ function timeAndLog(f) {
   $('#latex-render-perf button').click(function() {
     var latex = textarea.val();
     var duration = timeAndLog(function() {
-      mathquill.mathquill('latex', latex);
+      mathquill.mathquill('sliderLatex', latex);
     });
     $('#html-render-perf').after('<p>'+duration+'ms rendering <code>'+latex+'</code>, for an average of '+avgs.add(latex, duration)+'</p>');
     $('#html-render-perf textarea').val(mathquill.mathquill('html'));
