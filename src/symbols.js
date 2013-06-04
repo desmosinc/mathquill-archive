@@ -46,7 +46,7 @@ var Variable = P(Symbol, function(_, _super) {
     //test if there's an autocommand here, going through substrings from longest to shortest
     outer: for (var i = 0, first = prev.next || this.parent.firstChild; i < ctrlSeq.length; i += 1, first = first.next) {
       for (var len = min(MAX_UNITALICIZED_LEN, ctrlSeq.length - i); len > 0; len -= 1) {
-        if (UnItalicizedCmds.hasOwnProperty(ctrlSeq.slice(i, i + len))) {
+        if (UnItalicizedCmds.hasOwnProperty(ctrlSeq.slice(i, i + len)) || len > 3) { //Accept everything of more than 3 letters as an auto-command
           first.isFirstLetter = true;
           for (var j = 0, letter = first; j < len; j += 1, letter = letter.next) {
             letter.jQ.addClass('un-italicized');
