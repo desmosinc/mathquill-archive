@@ -234,8 +234,8 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       log('set innerHTML');
       MathElement.jQize(jQ);
       log('jQize-d');
-      //this.finalizeInsert();
-      //log('this.finalizeInsert()');
+      this.finalizeInsert();
+      log('this.finalizeInsert()');
     }
     else {
       jQ.empty();
