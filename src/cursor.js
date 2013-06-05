@@ -73,10 +73,7 @@ var Cursor = P(function(_) {
   };
   _.prependTo = function(el) {
     this.insertAt(el, 0, el.firstChild);
-    if (el.textarea) //never insert before textarea
-      this.jQ.insertAfter(el.textarea);
-    else
-      this.jQ.prependTo(el.jQ);
+    this.jQ.prependTo(el.jQ);
     el.focus();
     return this;
   };
@@ -287,7 +284,9 @@ var Cursor = P(function(_) {
 
     if (block) {
       block.children().adopt(self.parent, self.prev, self.next);
-      MathElement.jQize(block.join('html')).insertBefore(self.jQ);
+      var html = block.join('html');
+      var jQ = MathElement.jQize(html);
+      jQ.insertBefore(self.jQ);
       self.prev = block.lastChild;
       block.finalizeInsert();
       self.parent.bubble('redraw');
