@@ -44,21 +44,31 @@ $.fn.mathquill = function(cmd, latex) {
       if (block && block.revert)
         block.revert();
     });
+  case 'sliderLatex':
+    return this.each(function() {
+      var blockId = $(this).attr(mqBlockId),
+        block = blockId && MathElement[blockId];
+      if (block) {
+
+        //fixes bug with highlighting everything and then setting state with latex
+        //https://github.com/desmosinc/knox/issues/1115
+        cursor = block && block.cursor;
+        if (cursor) cursor.clearSelection();
+        block.renderSliderLatex(latex);
+        block.triggerSpecialEvent('render');
+      }
+    });
   case 'latex':
     if (arguments.length > 1) {
       return this.each(function() {
         var blockId = $(this).attr(mqBlockId),
           block = blockId && MathElement[blockId];
         if (block) {
-
           //fixes bug with highlighting everything and then setting state with latex
           //https://github.com/desmosinc/knox/issues/1115
           cursor = block && block.cursor;
           if (cursor) cursor.clearSelection();
-
           block.renderLatex(latex);
-
-          if (block.blurred) block.cursor.hide().parent.blur();
           block.triggerSpecialEvent('render');
         }
       });
@@ -72,10 +82,9 @@ $.fn.mathquill = function(cmd, latex) {
       block = blockId && MathElement[blockId];
     return block && block.text();
   case 'html':
-    return this.html().replace(/ ?hasCursor|hasCursor /, '')
+    return this.children(':last').html().replace(/ ?hasCursor|hasCursor /, '')
       .replace(/ class=(""|(?= |>))/g, '')
-      .replace(/<span class="?cursor( blink)?"?>.?<\/span>/i, '')
-      .replace(/<span class="?textarea"?><textarea><\/textarea><\/span>/i, '');
+      .replace(/<span class="?cursor( blink)?"?>.?<\/span>/i, '');
   case 'write':
     if (arguments.length > 1)
       return this.each(function() {

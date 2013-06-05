@@ -2,16 +2,16 @@
  * Root math elements with event delegation.
  ********************************************/
 
-function createRoot(jQ, root, textbox, editable) {
-  var contents = jQ.contents().detach();
+function createRoot(container, root, textbox, editable) {
+  var contents = container.contents().detach();
 
   if (!textbox) {
-    jQ.addClass('mathquill-rendered-math');
+    container.addClass('mathquill-rendered-math');
   }
 
-  root.jQ = jQ.attr(mqBlockId, root.id);
+  root.jQ = $('<span class="mathquill-root-block"/>').appendTo(container.attr(mqBlockId, root.id));
   root.revert = function() {
-    jQ.empty().unbind('.mathquill')
+    container.empty().unbind('.mathquill')
       .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
       .append(contents);
   };
@@ -36,7 +36,7 @@ function createRoot(jQ, root, textbox, editable) {
     if (textareaSelectionTimeout === undefined) {
       textareaSelectionTimeout = setTimeout(setTextareaSelection);
     }
-    forceIERedraw(jQ[0]);
+    forceIERedraw(container[0]);
   };
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
@@ -48,14 +48,14 @@ function createRoot(jQ, root, textbox, editable) {
   }
 
   //prevent native selection except textarea
-  jQ.bind('selectstart.mathquill', function(e) {
+  container.bind('selectstart.mathquill', function(e) {
     if (e.target !== textarea[0]) e.preventDefault();
     e.stopPropagation();
   });
 
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
-  jQ.bind('mousedown.mathquill', function(e) {
+  container.bind('mousedown.mathquill', function(e) {
     function mousemove(e) {
       cursor.seek($(e.target), e.pageX, e.pageY);
 
@@ -93,7 +93,7 @@ function createRoot(jQ, root, textbox, editable) {
       }
 
       // delete the mouse handlers now that we're not dragging anymore
-      jQ.unbind('mousemove', mousemove);
+      container.unbind('mousemove', mousemove);
       $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
@@ -108,17 +108,17 @@ function createRoot(jQ, root, textbox, editable) {
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
-    if (!editable) jQ.prepend(textareaSpan);
+    if (!editable) container.prepend(textareaSpan);
 
-    jQ.mousemove(mousemove);
+    container.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
 
     e.preventDefault();
   });
 
   if (!editable) {
-    var textareaManager = manageTextarea(textarea, { container: jQ });
-    jQ.bind('cut paste', false).bind('copy', setTextareaSelection)
+    var textareaManager = manageTextarea(textarea, { container: container });
+    container.bind('cut paste', false).bind('copy', setTextareaSelection)
       .prepend('<span class="selectable">$'+root.latex()+'$</span>');
     textarea.blur(function() {
       cursor.clearSelection();
@@ -131,7 +131,7 @@ function createRoot(jQ, root, textbox, editable) {
   }
 
   var textareaManager = manageTextarea(textarea, {
-    container: jQ,
+    container: container,
     key: function(key, evt) {
       cursor.parent.bubble('onKey', key, evt);
     },
@@ -163,12 +163,12 @@ function createRoot(jQ, root, textbox, editable) {
     }
   });
 
-  jQ.prepend(textareaSpan);
+  container.prepend(textareaSpan);
 
   //root CSS classes
-  jQ.addClass('mathquill-editable');
+  container.addClass('mathquill-editable');
   if (textbox)
-    jQ.addClass('mathquill-textbox');
+    container.addClass('mathquill-textbox');
 
   //focus and blur handling
   textarea.focus(function(e) {
@@ -189,7 +189,7 @@ function createRoot(jQ, root, textbox, editable) {
       cursor.selection.jQ.addClass('blur');
   }).blur();
 
-  jQ.bind('select_all', function(e) {
+  container.bind('select_all', function(e) {
     cursor.prepareMove().appendTo(root);
     while (cursor.prev) cursor.selectLeft();
   })
@@ -213,12 +213,92 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     });
   };
   _.renderLatex = function(latex) {
+    var all = Parser.all;
+    var eof = Parser.eof;
+
+    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+    this.firstChild = this.lastChild = 0;
+    if (block) {
+      block.children().adopt(this, 0, 0);
+    }
+
     var jQ = this.jQ;
 
-    jQ.children().slice(1).remove();
+    if (block) {
+      var html = block.join('html');
+      jQ.html(html);
+      MathElement.jQize(jQ);
+      this.finalizeInsert();
+    }
+    else {
+      jQ.empty();
+    }
+
+    this.cursor.parent = this;
+    this.cursor.prev = this.lastChild;
+    this.cursor.next = 0;
+  };
+  _.renderSliderLatex = function(latex) {
+    function makeCmd(ch) {
+      var cmd;
+      var code = ch.charCodeAt(0);
+      if ((65 <= code && code <= 90) || (97 <= code && code <= 122))
+        cmd = Variable(ch);
+      else {
+        if (CharCmds[ch] || LatexCmds[ch])
+          cmd = (CharCmds[ch] || LatexCmds[ch])(ch);
+        else {
+          cmd = VanillaSymbol(ch);
+        }
+      }
+      return cmd;
+    }
+
+    // valid assignment left-hand-sides: https://github.com/desmosinc/knox/blob/27709c6066a544f160123a6bd775829ec8cd7080/frontend/desmos/public/assets/grapher/jison/latex.jison#L13-L15
+    var matches = /^([a-z])(?:_([a-z0-9]|\{[a-z0-9]+\}))?=([-0-9.]+)$/i.exec(latex);
+
+    pray('valid restricted slider LaTeX', matches);
+    var letter = matches[1];
+    var subscript = matches[2];
+    var value = matches[3];
+
     this.firstChild = this.lastChild = 0;
 
-    this.cursor.appendTo(this).writeLatex(latex);
+    letter = Variable(letter);
+
+    if (subscript) {
+      var sub = LatexCmds._('_');
+      var subBlock = MathBlock().adopt(sub, 0, 0);
+      sub.blocks = [ subBlock ];
+      if (subscript.length === 1) {
+        makeCmd(subscript).adopt(subBlock, subBlock.lastChild, 0);
+      }
+      else {
+        for (var i = 1; i < subscript.length - 1; i += 1) {
+          makeCmd(subscript.charAt(i)).adopt(subBlock, subBlock.lastChild, 0);
+        }
+      }
+    }
+
+    letter.adopt(this, this.lastChild, 0);
+    if (sub) sub.adopt(this, this.lastChild, 0);
+    LatexCmds['=']('=').adopt(this, this.lastChild, 0);
+    for (var i = 0, l = value.length; i < l; i += 1) {
+      var ch = value.charAt(i);
+      var cmd = makeCmd(ch);
+      cmd.adopt(this, this.lastChild, 0);
+    }
+
+    var jQ = this.jQ;
+
+    var html = this.join('html');
+    jQ.html(html);
+    MathElement.jQize(jQ);
+    //this.finalizeInsert();
+
+    this.cursor.parent = this;
+    this.cursor.prev = this.lastChild;
+    this.cursor.next = 0;
   };
   _.up = function() { this.triggerSpecialEvent('upPressed'); };
   _.down = function() { this.triggerSpecialEvent('downPressed'); };

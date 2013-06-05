@@ -35,8 +35,6 @@ var MathElement = P(Node, function(_) {
   };
 
   _.postOrder = function(fn /*, args... */) {
-    var args = __slice.call(arguments, 1);
-
     if (typeof fn === 'string') {
       var methodName = fn;
       fn = function(el) {
@@ -58,13 +56,26 @@ var MathElement = P(Node, function(_) {
     // Expects .createBlocks() to have been called already, since it
     // calls .html().
     var jQ = $(html);
-    jQ.find('*').andSelf().each(function() {
-      var jQ = $(this),
-        cmdId = jQ.attr('mathquill-command-id'),
-        blockId = jQ.attr('mathquill-block-id');
-      if (cmdId) MathElement[cmdId].jQadd(jQ);
-      if (blockId) MathElement[blockId].jQadd(jQ);
-    });
+
+    function jQadd(el) {
+      if (el.getAttribute) {
+        var cmdId = el.getAttribute('mathquill-command-id');
+        var blockId = el.getAttribute('mathquill-block-id');
+        if (cmdId) MathElement[cmdId].jQadd(el);
+        if (blockId) MathElement[blockId].jQadd(el);
+      }
+    }
+    function traverse(el) {
+      for (el = el.firstChild; el; el = el.nextSibling) {
+        jQadd(el);
+        if (el.firstChild) traverse(el);
+      }
+    }
+
+    for (var i = 0; i < jQ.length; i += 1) {
+      jQadd(jQ[i]);
+      traverse(jQ[i]);
+    }
     return jQ;
   };
 
@@ -84,6 +95,7 @@ var MathElement = P(Node, function(_) {
     if (self.prev.respace) self.prev.respace();
 
     self.postOrder('redraw');
+    self.bubble('redraw');
     self.bubble('redraw');
   };
 });
