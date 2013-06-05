@@ -249,12 +249,22 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   };
   _.renderSliderLatex = function(latex) {
     function makeCmd(ch) {
-      if (ch.match(/^[a-z]$/i))
-        return Variable(ch);
-      else if (CharCmds[ch] || LatexCmds[ch])
-        return (CharCmds[ch] || LatexCmds[ch])(ch);
-      else
-        return VanillaSymbol(ch);
+      //log('entered makeCmd');
+      var cmd;
+      var code = ch.charCodeAt(0);
+      if ((65 <= code && code <= 90) || (97 <= code && code <= 122))
+        cmd = Variable(ch);
+      else {
+        //log('not letter');
+        if (CharCmds[ch] || LatexCmds[ch])
+          cmd = (CharCmds[ch] || LatexCmds[ch])(ch);
+        else {
+          //log('VanillaSymbol');
+          cmd = VanillaSymbol(ch);
+        }
+      }
+      //log('made cmd');
+      return cmd;
     }
 
     // valid assignment left-hand-sides: https://github.com/desmosinc/knox/blob/27709c6066a544f160123a6bd775829ec8cd7080/frontend/desmos/public/assets/grapher/jison/latex.jison#L13-L15
@@ -265,10 +275,13 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var letter = matches[1];
     var subscript = matches[2];
     var value = matches[3];
+    //log('extracted matches');
 
     this.firstChild = this.lastChild = 0;
+    //log('killed children');
 
     letter = Variable(letter);
+    //log('made Variable');
 
     if (subscript) {
       var sub = LatexCmds._('_');
@@ -283,13 +296,24 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         }
       }
     }
+    //log('made subscript');
 
     letter.adopt(this, this.lastChild, 0);
+    //log('adopted letter');
     if (sub) sub.adopt(this, this.lastChild, 0);
+    //log('adopted subscript');
     LatexCmds['=']('=').adopt(this, this.lastChild, 0);
-    for (var i = 0; i < value.length; i += 1) {
-      makeCmd(value.charAt(i)).adopt(this, this.lastChild, 0);
+    //log('made and adopted =');
+    for (var i = 0, l = value.length; i < l; i += 1) {
+      //log('entered iteration');
+      var ch = value.charAt(i);
+      //log('got ch');
+      var cmd = makeCmd(ch);
+      //log('made cmd');
+      cmd.adopt(this, this.lastChild, 0);
+      //log('adopted cmd; iteration complete');
     }
+    //log('made and adopted value symbols');
     log('parsed latex and adopted into edit tree');
 
     var jQ = this.jQ;
