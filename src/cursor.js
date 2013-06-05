@@ -275,30 +275,21 @@ var Cursor = P(function(_) {
   _.writeLatex = function(latex) {
     var self = this;
     clearUpDownCache(self);
-    log('cleared upDown cache');
     self.show().deleteSelection();
-    log('shown cursor and deleted selection');
 
     var all = Parser.all;
     var eof = Parser.eof;
 
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
-    log('parsed latex');
 
     if (block) {
       block.children().adopt(self.parent, self.prev, self.next);
-      log('adopted into edit tree');
       var html = block.join('html');
-      log('generated html');
       var jQ = MathElement.jQize(html);
-      log('jQize-d');
       jQ.insertBefore(self.jQ);
-      log('inserted before cursor jQ');
       self.prev = block.lastChild;
       block.finalizeInsert();
-      log('block.finalizeInsert()');
       self.parent.bubble('redraw');
-      log('bubbled redraw');
     }
 
     return this;

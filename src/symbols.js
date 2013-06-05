@@ -24,7 +24,6 @@ var Variable = P(Symbol, function(_, _super) {
   };
   _.respace =
   _.finalizeTree = function() {
-    //log('entered Variable::finalizeTree');
     //TODO: in better architecture, should be done in createBefore and backspace
     //respace is called too often, inefficient
 
@@ -62,7 +61,6 @@ var Variable = P(Symbol, function(_, _super) {
         }
       }
     }
-    //log('finished Variable::finalizeTree');
   };
   _.latex = function() {
     return (

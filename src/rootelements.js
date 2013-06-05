@@ -217,71 +217,54 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var eof = Parser.eof;
 
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
-    log('parsed latex');
     this.firstChild = this.lastChild = 0;
-    log('cleared children from edit tree');
     if (block) {
       block.children().adopt(this, 0, 0);
-      log('adopted into edit tree');
     }
 
     var jQ = this.jQ;
 
     if (block) {
       var html = block.join('html');
-      log('generated html');
       jQ.html(html);
-      log('set innerHTML');
       MathElement.jQize(jQ);
-      log('jQize-d');
       this.finalizeInsert();
-      log('this.finalizeInsert()');
     }
     else {
       jQ.empty();
-      log('emptied jQ');
     }
 
     this.cursor.parent = this;
     this.cursor.prev = this.lastChild;
     this.cursor.next = 0;
-    log('appended cursor');
   };
   _.renderSliderLatex = function(latex) {
     function makeCmd(ch) {
-      //log('entered makeCmd');
       var cmd;
       var code = ch.charCodeAt(0);
       if ((65 <= code && code <= 90) || (97 <= code && code <= 122))
         cmd = Variable(ch);
       else {
-        //log('not letter');
         if (CharCmds[ch] || LatexCmds[ch])
           cmd = (CharCmds[ch] || LatexCmds[ch])(ch);
         else {
-          //log('VanillaSymbol');
           cmd = VanillaSymbol(ch);
         }
       }
-      //log('made cmd');
       return cmd;
     }
 
     // valid assignment left-hand-sides: https://github.com/desmosinc/knox/blob/27709c6066a544f160123a6bd775829ec8cd7080/frontend/desmos/public/assets/grapher/jison/latex.jison#L13-L15
     var matches = /^([a-z])(?:_([a-z0-9]|\{[a-z0-9]+\}))?=([-0-9.]+)$/i.exec(latex);
-    log('exec-ed regex');
 
     pray('valid restricted slider LaTeX', matches);
     var letter = matches[1];
     var subscript = matches[2];
     var value = matches[3];
-    //log('extracted matches');
 
     this.firstChild = this.lastChild = 0;
-    //log('killed children');
 
     letter = Variable(letter);
-    //log('made Variable');
 
     if (subscript) {
       var sub = LatexCmds._('_');
@@ -296,41 +279,26 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         }
       }
     }
-    //log('made subscript');
 
     letter.adopt(this, this.lastChild, 0);
-    //log('adopted letter');
     if (sub) sub.adopt(this, this.lastChild, 0);
-    //log('adopted subscript');
     LatexCmds['=']('=').adopt(this, this.lastChild, 0);
-    //log('made and adopted =');
     for (var i = 0, l = value.length; i < l; i += 1) {
-      //log('entered iteration');
       var ch = value.charAt(i);
-      //log('got ch');
       var cmd = makeCmd(ch);
-      //log('made cmd');
       cmd.adopt(this, this.lastChild, 0);
-      //log('adopted cmd; iteration complete');
     }
-    //log('made and adopted value symbols');
-    log('parsed latex and adopted into edit tree');
 
     var jQ = this.jQ;
 
     var html = this.join('html');
-    log('generated html');
     jQ.html(html);
-    log('set innerHTML');
     MathElement.jQize(jQ);
-    log('jQize-d');
     //this.finalizeInsert();
-    //log('this.finalizeInsert()');
 
     this.cursor.parent = this;
     this.cursor.prev = this.lastChild;
     this.cursor.next = 0;
-    log('appended cursor');
   };
   _.up = function() { this.triggerSpecialEvent('upPressed'); };
   _.down = function() { this.triggerSpecialEvent('downPressed'); };
