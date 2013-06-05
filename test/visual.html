@@ -236,6 +236,7 @@ function Avgs() {
 }
 var performance = window.performance || Date;
 window.rawLogs = [];
+$.fn.mathquill.setLogFn = $.fn.mathquill.setLogFn || $.noop;
 function timeAndLog(f) {
   var currentLog = [];
   $.fn.mathquill.setLogFn(function(msg) {
