@@ -83,8 +83,6 @@ var MathElement = P(Node, function(_) {
     var self = this;
     self.postOrder('finalizeTree');
 
-    self.postOrder('nonexistentMethod');
-
     // note: this order is important.
     // empty elements need the empty box provided by blur to
     // be present in order for their dimensions to be measured
