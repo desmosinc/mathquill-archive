@@ -40,7 +40,10 @@ var latexMathParser = (function() {
         return cmdKlass(ctrlSeq).parser();
       }
       else {
-        return fail('unknown command: \\'+ctrlSeq);
+        if(ctrlSeq.match(/[a-z]{4,\}/))
+          return UnItalicized(ctrlSeq).parser();
+        else
+          return fail("Unrecognized control sequence");
       }
     })
   ;
