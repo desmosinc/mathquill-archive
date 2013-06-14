@@ -58,15 +58,38 @@ function createRoot(container, root, textbox, editable) {
   container.bind('mousedown.mathquill touchstart.mathquill', function(e) {
     
     
-    var mousemove, startX, startY;
+    var mousemove, offsetX, offsetY, adjustedX, adjustedY;
     
+    //Super hacky method by eli just as proof of concept
+    //there was no way to move vertically. This takes the point you
+    //mousedown, and checks if there's mathquill underneath it. keeps moving up until it
+    //finds mathquill
+    var elementFromPoint = function(x, y) {
+      var target = null;
+      var iterations = 0;
+      $('.cursor').hide();
+      while ($(target).closest('.mathquill-root-block').length === 0 && iterations < 10) {
+        target = document.elementFromPoint(x, y-3*iterations);
+        iterations++; 
+      }
+      $('.cursor').show();
+      return target;
+    }
     
     //Added by Eli: drag around handle!
     if ($(e.target).hasClass('handle')) {
-      startX = e.pageX;
-      startY = e.pageY;
-      mousemove = function (e) {     
-        cursor.seek($(e.target), e.pageX, e.pageY);
+      var graphic = $(e.target).siblings('.graphic');
+      offsetX = e.pageX - (graphic.offset().left);
+      offsetY = e.pageY - (graphic.offset().top + graphic.height());
+      
+      mousemove = function (e) {
+        //HACK by eli: looks like we need e.target if we ever want vertical seek to work
+        adjustedX = e.pageX - offsetX;
+        adjustedY = e.pageY - offsetY;
+        $(document).append("<div style='width:4px; height: 4px; position: absolute; top:" + adjustedY + "; left: " + adjustedX + "; background: red'>hello world</div>");
+        e.target = elementFromPoint(adjustedX, adjustedY); 
+
+        cursor.seek($(e.target), adjustedX, adjustedY);
         if (cursor.prev !== anticursor.prev
             || cursor.parent !== anticursor.parent) {
         }
@@ -123,6 +146,8 @@ function createRoot(container, root, textbox, editable) {
       // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = noop;
+    //HACK BY ELI
+    e.target = elementFromPoint(e.pageX, e.pageY);
     cursor.seek($(e.target), e.pageX, e.pageY);
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
