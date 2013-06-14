@@ -55,16 +55,35 @@ function createRoot(container, root, textbox, editable) {
 
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
-  container.bind('mousedown.mathquill', function(e) {
-    function mousemove(e) {
-      cursor.seek($(e.target), e.pageX, e.pageY);
+  container.bind('mousedown.mathquill touchstart.mathquill', function(e) {
+    
+    
+    var mousemove, startX, startY;
+    
+    
+    //Added by Eli: drag around handle!
+    if ($(e.target).hasClass('handle')) {
+      startX = e.pageX;
+      startY = e.pageY;
+      mousemove = function (e) {     
+        cursor.seek($(e.target), e.pageX, e.pageY);
+        if (cursor.prev !== anticursor.prev
+            || cursor.parent !== anticursor.parent) {
+        }
 
-      if (cursor.prev !== anticursor.prev
-          || cursor.parent !== anticursor.parent) {
-        cursor.selectFrom(anticursor);
+        e.preventDefault();
       }
+    } else {
+      mousemove = function(e) {      
+        cursor.seek($(e.target), e.pageX, e.pageY);
 
-      e.preventDefault();
+        if (cursor.prev !== anticursor.prev
+            || cursor.parent !== anticursor.parent) {
+          cursor.selectFrom(anticursor);
+        }
+
+        e.preventDefault();
+      }
     }
 
     // docmousemove is attached to the document, so that
@@ -94,7 +113,7 @@ function createRoot(container, root, textbox, editable) {
 
       // delete the mouse handlers now that we're not dragging anymore
       container.unbind('mousemove', mousemove);
-      $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+      $(e.target.ownerDocument).unbind('mousemove touchmove', docmousemove).unbind('mouseup touchend', mouseup);
     }
 
     setTimeout(function() { if (root.blurred) textarea.focus(); });
@@ -111,7 +130,7 @@ function createRoot(container, root, textbox, editable) {
     if (!editable) container.prepend(textareaSpan);
 
     container.mousemove(mousemove);
-    $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
+    $(e.target.ownerDocument).bind('mousemove touchmove', docmousemove).bind('mouseup touchend', mouseup);
 
     e.preventDefault();
   });

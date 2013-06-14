@@ -2,14 +2,37 @@
   .inline-block;
 
   .cursor {
-    border-left: 1px solid black;
     margin-right: -1px;
     position: relative;
     z-index: 1;
     padding: 0;
     .inline-block;
+    
+    .graphic {
+      border-left: 1px solid black;
+      .inline-block;
+    }
 
-    &.blink { visibility: hidden; }
+    &.blink {
+      .graphic {
+        visibility: hidden; 
+      }
+    }
+    
+    .handle {
+      width: 20px;
+      height: 20px;
+      background: #444;
+      border: 1px solid #000;
+      display: block;
+      position: absolute;
+      bottom: -24px;
+      left: -11px;
+      visibility: visible !important;
+      border-radius: 4px;
+      cursor: pointer;
+      opacity: .6;
+    }
   }
 
   // This is a workaround to override the
