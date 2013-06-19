@@ -55,8 +55,17 @@ function createRoot(container, root, textbox, editable) {
 
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
+  
+  function getTouchEvent(e) {
+    if (e.originalEvent.touches || e.originalEvent.changedTouches) {
+      return e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+    }
+    return e;
+  }
+  
   container.bind('mousedown.mathquill touchstart.mathquill', function(e) {
-    
+    e.preventDefault();
+    e = getTouchEvent(e);
     
     var mousemove, offsetX, offsetY, adjustedX, adjustedY;
     
@@ -77,35 +86,38 @@ function createRoot(container, root, textbox, editable) {
     }
     
     //Added by Eli: drag around handle!
-    if ($(e.target).hasClass('handle')) {
-      var graphic = $(e.target).siblings('.graphic');
+    if ($(e.target).closest('.handle').length > 0) {    
+      
+      var graphic = $(e.target).closest('.handle').siblings('.graphic');
       offsetX = e.pageX - (graphic.offset().left);
       offsetY = e.pageY - (graphic.offset().top + graphic.height());
       
       mousemove = function (e) {
+        e.preventDefault();        
+        if (e.type === 'touchmove') {
+          e = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+        }
         //HACK by eli: looks like we need e.target if we ever want vertical seek to work
         adjustedX = e.pageX - offsetX;
         adjustedY = e.pageY - offsetY;
-        $(document).append("<div style='width:4px; height: 4px; position: absolute; top:" + adjustedY + "; left: " + adjustedX + "; background: red'>hello world</div>");
         e.target = elementFromPoint(adjustedX, adjustedY); 
 
         cursor.seek($(e.target), adjustedX, adjustedY);
         if (cursor.prev !== anticursor.prev
             || cursor.parent !== anticursor.parent) {
         }
-
-        e.preventDefault();
       }
     } else {
-      mousemove = function(e) {      
+      mousemove = function(e) {
+        e.preventDefault();
+        e = getTouchEvent(e);
+
         cursor.seek($(e.target), e.pageX, e.pageY);
 
         if (cursor.prev !== anticursor.prev
             || cursor.parent !== anticursor.parent) {
           cursor.selectFrom(anticursor);
         }
-
-        e.preventDefault();
       }
     }
 
@@ -123,6 +135,8 @@ function createRoot(container, root, textbox, editable) {
     }
 
     function mouseup(e) {
+      e = getTouchEvent(e);
+      console.log("ending", e);
       anticursor = undefined;
       cursor.blink = blink;
       if (!cursor.selection) {
@@ -156,8 +170,6 @@ function createRoot(container, root, textbox, editable) {
 
     container.mousemove(mousemove);
     $(e.target.ownerDocument).bind('mousemove touchmove', docmousemove).bind('mouseup touchend', mouseup);
-
-    e.preventDefault();
   });
 
   if (!editable) {

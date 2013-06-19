@@ -4,12 +4,11 @@
   .cursor {
     margin-right: -1px;
     position: relative;
-    z-index: 1;
     padding: 0;
     .inline-block;
     
     .graphic {
-      border-left: 1px solid black;
+      border-left: 1px solid #000;
       .inline-block;
     }
 
@@ -20,18 +19,18 @@
     }
     
     .handle {
-      width: 20px;
-      height: 20px;
-      background: #444;
-      border: 1px solid #000;
+      width: 34px;
+      height: 40px;
       display: block;
       position: absolute;
-      bottom: -30px;
-      left: -11px;
+      z-index: 0;
+      bottom: -42px;
+      left: -17px;
       visibility: visible !important;
       border-radius: 4px;
-      cursor: pointer;
-      opacity: .6;
+      text-align: center;
+      background: url(/img/pin-sq-top.png) no-repeat center 0;
+      background-size: 28px 28px;
     }
   }
 
