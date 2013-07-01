@@ -230,7 +230,7 @@ var Cursor = P(function(_) {
     else
       cursor.appendTo(block);
 
-    return cursor.seekHoriz(pageX, cursor.root);
+    return cursor.seekHoriz(pageX, block || cursor.root);
   };
   _.seekHoriz = function(pageX, block) {
     //move cursor to position closest to click
