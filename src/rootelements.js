@@ -55,16 +55,71 @@ function createRoot(container, root, textbox, editable) {
 
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
-  container.bind('mousedown.mathquill', function(e) {
-    function mousemove(e) {
-      cursor.seek($(e.target), e.pageX, e.pageY);
-
-      if (cursor.prev !== anticursor.prev
-          || cursor.parent !== anticursor.parent) {
-        cursor.selectFrom(anticursor);
+  
+  function getTouchEvent(e) {
+    if (e.originalEvent.touches || e.originalEvent.changedTouches) {
+      return e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+    }
+    return e;
+  }
+  
+  container.bind('mousedown.mathquill touchstart.mathquill', function(e) {
+    e.preventDefault();
+    e = getTouchEvent(e);
+    
+    var mousemove, offsetX, offsetY, adjustedX, adjustedY;
+    
+    //Super hacky method by eli just as proof of concept
+    //there was no way to move vertically. This takes the point you
+    //mousedown, and checks if there's mathquill underneath it. keeps moving up until it
+    //finds mathquill
+    var elementFromPoint = function(x, y) {
+      var target = null;
+      var iterations = 0;
+      $('.cursor').hide();
+      while ($(target).closest(root.jQ).length === 0 && iterations < 10) {
+        target = document.elementFromPoint(x, y-3*iterations);
+        iterations++; 
       }
+      $('.cursor').show();
+      if ($(target).closest(root.jQ).length) return target;
+      else return document.body;
+    }
+    
+    //Added by Eli: drag around handle!
+    if ($(e.target).closest('.handle').length > 0) {    
+      
+      var graphic = $(e.target).closest('.handle').siblings('.graphic');
+      offsetX = e.pageX - (graphic.offset().left);
+      offsetY = e.pageY - (graphic.offset().top + graphic.height());
+      
+      mousemove = function (e) {
+        e.preventDefault();        
+        if (e.type === 'touchmove') {
+          e = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+        }
+        //HACK by eli: looks like we need e.target if we ever want vertical seek to work
+        adjustedX = e.pageX - offsetX;
+        adjustedY = e.pageY - offsetY;
+        e.target = elementFromPoint(adjustedX, adjustedY); 
 
-      e.preventDefault();
+        cursor.seek($(e.target), adjustedX, adjustedY);
+        if (cursor.prev !== anticursor.prev
+            || cursor.parent !== anticursor.parent) {
+        }
+      }
+    } else {
+      mousemove = function(e) {
+        e.preventDefault();
+        e = getTouchEvent(e);
+
+        cursor.seek($(e.target), e.pageX, e.pageY);
+
+        if (cursor.prev !== anticursor.prev
+            || cursor.parent !== anticursor.parent) {
+          cursor.selectFrom(anticursor);
+        }
+      }
     }
 
     // docmousemove is attached to the document, so that
@@ -81,6 +136,8 @@ function createRoot(container, root, textbox, editable) {
     }
 
     function mouseup(e) {
+      e = getTouchEvent(e);
+      console.log("ending", e);
       anticursor = undefined;
       cursor.blink = blink;
       if (!cursor.selection) {
@@ -94,7 +151,7 @@ function createRoot(container, root, textbox, editable) {
 
       // delete the mouse handlers now that we're not dragging anymore
       container.unbind('mousemove', mousemove);
-      $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+      $(e.target.ownerDocument).unbind('mousemove touchmove', docmousemove).unbind('mouseup touchend', mouseup);
     }
 
     setTimeout(function() { if (root.blurred) textarea.focus(); });
@@ -104,6 +161,8 @@ function createRoot(container, root, textbox, editable) {
       // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = noop;
+    //HACK BY ELI
+    e.target = elementFromPoint(e.pageX, e.pageY);
     cursor.seek($(e.target), e.pageX, e.pageY);
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
@@ -111,9 +170,7 @@ function createRoot(container, root, textbox, editable) {
     if (!editable) container.prepend(textareaSpan);
 
     container.mousemove(mousemove);
-    $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
-
-    e.preventDefault();
+    $(e.target.ownerDocument).bind('mousemove touchmove', docmousemove).bind('mouseup touchend', mouseup);
   });
 
   if (!editable) {

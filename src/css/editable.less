@@ -2,14 +2,36 @@
   .inline-block;
 
   .cursor {
-    border-left: 1px solid black;
     margin-right: -1px;
     position: relative;
-    z-index: 1;
     padding: 0;
     .inline-block;
+    
+    .graphic {
+      border-left: 1px solid #000;
+      .inline-block;
+    }
 
-    &.blink { visibility: hidden; }
+    &.blink {
+      .graphic {
+        visibility: hidden; 
+      }
+    }
+    
+    .handle {
+      width: 40px;
+      height: 50px;
+      display: block;
+      position: absolute;
+      z-index: 0;
+      bottom: -50px;
+      left: -20px;
+      visibility: visible !important;
+      border-radius: 4px;
+      text-align: center;
+      background: url(/img/pin-sq-top.png) no-repeat center 3px;
+      background-size: 32px 32px;
+    }
   }
 
   // This is a workaround to override the

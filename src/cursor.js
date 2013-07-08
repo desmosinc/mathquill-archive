@@ -13,7 +13,7 @@ JS environment could actually contain many instances. */
 var Cursor = P(function(_) {
   _.init = function(root) {
     this.parent = this.root = root;
-    var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
+    var jQ = this.jQ = this._jQ = $('<span class="cursor"><span class="graphic">&zwj;</span><span class="handle"><span class="graphic"></span></span></span>');
 
     //closured for setInterval
     this.blink = function(){ jQ.toggleClass('blink'); }
@@ -230,7 +230,7 @@ var Cursor = P(function(_) {
     else
       cursor.appendTo(block);
 
-    return cursor.seekHoriz(pageX, cursor.root);
+    return cursor.seekHoriz(pageX, block || cursor.root);
   };
   _.seekHoriz = function(pageX, block) {
     //move cursor to position closest to click
