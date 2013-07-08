@@ -77,12 +77,13 @@ function createRoot(container, root, textbox, editable) {
       var target = null;
       var iterations = 0;
       $('.cursor').hide();
-      while ($(target).closest('.mathquill-root-block').length === 0 && iterations < 10) {
+      while ($(target).closest(root.jQ).length === 0 && iterations < 10) {
         target = document.elementFromPoint(x, y-3*iterations);
         iterations++; 
       }
       $('.cursor').show();
-      return target;
+      if ($(target).closest(root.jQ).length) return target;
+      else return document.body;
     }
     
     //Added by Eli: drag around handle!
