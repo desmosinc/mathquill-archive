@@ -2,14 +2,14 @@
   .inline-block;
 
   .cursor {
-    border-left: 1px solid black;
     margin-right: -1px;
     position: relative;
     z-index: 1;
     padding: 0;
     .inline-block;
 
-    &.blink { visibility: hidden; }
+    .line { border-left: 1px solid black; }
+    &.blink .line { visibility: hidden; }
 
     &.show-handle {
       // handle
@@ -17,7 +17,7 @@
         content: '';
         position: absolute;
         left: -10px;
-        -webkit-transform: translate(-.5px);
+        -webkit-transform: translate(.5px);
       }
       // triangle tip
       &:before {

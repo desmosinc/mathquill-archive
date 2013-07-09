@@ -167,10 +167,15 @@ function createRoot(container, root, textbox, editable) {
       touchmove: function(e) {
         cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
       },
-      touchend: function(e) { cursor.jQ.addClass('show-handle'); }
+      touchend: function(e) {
+        cursor.jQ.addClass('show-handle');
+        cursor.blink = blink;
+        cursor.show();
+      }
     };
   }));
   cursor.jQ.bind('touchstart.mathquill', firstFingerOnly(function(e) {
+    cursor.blink = noop;
     var cursorPos = cursor.jQ.offset();
     var offsetX = e.pageX - cursorPos.left;
     var offsetY = e.pageY - (cursorPos.top + cursor.jQ.height());
@@ -178,6 +183,10 @@ function createRoot(container, root, textbox, editable) {
       touchmove: function(e) {
         var adjustedX = e.pageX - offsetX, adjustedY = e.pageY - offsetY;
         cursor.seek(elAtPt(adjustedX, adjustedY), adjustedX, adjustedY);
+      },
+      touchend: function(e) {
+        cursor.blink = blink;
+        cursor.show();
       }
     };
   }));
