@@ -10,6 +10,30 @@
     .inline-block;
 
     &.blink { visibility: hidden; }
+
+    &.show-handle {
+      // handle
+      &:before, &:after {
+        content: '';
+        position: absolute;
+        left: -10px;
+        -webkit-transform: translate(-.5px);
+      }
+      // triangle tip
+      &:before {
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-bottom: 10px solid black;
+        bottom: -15px;
+      }
+      // rectangle block/handle body
+      &:after {
+        width: 20px;
+        height: 15px;
+        background: black;
+        bottom: -30px;
+      }
+    }
   }
 
   // This is a workaround to override the

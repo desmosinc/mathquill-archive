@@ -83,6 +83,7 @@ function createRoot(container, root, textbox, editable) {
     function mouseup(e) {
       anticursor = undefined;
       cursor.blink = blink;
+      cursor.jQ.removeClass('show-handle');
       if (!cursor.selection) {
         if (editable) {
           cursor.show();
@@ -115,6 +116,71 @@ function createRoot(container, root, textbox, editable) {
 
     e.preventDefault();
   });
+
+  // event handling for touch-draggable handle
+  /**
+   * Usage:
+   * jQ.on('touchstart', firstFingerOnly(function(touchstartCoords) {
+   *   return { // either of these are optional:
+   *     touchmove: function(touchmoveCoords) {},
+   *     touchend: function(touchendCoords) {}
+   *   };
+   * });
+   */
+  function firstFingerOnly(ontouchstart) {
+    return function(e) {
+      e.preventDefault();
+      var e = e.originalEvent;
+      if (e.changedTouches.length < e.touches.length) return; // not first finger
+      var touchstart = e.changedTouches[0];
+      var handlers = ontouchstart(touchstart);
+      if (handlers.touchmove) {
+        $(this).bind('touchmove', function(e) {
+          var touchmove = e.originalEvent.changedTouches[0];
+          if (touchmove.id !== touchstart.id) return;
+          handlers.touchmove.call(this, touchmove);
+        });
+      }
+      $(this).bind('touchend', function(e) {
+        var touchend = e.originalEvent.changedTouches[0];
+        if (touchend.id !== touchstart.id) return;
+        if (handlers.touchend) handlers.touchend.call(this, touchend);
+        $(this).unbind('touchmove touchend');
+      });
+    };
+  }
+  /* returns the element at the given point looking "through" the cursor
+   * handle, if it's in the current editable */
+  function elAtPt(x, y) {
+    cursor.jQ.hide();
+    var el = $(document.elementFromPoint(x, y));
+    cursor.jQ.show();
+    return el.closest(root.jQ).length ? el : root.jQ;
+  }
+
+  container.bind('touchstart.mathquill', firstFingerOnly(function(e) {
+    if (e.target === cursor.jQ[0]) return;
+    cursor.blink = noop;
+
+    cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
+    return {
+      touchmove: function(e) {
+        cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
+      },
+      touchend: function(e) { cursor.jQ.addClass('show-handle'); }
+    };
+  }));
+  cursor.jQ.bind('touchstart.mathquill', firstFingerOnly(function(e) {
+    var cursorPos = cursor.jQ.offset();
+    var offsetX = e.pageX - cursorPos.left;
+    var offsetY = e.pageY - (cursorPos.top + cursor.jQ.height());
+    return {
+      touchmove: function(e) {
+        var adjustedX = e.pageX - offsetX, adjustedY = e.pageY - offsetY;
+        cursor.seek(elAtPt(adjustedX, adjustedY), adjustedX, adjustedY);
+      }
+    };
+  }));
 
   if (!editable) {
     var textareaManager = manageTextarea(textarea, { container: container });
