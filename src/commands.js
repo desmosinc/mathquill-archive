@@ -306,7 +306,7 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
       '<span class="fraction non-leaf">'
     +   '<span class="numerator">&0</span>'
     +   '<span class="denominator">&1</span>'
-    +   '<span style="display:inline-block;width:0">&nbsp;</span>'
+    +   '<span style="display:inline-block;width:0;overflow:hidden">&nbsp;</span>'
     + '</span>'
   ;
   _.textTemplate = ['(', '/', ')'];
