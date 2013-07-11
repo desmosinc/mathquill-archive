@@ -177,7 +177,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     }));
   };
 
-  _.seek = function(pageX, cursor) {
+  _.seek = function(cursor, pageX, pageY) {
     function getBounds(node) {
       var bounds = {}
       bounds.prev = node.jQ.offset().left;
@@ -190,6 +190,13 @@ var MathCommand = P(MathElement, function(_, _super) {
 
     if (pageX < cmdBounds.prev) return cursor.insertBefore(cmd);
     if (pageX > cmdBounds.next) return cursor.insertAfter(cmd);
+
+    if ('up' in cmd) {
+      var topBound = cmd.jQ.offset().top;
+      if (pageY < topBound) return cmd.up.seek(cursor, pageX, pageY);
+      var bottomBound = topBound + cmd.jQ.outerHeight();
+      if (pageY > bottomBound) return cmd.down.seek(cursor, pageX, pageY);
+    }
 
     var leftLeftBound = cmdBounds.prev;
     cmd.eachChild(function(block) {
@@ -214,7 +221,7 @@ var MathCommand = P(MathElement, function(_, _super) {
         }
       }
       else {
-        block.seek(pageX, cursor);
+        block.seek(cursor, pageX, pageY);
         return false;
       }
     });
@@ -374,7 +381,7 @@ var Symbol = P(MathCommand, function(_, _super) {
   };
   _.createBlocks = noop;
 
-  _.seek = function(pageX, cursor) {
+  _.seek = function(cursor, pageX, pageY) {
     // insert at whichever side the click was closer to
     if (pageX - this.jQ.offset().left < this.jQ.outerWidth()/2)
       cursor.insertBefore(this);
@@ -409,14 +416,14 @@ var MathBlock = P(MathElement, function(_) {
   _.isEmpty = function() {
     return this.firstChild === 0 && this.lastChild === 0;
   };
-  _.seek = function(pageX, cursor) {
+  _.seek = function(cursor, pageX, pageY) {
     var node = this.lastChild;
     if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {
       return cursor.appendTo(this);
     }
     if (pageX < this.firstChild.jQ.offset().left) return cursor.prependTo(this);
     while (pageX < node.jQ.offset().left) node = node.prev;
-    return node.seek(pageX, cursor);
+    return node.seek(cursor, pageX, pageY);
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');

@@ -183,7 +183,7 @@ var Cursor = P(function(_) {
                 }
               } else {
                 var pageX = offset(self).left;
-                prop.seek(pageX, self);
+                prop.seek(self, pageX);
               }
             }
             break;
@@ -208,7 +208,7 @@ var Cursor = P(function(_) {
     var node = nodeId ? MathElement[nodeId] : cursor.root;
     pray('nodeId is the id of some Node that exists', node);
 
-    node.seek(pageX, cursor);
+    node.seek(cursor, pageX, pageY);
 
     return cursor;
   };
