@@ -191,11 +191,13 @@ var MathCommand = P(MathElement, function(_, _super) {
     if (pageX < cmdBounds.prev) return cursor.insertBefore(cmd);
     if (pageX > cmdBounds.next) return cursor.insertAfter(cmd);
 
-    if ('up' in cmd) {
+    if (cmd.up || cmd.down) {
       var topBound = cmd.jQ.offset().top;
-      if (pageY < topBound) return cmd.up.seek(cursor, pageX, pageY);
-      var bottomBound = topBound + cmd.jQ.outerHeight();
-      if (pageY > bottomBound) return cmd.down.seek(cursor, pageX, pageY);
+      if (cmd.up && pageY < topBound) return cmd.up.seek(cursor, pageX, pageY);
+      if (cmd.down) {
+        var bottomBound = topBound + cmd.jQ.outerHeight();
+        if (pageY > bottomBound) return cmd.down.seek(cursor, pageX, pageY);
+      }
     }
 
     var leftLeftBound = cmdBounds.prev;
