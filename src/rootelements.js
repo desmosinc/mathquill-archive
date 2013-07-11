@@ -178,7 +178,7 @@ function createRoot(container, root, textbox, editable) {
     cursor.blink = noop;
     var cursorPos = cursor.jQ.offset();
     var offsetX = e.pageX - cursorPos.left;
-    var offsetY = e.pageY - (cursorPos.top + cursor.jQ.height());
+    var offsetY = e.pageY - (cursorPos.top + cursor.jQ.height()/2);
     return {
       touchmove: function(e) {
         var adjustedX = e.pageX - offsetX, adjustedY = e.pageY - offsetY;
