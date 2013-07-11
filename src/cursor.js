@@ -183,8 +183,7 @@ var Cursor = P(function(_) {
                 }
               } else {
                 var pageX = offset(self).left;
-                self.appendTo(prop);
-                self.seekHoriz(pageX, prop);
+                prop.seek(pageX, self);
               }
             }
             break;
@@ -199,64 +198,17 @@ var Cursor = P(function(_) {
 
   _.seek = function(target, pageX, pageY) {
     clearUpDownCache(this);
-    var cmd, block, cursor = this.clearSelection().show();
+    var cursor = this.clearSelection().show();
 
-    block = MathElement[target.attr(mqBlockId)];
-    if (block && target.hasClass('empty')) {
-      cursor.prependTo(block);
-      return cursor;
+    var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
+    if (!nodeId) {
+      var targetParent = target.parent();
+      nodeId = targetParent.attr(mqBlockId) || targetParent.attr(mqCmdId);
     }
+    var node = nodeId ? MathElement[nodeId] : cursor.root;
+    pray('nodeId is the id of some Node that exists', node);
 
-    cmd = MathElement[target.attr(mqCmdId)];
-    if (cmd instanceof Symbol) { //insert at whichever side is closer
-      if (target.outerWidth() > 2*(pageX - target.offset().left))
-        cursor.insertBefore(cmd);
-      else
-        cursor.insertAfter(cmd);
-
-      return cursor;
-    }
-    if (!cmd && !block) { //if no MathQuill data, try parent, if still no, just start from the root
-      target = target.parent();
-      cmd = MathElement[target.attr(mqCmdId)];
-      if (!cmd) {
-        block = MathElement[target.attr(mqBlockId)];
-        if (!block) block = cursor.root;
-      }
-    }
-
-    if (cmd)
-      cursor.insertAfter(cmd);
-    else
-      cursor.appendTo(block);
-
-    return cursor.seekHoriz(pageX, block || cursor.root);
-  };
-  _.seekHoriz = function(pageX, block) {
-    //move cursor to position closest to click
-    var cursor = this;
-    var dist = offset(cursor).left - pageX;
-    var prevDist;
-
-    while (dist > 0 && (cursor.prev || cursor.parent !== block)) {
-      //FIXME HACK
-      //with x_1^2, when the cursor is in the exponent,
-      //moveLeftWithinBlock will move it in-between the subscript
-      //and the exponent, which is fine, but the next call to
-      //moveLeftWithinBlock will see that when moving horizontally
-      //into the subscript, the cursor should go to the "top" block
-      //which is in fact the exponent...ad nauseum.
-      //Gosh, if only moving horizontally into a node was delegated
-      //to its .moveToward() method or something.
-      if (!cursor.prev && cursor.parent.parent.respaced)
-        cursor.appendTo(cursor.parent.parent.prev.firstChild);
-      else
-        cursor.moveLeftWithin(block);
-      prevDist = dist;
-      dist = offset(cursor).left - pageX;
-    }
-
-    if (-dist > prevDist) cursor.moveRightWithin(block);
+    node.seek(pageX, cursor);
 
     return cursor;
   };
