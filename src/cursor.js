@@ -212,6 +212,11 @@ var Cursor = P(function(_) {
 
     return cursor;
   };
+  _.sqDistFrom = function(pageX, pageY) {
+    var pos = offset(this);
+    var a = pageX - pos.left, b = pageY - pos.top - this.jQ.height()/2;
+    return a*a + b*b;
+  };
   function offset(self) {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
     //returns all 0's on inline elements with negative margin-right (like

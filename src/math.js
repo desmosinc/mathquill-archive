@@ -425,7 +425,36 @@ var MathBlock = P(MathElement, function(_) {
     }
     if (pageX < this.firstChild.jQ.offset().left) return cursor.prependTo(this);
     while (pageX < node.jQ.offset().left) node = node.prev;
-    return node.seek(cursor, pageX, pageY);
+    node.seek(cursor, pageX, pageY);
+    // XXX HACK for optimal Euclidean distance
+    var bestSqDist = cursor.sqDistFrom(pageX, pageY);
+    var bestParent = cursor.parent, bestNext = cursor.next;
+    if (pageX < node.jQ.offset().left + node.jQ.outerWidth()/4) {
+      if (cursor.next !== node) {
+        cursor.insertBefore(node);
+        var sqDist = cursor.sqDistFrom(pageX, pageY);
+        if (sqDist < bestSqDist) {
+          bestSqDist = sqDist, bestParent = cursor.parent, bestNext = cursor.next;
+        }
+      }
+      node.prev.seek(cursor, pageX, pageY);
+      if (bestSqDist < cursor.sqDistFrom(pageX, pageY)) {
+        bestNext ? cursor.insertBefore(bestNext) : cursor.appendTo(bestParent);
+      }
+    }
+    else if (node.jQ.offset().left + node.jQ.outerWidth()*3/4) {
+      if (cursor.prev !== node) {
+        cursor.insertAfter(node);
+        var sqDist = cursor.sqDistFrom(pageX, pageY);
+        if (sqDist < bestSqDist) {
+          bestSqDist = sqDist, bestParent = cursor.parent, bestNext = cursor.next;
+        }
+      }
+      node.next.seek(cursor, pageX, pageY);
+      if (bestSqDist < cursor.sqDistFrom(pageX, pageY)) {
+        bestNext ? cursor.insertBefore(bestNext) : cursor.appendTo(bestParent);
+      }
+    }
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');
