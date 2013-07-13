@@ -439,36 +439,19 @@ var MathBlock = P(MathElement, function(_) {
     var bestSqDist = cursor.sqDistFrom(pageX, pageY);
     var bestParent = cursor.parent, bestNext = cursor.next;
     if (pageX < node.jQ.offset().left + node.jQ.outerWidth()/4) {
-      if (cursor.next !== node) {
-        cursor.insertBefore(node);
-        var sqDist = cursor.sqDistFrom(pageX, pageY);
-        if (sqDist < bestSqDist) {
-          bestSqDist = sqDist, bestParent = cursor.parent, bestNext = cursor.next;
-        }
-      }
       if (node.prev) {
         node.prev.seek(cursor, pageX, pageY);
         var sqDist = cursor.sqDistFrom(pageX, pageY);
       }
-      if (!(sqDist < bestSqDist)) {
-        bestNext ? cursor.insertBefore(bestNext) : cursor.appendTo(bestParent);
-      }
     }
     else if (node.jQ.offset().left + node.jQ.outerWidth()*3/4 < pageX) {
-      if (cursor.prev !== node) {
-        cursor.insertAfter(node);
-        var sqDist = cursor.sqDistFrom(pageX, pageY);
-        if (sqDist < bestSqDist) {
-          bestSqDist = sqDist, bestParent = cursor.parent, bestNext = cursor.next;
-        }
-      }
       if (node.next) {
         node.next.seek(cursor, pageX, pageY);
         var sqDist = cursor.sqDistFrom(pageX, pageY);
       }
-      if (!(sqDist < bestSqDist)) {
-        bestNext ? cursor.insertBefore(bestNext) : cursor.appendTo(bestParent);
-      }
+    }
+    if (sqDist !== undefined && !(sqDist < bestSqDist)) {
+      bestNext ? cursor.insertBefore(bestNext) : cursor.appendTo(bestParent);
     }
   };
   _.focus = function() {
