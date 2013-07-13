@@ -188,9 +188,6 @@ var MathCommand = P(MathElement, function(_, _super) {
     var cmd = this;
     var cmdBounds = getBounds(cmd);
 
-    if (pageX < cmdBounds.prev) return cursor.insertBefore(cmd);
-    if (pageX > cmdBounds.next) return cursor.insertAfter(cmd);
-
     if (cmd.up || cmd.down) {
       var topBound = cmd.jQ.offset().top;
       if (cmd.up && pageY < topBound) return cmd.up.seek(cursor, pageX, pageY);
@@ -227,6 +224,18 @@ var MathCommand = P(MathElement, function(_, _super) {
         return false;
       }
     });
+
+    var leftOfCmd = pageX < cmd.firstChild.jQ.offset().left;
+    var rightOfCmd = pageX > cmd.lastChild.jQ.offset().left + cmd.lastChild.jQ.outerWidth();
+    if (leftOfCmd || rightOfCmd) {
+      var origSqDist = cursor.sqDistFrom(pageX, pageY);
+      var origParent = cursor.parent, origNext = cursor.next;
+      if (leftOfCmd) cursor.insertBefore(cmd);
+      else cursor.insertAfter(cmd);
+      if (!(cursor.sqDistFrom(pageX, pageY) < origSqDist)) {
+        origNext ? cursor.insertBefore(origNext) : cursor.appendTo(origParent);
+      }
+    }
   };
 
   // remove()
