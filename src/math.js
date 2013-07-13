@@ -438,13 +438,13 @@ var MathBlock = P(MathElement, function(_) {
     // XXX HACK for optimal Euclidean distance
     var bestSqDist = cursor.sqDistFrom(pageX, pageY);
     var bestParent = cursor.parent, bestNext = cursor.next;
-    if (pageX < node.jQ.offset().left + node.jQ.outerWidth()/4) {
+    if (pageX < node.jQ.offset().left + node.jQ.outerWidth()/2) {
       if (node.prev) {
         node.prev.seek(cursor, pageX, pageY);
         var sqDist = cursor.sqDistFrom(pageX, pageY);
       }
     }
-    else if (node.jQ.offset().left + node.jQ.outerWidth()*3/4 < pageX) {
+    else if (node.jQ.offset().left + node.jQ.outerWidth()/2 < pageX) {
       if (node.next) {
         node.next.seek(cursor, pageX, pageY);
         var sqDist = cursor.sqDistFrom(pageX, pageY);
