@@ -437,8 +437,11 @@ var MathBlock = P(MathElement, function(_) {
           bestSqDist = sqDist, bestParent = cursor.parent, bestNext = cursor.next;
         }
       }
-      node.prev.seek(cursor, pageX, pageY);
-      if (bestSqDist < cursor.sqDistFrom(pageX, pageY)) {
+      if (node.prev) {
+        node.prev.seek(cursor, pageX, pageY);
+        var sqDist = cursor.sqDistFrom(pageX, pageY);
+      }
+      if (!(sqDist < bestSqDist)) {
         bestNext ? cursor.insertBefore(bestNext) : cursor.appendTo(bestParent);
       }
     }
@@ -450,8 +453,11 @@ var MathBlock = P(MathElement, function(_) {
           bestSqDist = sqDist, bestParent = cursor.parent, bestNext = cursor.next;
         }
       }
-      node.next.seek(cursor, pageX, pageY);
-      if (bestSqDist < cursor.sqDistFrom(pageX, pageY)) {
+      if (node.next) {
+        node.next.seek(cursor, pageX, pageY);
+        var sqDist = cursor.sqDistFrom(pageX, pageY);
+      }
+      if (!(sqDist < bestSqDist)) {
         bestNext ? cursor.insertBefore(bestNext) : cursor.appendTo(bestParent);
       }
     }
