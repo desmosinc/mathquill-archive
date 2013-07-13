@@ -445,7 +445,7 @@ var MathBlock = P(MathElement, function(_) {
         bestNext ? cursor.insertBefore(bestNext) : cursor.appendTo(bestParent);
       }
     }
-    else if (node.jQ.offset().left + node.jQ.outerWidth()*3/4) {
+    else if (node.jQ.offset().left + node.jQ.outerWidth()*3/4 < pageX) {
       if (cursor.prev !== node) {
         cursor.insertAfter(node);
         var sqDist = cursor.sqDistFrom(pageX, pageY);
