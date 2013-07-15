@@ -105,7 +105,7 @@ function createRoot(container, root, textbox, editable) {
       // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = noop;
-    cursor.seek($(e.target), e.pageX, e.pageY);
+    cursor.seekStart($(e.target), e.pageX, e.pageY);
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
@@ -162,7 +162,7 @@ function createRoot(container, root, textbox, editable) {
     if (e.target === cursor.jQ[0]) return;
     cursor.blink = noop;
 
-    cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
+    cursor.seekStart(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
     return {
       touchmove: function(e) {
         cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
@@ -177,8 +177,9 @@ function createRoot(container, root, textbox, editable) {
   cursor.jQ.bind('touchstart.mathquill', firstFingerOnly(function(e) {
     cursor.blink = noop;
     var cursorPos = cursor.jQ.offset();
-    var offsetX = e.pageX - cursorPos.left;
-    var offsetY = e.pageY - (cursorPos.top + cursor.jQ.height()/2);
+    var cursorX = cursorPos.left, cursorY = cursorPos.top + cursor.jQ.height()/2;
+    var offsetX = e.pageX - cursorX, offsetY = e.pageY - cursorY;
+    cursor.seekStart(elAtPt(cursorX, cursorY), cursorX, cursorY);
     return {
       touchmove: function(e) {
         var adjustedX = e.pageX - offsetX, adjustedY = e.pageY - offsetY;

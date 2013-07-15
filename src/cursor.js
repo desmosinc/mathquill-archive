@@ -197,40 +197,46 @@ var Cursor = P(function(_) {
     return self.clearSelection().show();
   }
 
+  _.seekStart = function(target, pageX, pageY) {
+    clearUpDownCache(this);
+    var cmd, block, cursor = this.clearSelection().show();
+
+    var places = cursor.places = [];
+    (function traverseBlock(block) {
+      cursor.prependTo(block);
+      do {
+        var pos = offset(cursor);
+        places.push({
+          x: pos.left,
+          y: pos.top + cursor.jQ.height()/2,
+          parent: cursor.parent,
+          next: cursor.next
+        });
+        var nextCmd = cursor.next;
+        if (nextCmd) {
+          nextCmd.eachChild(traverseBlock);
+          cursor.insertAfter(nextCmd);
+        }
+      } while (nextCmd);
+    }(cursor.root));
+
+    return this.seek(target, pageX, pageY);
+  };
   _.seek = function(target, pageX, pageY) {
     clearUpDownCache(this);
     var cmd, block, cursor = this.clearSelection().show();
 
-    block = MathElement[target.attr(mqBlockId)];
-    if (block && target.hasClass('empty')) {
-      cursor.prependTo(block);
-      return cursor;
+    var places = cursor.places;
+    for (var i = 0, len = places.length; i < len; i += 1) {
+      var place = places[i], dx = pageX - place.x, dy = pageY - place.y;
+      place.sqDist = dx*dx + dy*dy;
     }
 
-    cmd = MathElement[target.attr(mqCmdId)];
-    if (cmd instanceof Symbol) { //insert at whichever side is closer
-      if (target.outerWidth() > 2*(pageX - target.offset().left))
-        cursor.insertBefore(cmd);
-      else
-        cursor.insertAfter(cmd);
+    places.sort(function(a, b) { return a.sqDist - b.sqDist });
+    var opt = places[0];
+    opt.next ? cursor.insertBefore(opt.next) : cursor.appendTo(opt.parent);
 
-      return cursor;
-    }
-    if (!cmd && !block) { //if no MathQuill data, try parent, if still no, just start from the root
-      target = target.parent();
-      cmd = MathElement[target.attr(mqCmdId)];
-      if (!cmd) {
-        block = MathElement[target.attr(mqBlockId)];
-        if (!block) block = cursor.root;
-      }
-    }
-
-    if (cmd)
-      cursor.insertAfter(cmd);
-    else
-      cursor.appendTo(block);
-
-    return cursor.seekHoriz(pageX, block || cursor.root);
+    return cursor;
   };
   _.seekHoriz = function(pageX, block) {
     //move cursor to position closest to click
