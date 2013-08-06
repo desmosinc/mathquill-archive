@@ -98,6 +98,66 @@ var MathElement = P(Node, function(_) {
     self.bubble('redraw');
     self.bubble('redraw');
   };
+
+  _.seek = function(cursor, pageX, pageY) {
+    var frontier = [];
+    function sortFrontier() {
+      frontier.sort(function(a, b) { return b.sqDist - a.sqDist; });
+    }
+    var add = {
+      point: function(parent, next, x, y) {
+        var dx = pageX - x, dy = pageY - y;
+        frontier.push({ parent: parent, next: next, sqDist: dx*dx + dy*dy });
+      },
+      node: function(node) {
+        if (!node) return;
+        var pos = node.jQ.offset(), xMin = pos.left, yMin = pos.top;
+        if (pageX <= xMin) var closestX = xMin;
+        else {
+          var xMax = xMin + node.jQ.outerWidth(true);
+          if (pageX >= xMax) var closestX = xMax;
+          else var closestX = pageX;
+        }
+        if (pageY <= yMin) var closestY = yMin;
+        else {
+          var yMax = yMin + node.jQ.outerHeight(true);
+          if (pageY >= yMax) var closestY = yMax;
+          else var closestY = pageY;
+        }
+        var dx = pageX - closestX, dy = pageY - closestY;
+        frontier.push({ node: node, sqDist: dx*dx + dy*dy });
+      },
+      container: function(node) {
+        if (node === cursor.root) return; // can't escape root container
+        var pos = node.jQ.offset(), xMin = pos.left, yMin = pos.top;
+        var xMax = xMin + node.jQ.outerHeight(true), yMax = yMin + node.jQ.outerWidth(true);
+        var dist = min(pageX - xMin, pageY - yMin, xMax - pageX, yMax - pageY);
+        frontier.push({ container: node, sqDist: dist * dist,
+                        box: { xMin: xMin, yMin: yMin, xMax: xMax, yMax: yMax } });
+      }
+    };
+
+    this.seekPoint(pageX, pageY, add.point);
+    this.eachChild(add.node);
+    add.container(this);
+    var best = frontier.pop();
+    while (!best.parent) {
+      if (best.container) {
+        var container = best.container, outer = container.parent;
+        outer.seekPoint(pageX, pageY, add.point);
+        outer.eachChild(function(n) { if (n !== container) add.node(n); });
+        add.container(outer);
+      }
+      else {
+        best.node.seekPoint(pageX, pageY, add.point);
+        best.node.eachChild(add.node);
+      }
+      sortFrontier();
+      best = frontier.pop();
+    }
+    if (best.next) cursor.insertBefore(best.next);
+    else cursor.appendTo(best.parent);
+  };
 });
 
 /**
@@ -177,65 +237,9 @@ var MathCommand = P(MathElement, function(_, _super) {
     }));
   };
 
-  _.seek = function(cursor, pageX, pageY) {
-    function getBounds(node) {
-      var bounds = {}
-      bounds.prev = node.jQ.offset().left;
-      bounds.next = bounds.prev + node.jQ.outerWidth();
-      return bounds;
-    }
-
-    var cmd = this;
-    var cmdBounds = getBounds(cmd);
-
-    if (cmd.up || cmd.down) {
-      var topBound = cmd.jQ.offset().top;
-      if (cmd.up && pageY < topBound) return cmd.up.seek(cursor, pageX, pageY);
-      if (cmd.down) {
-        var bottomBound = topBound + cmd.jQ.outerHeight();
-        if (pageY > bottomBound) return cmd.down.seek(cursor, pageX, pageY);
-      }
-    }
-
-    var leftLeftBound = cmdBounds.prev;
-    cmd.eachChild(function(block) {
-      var blockBounds = getBounds(block);
-      if (pageX < blockBounds.prev) {
-        // closer to this block's left bound, or the bound left of that?
-        if (pageX - leftLeftBound < blockBounds.prev - pageX) {
-          if (block.prev) cursor.appendTo(block.prev);
-          else cursor.insertBefore(cmd);
-        }
-        else cursor.prependTo(block);
-        return false;
-      }
-      else if (pageX > blockBounds.next) {
-        if (block.next) leftLeftBound = blockBounds.next; // continue to next block
-        else { // last (rightmost) block
-          // closer to this block's right bound, or the cmd's right bound?
-          if (cmdBounds.next - pageX < pageX - blockBounds.next) {
-            cursor.insertAfter(cmd);
-          }
-          else cursor.appendTo(block);
-        }
-      }
-      else {
-        block.seek(cursor, pageX, pageY);
-        return false;
-      }
-    });
-
-    var leftOfCmd = pageX < cmd.firstChild.jQ.offset().left;
-    var rightOfCmd = pageX > cmd.lastChild.jQ.offset().left + cmd.lastChild.jQ.outerWidth();
-    if (leftOfCmd || rightOfCmd) {
-      var origSqDist = cursor.sqDistFrom(pageX, pageY);
-      var origParent = cursor.parent, origNext = cursor.next;
-      if (leftOfCmd) cursor.insertBefore(cmd);
-      else cursor.insertAfter(cmd);
-      if (!(cursor.sqDistFrom(pageX, pageY) < origSqDist)) {
-        origNext ? cursor.insertBefore(origNext) : cursor.appendTo(origParent);
-      }
-    }
+  _.seekPoint = noop;
+  _.expectedCursorYNextTo = function() {
+    return this.firstChild.expectedCursorYInside();
   };
 
   // remove()
@@ -399,6 +403,9 @@ var Symbol = P(MathCommand, function(_, _super) {
     else
       cursor.insertAfter(this);
   };
+  _.expectedCursorYNextTo = function() {
+    return this.jQ.offset().top + this.jQ.outerHeight()/2;
+  };
 
   _.latex = function(){ return this.ctrlSeq; };
   _.text = function(){ return this.textTemplate; };
@@ -427,32 +434,33 @@ var MathBlock = P(MathElement, function(_) {
   _.isEmpty = function() {
     return this.firstChild === 0 && this.lastChild === 0;
   };
-  _.seek = function(cursor, pageX, pageY) {
-    var node = this.lastChild;
-    if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {
-      return cursor.appendTo(this);
+  _.seekPoint = function(pageX, pageY, addPoint) {
+    if (!this.firstChild) {
+      var next = 0, closestX = this.jQ.offset().left + this.jQ.outerWidth()/2;
     }
-    if (pageX < this.firstChild.jQ.offset().left) return cursor.prependTo(this);
-    while (pageX < node.jQ.offset().left) node = node.prev;
-    node.seek(cursor, pageX, pageY);
-    // XXX HACK for optimal Euclidean distance
-    var bestSqDist = cursor.sqDistFrom(pageX, pageY);
-    var bestParent = cursor.parent, bestNext = cursor.next;
-    if (pageX < node.jQ.offset().left + node.jQ.outerWidth()/2) {
-      if (node.prev) {
-        node.prev.seek(cursor, pageX, pageY);
-        var sqDist = cursor.sqDistFrom(pageX, pageY);
+    else {
+      var xMin = this.firstChild.jQ.offset().left;
+      if (pageX <= xMin) var next = this.firstChild, closestX = xMin;
+      else {
+        var lastChildLeftEdge = this.lastChild.jQ.offset().left;
+        var xMax = lastChildLeftEdge + this.lastChild.jQ.outerWidth();
+        if (pageX >= xMax) var next = 0, closestX = xMax;
+        else {
+          var rightEdge = xMax, next = this.lastChild, closestX = lastChildLeftEdge;
+          while (pageX < closestX) {
+            rightEdge = closestX, next = next.prev, closestX = next.jQ.offset().left;
+          }
+          if (rightEdge - pageX < pageX - closestX) {
+            next = next.next, closestX = rightEdge;
+          }
+        }
       }
     }
-    else if (node.jQ.offset().left + node.jQ.outerWidth()/2 < pageX) {
-      if (node.next) {
-        node.next.seek(cursor, pageX, pageY);
-        var sqDist = cursor.sqDistFrom(pageX, pageY);
-      }
-    }
-    if (sqDist !== undefined && !(sqDist < bestSqDist)) {
-      bestNext ? cursor.insertBefore(bestNext) : cursor.appendTo(bestParent);
-    }
+    addPoint(this, next, closestX, this.expectedCursorYInside());
+  };
+  _.expectedCursorYInside = function() {
+    if (this.firstChild) return this.firstChild.expectedCursorYNextTo();
+    else return this.jQ.offset().top + this.jQ.outerHeight()/2;
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');

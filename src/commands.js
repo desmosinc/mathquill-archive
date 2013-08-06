@@ -287,6 +287,13 @@ var SupSub = P(MathCommand, function(_, _super) {
     this.getCursor = function() { return cursor; };
     return this.getCursor();
   };
+  _.expectedCursorYNextTo = function() {
+    // superscripts and subscripts are vertical-align-ed +/- 0.5em, so
+    // their bottom or top edge almost perfectly aligns with the
+    // cursor's center
+    if (this.ctrlSeq === '_') return this.jQ.offset().top;
+    else return this.jQ.offset().top + this.jQ.outerHeight();
+  };
 });
 
 LatexCmds.subscript =
@@ -313,6 +320,11 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   _.finalizeTree = function() {
     this.up = this.lastChild.up = this.firstChild;
     this.down = this.firstChild.down = this.lastChild;
+  };
+  _.expectedCursorYNextTo = function() {
+    // vertical-align-ed -0.5em, so the top edge of the span that sets
+    // the baseline almost perfectly aligns with the cursor's center
+    return $(this.jQ[0].lastChild).offset().top;
   };
 });
 
@@ -421,6 +433,11 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
     }
   };
   _.getCursor = SupSub.prototype.getCursor;
+  _.expectedCursorYNextTo = function() {
+    // superscripts are vertical-align-ed 0.5em, so their bottom edge
+    // almost perfectly aligns with the cursor's center
+    return this.jQ.first().offset().top + this.jQ.first().outerHeight();
+  };
 });
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
@@ -879,6 +896,8 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
     var parens = this.jQ.filter('.paren');
     scale(parens, min(1 + .2*(height - 1), 1.2), 1.05*height);
   };
+  // vertical-align: middle, so
+  _.expectedCursorYNextTo = Symbol.prototype.expectedCursorYNextTo;
 });
 
 var Choose =
@@ -987,4 +1006,6 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       }
     }
   };
+  // vertical-align: middle, so
+  _.expectedCursorYNextTo = Binomial.prototype.expectedCursorYNextTo;
 });
