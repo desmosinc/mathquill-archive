@@ -109,6 +109,8 @@ var SupSub = P(MathCommand, function(_, _super) {
         block.down = insertAfterUnlessAtBeginning;
       }
       this.disown();
+      var cursor = this.getCursor();
+      if (cursor.prev === this) cursor.prev = bigSym;
       this.respace = noop; // don't let SupSub::respace reset the .up/.down ptrs
       return;
     }
