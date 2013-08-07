@@ -83,7 +83,6 @@ function createRoot(container, root, textbox, editable) {
     function mouseup(e) {
       anticursor = undefined;
       cursor.blink = blink;
-      cursor.jQ.removeClass('show-handle');
       if (!cursor.selection) {
         if (editable) {
           cursor.show();
@@ -105,6 +104,7 @@ function createRoot(container, root, textbox, editable) {
       // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = noop;
+    cursor.jQ.removeClass('show-handle');
     cursor.seek($(e.target), e.pageX, e.pageY);
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
