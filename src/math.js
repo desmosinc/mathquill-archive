@@ -122,8 +122,7 @@ var MathElement = P(Node, function(_) {
       var pos = node.jQ.offset(), xMin = pos.left, yMin = pos.top;
       var xMax = xMin + node.jQ.outerHeight(true), yMax = yMin + node.jQ.outerWidth(true);
       var dist = min(pageX - xMin, pageY - yMin, xMax - pageX, yMax - pageY);
-      frontier.push({ container: node, sqDist: dist * dist,
-                      box: { xMin: xMin, yMin: yMin, xMax: xMax, yMax: yMax } });
+      frontier.push({ container: node, sqDist: dist * dist });
     }
 
     addPoint(this.seekPoint(pageX, pageY));
