@@ -111,19 +111,9 @@ var MathElement = P(Node, function(_) {
     }
     function addNode(node) {
       if (!node) return;
-      var pos = node.jQ.offset(), xMin = pos.left, yMin = pos.top;
-      if (pageX <= xMin) var closestX = xMin;
-      else {
-        var xMax = xMin + node.jQ.outerWidth(true);
-        if (pageX >= xMax) var closestX = xMax;
-        else var closestX = pageX;
-      }
-      if (pageY <= yMin) var closestY = yMin;
-      else {
-        var yMax = yMin + node.jQ.outerHeight(true);
-        if (pageY >= yMax) var closestY = yMax;
-        else var closestY = pageY;
-      }
+      var pos = node.jQ.offset(), x = pos.left, y = pos.top;
+      var closestX = pageX <= x ? x : min(pageX, x + node.jQ.outerWidth(true));
+      var closestY = pageY <= y ? y : min(pageY, y + node.jQ.outerHeight(true));
       var dx = pageX - closestX, dy = pageY - closestY;
       frontier.push({ node: node, sqDist: dx*dx + dy*dy });
     }
