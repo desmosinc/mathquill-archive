@@ -182,8 +182,8 @@ var Cursor = P(function(_) {
                   self.appendTo(cached.parent);
                 }
               } else {
-                var pageX = offset(self).left;
-                prop.seek(self, pageX);
+                var pageX = offset(self).left, height = self.jQ.outerHeight(true);
+                prop.seek(self, coords.left, coords.top + height, prop);
               }
             }
             break;
@@ -208,7 +208,7 @@ var Cursor = P(function(_) {
     var node = nodeId ? MathElement[nodeId] : cursor.root;
     pray('nodeId is the id of some Node that exists', node);
 
-    node.seek(cursor, pageX, pageY);
+    node.seek(cursor, pageX, pageY, cursor.root);
 
     return cursor;
   };
