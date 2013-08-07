@@ -118,7 +118,7 @@ var MathElement = P(Node, function(_) {
       frontier.push({ node: node, sqDist: dx*dx + dy*dy });
     }
     function addContainer(node) {
-      if (node === cursor.root) return; // can't escape root container
+      if (node === cursor.root) return; // no potential Points outside root container
       var pos = node.jQ.offset(), xMin = pos.left, yMin = pos.top;
       var xMax = xMin + node.jQ.outerHeight(true), yMax = yMin + node.jQ.outerWidth(true);
       var dist = min(pageX - xMin, pageY - yMin, xMax - pageX, yMax - pageY);
