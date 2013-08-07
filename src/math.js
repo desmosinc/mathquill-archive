@@ -425,24 +425,16 @@ var MathBlock = P(MathElement, function(_) {
       var next = 0, closestX = this.jQ.offset().left + this.jQ.outerWidth()/2;
     }
     else {
-      var xMin = this.firstChild.jQ.offset().left;
-      if (pageX <= xMin) var next = this.firstChild, closestX = xMin;
-      else {
-        var lastChildLeftEdge = this.lastChild.jQ.offset().left;
-        var xMax = lastChildLeftEdge + this.lastChild.jQ.outerWidth();
-        if (pageX >= xMax) var next = 0, closestX = xMax;
-        else {
-          var rightEdge = xMax, next = this.lastChild, closestX = lastChildLeftEdge;
-          while (pageX < closestX) {
-            rightEdge = closestX, next = next.prev, closestX = next.jQ.offset().left;
-          }
-          if (rightEdge - pageX < pageX - closestX) {
-            next = next.next, closestX = rightEdge;
-          }
-        }
+      function pointLeftOf(n) { return { next: n, x: n.jQ.offset().left }; }
+      var pt = pointLeftOf(this.firstChild);
+      if (pageX > pt.x) {
+        pt = pointLeftOf(this.lastChild);
+        var rightwardPt = { next: 0, x: pt.x + pt.next.jQ.outerWidth() };
+        while (pageX < pt.x) rightwardPt = pt, pt = pointLeftOf(pt.next.prev);
+        if (rightwardPt.x - pageX < pageX - pt.x) pt = rightwardPt;
       }
     }
-    return { parent: this, next: next, x: closestX, y: this.expectedCursorYInside() };
+    return { parent: this, next: pt.next, x: pt.x, y: this.expectedCursorYInside() };
   };
   _.expectedCursorYInside = function() {
     if (this.firstChild) return this.firstChild.expectedCursorYNextTo();
