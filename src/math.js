@@ -101,8 +101,8 @@ var MathElement = P(Node, function(_) {
 
   _.seek = function(cursor, pageX, pageY) {
     var frontier = [];
-    function sortFrontier() {
-      frontier.sort(function(a, b) { return b.sqDist - a.sqDist; });
+    function popClosest() {
+      return frontier.sort(function(a, b) { return b.sqDist - a.sqDist; }).pop();
     }
     function addPoint(parent, next, x, y) {
       var dx = pageX - x, dy = pageY - y;
@@ -138,23 +138,20 @@ var MathElement = P(Node, function(_) {
     this.seekPoint(pageX, pageY, addPoint);
     this.eachChild(addNode);
     addContainer(this);
-    var best = frontier.pop();
-    while (!best.parent) {
-      if (best.container) {
-        var container = best.container, outer = container.parent;
+    for (var closest = popClosest(); !closest.parent; closest = popClosest()) {
+      if (closest.container) {
+        var container = closest.container, outer = container.parent;
         outer.seekPoint(pageX, pageY, addPoint);
         outer.eachChild(function(n) { if (n !== container) addNode(n); });
         addContainer(outer);
       }
       else {
-        best.node.seekPoint(pageX, pageY, addPoint);
-        best.node.eachChild(addNode);
+        closest.node.seekPoint(pageX, pageY, addPoint);
+        closest.node.eachChild(addNode);
       }
-      sortFrontier();
-      best = frontier.pop();
     }
-    if (best.next) cursor.insertBefore(best.next);
-    else cursor.appendTo(best.parent);
+    if (closest.next) cursor.insertBefore(closest.next)
+    else cursor.appendTo(closest.parent);
   };
 });
 
