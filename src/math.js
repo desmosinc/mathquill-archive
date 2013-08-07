@@ -104,53 +104,51 @@ var MathElement = P(Node, function(_) {
     function sortFrontier() {
       frontier.sort(function(a, b) { return b.sqDist - a.sqDist; });
     }
-    var add = {
-      point: function(parent, next, x, y) {
-        var dx = pageX - x, dy = pageY - y;
-        frontier.push({ parent: parent, next: next, sqDist: dx*dx + dy*dy });
-      },
-      node: function(node) {
-        if (!node) return;
-        var pos = node.jQ.offset(), xMin = pos.left, yMin = pos.top;
-        if (pageX <= xMin) var closestX = xMin;
-        else {
-          var xMax = xMin + node.jQ.outerWidth(true);
-          if (pageX >= xMax) var closestX = xMax;
-          else var closestX = pageX;
-        }
-        if (pageY <= yMin) var closestY = yMin;
-        else {
-          var yMax = yMin + node.jQ.outerHeight(true);
-          if (pageY >= yMax) var closestY = yMax;
-          else var closestY = pageY;
-        }
-        var dx = pageX - closestX, dy = pageY - closestY;
-        frontier.push({ node: node, sqDist: dx*dx + dy*dy });
-      },
-      container: function(node) {
-        if (node === cursor.root) return; // can't escape root container
-        var pos = node.jQ.offset(), xMin = pos.left, yMin = pos.top;
-        var xMax = xMin + node.jQ.outerHeight(true), yMax = yMin + node.jQ.outerWidth(true);
-        var dist = min(pageX - xMin, pageY - yMin, xMax - pageX, yMax - pageY);
-        frontier.push({ container: node, sqDist: dist * dist,
-                        box: { xMin: xMin, yMin: yMin, xMax: xMax, yMax: yMax } });
+    function addPoint(parent, next, x, y) {
+      var dx = pageX - x, dy = pageY - y;
+      frontier.push({ parent: parent, next: next, sqDist: dx*dx + dy*dy });
+    }
+    function addNode(node) {
+      if (!node) return;
+      var pos = node.jQ.offset(), xMin = pos.left, yMin = pos.top;
+      if (pageX <= xMin) var closestX = xMin;
+      else {
+        var xMax = xMin + node.jQ.outerWidth(true);
+        if (pageX >= xMax) var closestX = xMax;
+        else var closestX = pageX;
       }
-    };
+      if (pageY <= yMin) var closestY = yMin;
+      else {
+        var yMax = yMin + node.jQ.outerHeight(true);
+        if (pageY >= yMax) var closestY = yMax;
+        else var closestY = pageY;
+      }
+      var dx = pageX - closestX, dy = pageY - closestY;
+      frontier.push({ node: node, sqDist: dx*dx + dy*dy });
+    }
+    function addContainer(node) {
+      if (node === cursor.root) return; // can't escape root container
+      var pos = node.jQ.offset(), xMin = pos.left, yMin = pos.top;
+      var xMax = xMin + node.jQ.outerHeight(true), yMax = yMin + node.jQ.outerWidth(true);
+      var dist = min(pageX - xMin, pageY - yMin, xMax - pageX, yMax - pageY);
+      frontier.push({ container: node, sqDist: dist * dist,
+                      box: { xMin: xMin, yMin: yMin, xMax: xMax, yMax: yMax } });
+    }
 
-    this.seekPoint(pageX, pageY, add.point);
-    this.eachChild(add.node);
-    add.container(this);
+    this.seekPoint(pageX, pageY, addPoint);
+    this.eachChild(addNode);
+    addContainer(this);
     var best = frontier.pop();
     while (!best.parent) {
       if (best.container) {
         var container = best.container, outer = container.parent;
-        outer.seekPoint(pageX, pageY, add.point);
-        outer.eachChild(function(n) { if (n !== container) add.node(n); });
-        add.container(outer);
+        outer.seekPoint(pageX, pageY, addPoint);
+        outer.eachChild(function(n) { if (n !== container) addNode(n); });
+        addContainer(outer);
       }
       else {
-        best.node.seekPoint(pageX, pageY, add.point);
-        best.node.eachChild(add.node);
+        best.node.seekPoint(pageX, pageY, addPoint);
+        best.node.eachChild(addNode);
       }
       sortFrontier();
       best = frontier.pop();
