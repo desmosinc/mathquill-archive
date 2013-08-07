@@ -104,9 +104,9 @@ var MathElement = P(Node, function(_) {
     function popClosest() {
       return frontier.sort(function(a, b) { return b.sqDist - a.sqDist; }).pop();
     }
-    function addPoint(parent, next, x, y) {
-      var dx = pageX - x, dy = pageY - y;
-      frontier.push({ parent: parent, next: next, sqDist: dx*dx + dy*dy });
+    function addPoint(pt) {
+      var dx = pageX - pt.x, dy = pageY - pt.y;
+      frontier.push({ point: pt, sqDist: dx*dx + dy*dy });
     }
     function addNode(node) {
       if (!node) return;
@@ -138,7 +138,7 @@ var MathElement = P(Node, function(_) {
     this.seekPoint(pageX, pageY, addPoint);
     this.eachChild(addNode);
     addContainer(this);
-    for (var closest = popClosest(); !closest.parent; closest = popClosest()) {
+    for (var closest = popClosest(); !closest.point; closest = popClosest()) {
       if (closest.container) {
         var container = closest.container, outer = container.parent;
         outer.seekPoint(pageX, pageY, addPoint);
@@ -150,8 +150,8 @@ var MathElement = P(Node, function(_) {
         closest.node.eachChild(addNode);
       }
     }
-    if (closest.next) cursor.insertBefore(closest.next)
-    else cursor.appendTo(closest.parent);
+    if (closest.point.next) cursor.insertBefore(closest.point.next)
+    else cursor.appendTo(closest.point.parent);
   };
 });
 
@@ -451,7 +451,7 @@ var MathBlock = P(MathElement, function(_) {
         }
       }
     }
-    addPoint(this, next, closestX, this.expectedCursorYInside());
+    addPoint({ parent: this, next: next, x: closestX, y: this.expectedCursorYInside() });
   };
   _.expectedCursorYInside = function() {
     if (this.firstChild) return this.firstChild.expectedCursorYNextTo();
