@@ -133,7 +133,7 @@ function createRoot(container, root, textbox, editable) {
       var e = e.originalEvent;
       if (e.changedTouches.length < e.touches.length) return; // not first finger
       var touchstart = e.changedTouches[0];
-      var handlers = ontouchstart(touchstart);
+      var handlers = ontouchstart(touchstart) || 0;
       if (handlers.touchmove) {
         $(this).bind('touchmove', function(e) {
           var touchmove = e.originalEvent.changedTouches[0];
