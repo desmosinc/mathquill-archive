@@ -193,7 +193,8 @@ function createRoot(container, root, textbox, editable) {
         var cursorPos = cursor.jQ.offset();
         var dx = adjustedX - cursorPos.left;
         var dy = adjustedY - (cursorPos.top + cursor.jQ.height()/2);
-        var dist = Math.sqrt(dx*dx + dy*dy), weight = (Math.log(dist)+1)/dist;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        var weight = (Math.log(dist)+1)/dist;
         var skewX = Math.atan2(weight*dx, offsetY);
         var scaleY = (weight*dy + offsetY)/offsetY;
         cursor.handle.css('WebkitTransform', 'translateX(-.5px) skewX('+skewX+'rad) scaleY('+scaleY+')');
