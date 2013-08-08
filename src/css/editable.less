@@ -11,13 +11,14 @@
     .line { border-left: 1px solid black; }
     &.blink .line { visibility: hidden; }
 
-    &.show-handle {
-      // handle
+    .handle {
+      display: inline-block;
+      -webkit-transform-origin: 0.5px bottom;
+      -webkit-transform: translateX(-.5px);
       &:before, &:after {
         content: '';
         position: absolute;
         left: -10px;
-        -webkit-transform: translate(.5px);
       }
       // triangle tip
       &:before {

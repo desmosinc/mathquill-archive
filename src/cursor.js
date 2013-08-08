@@ -24,6 +24,7 @@ var Cursor = P(function(_) {
   _.prev = 0;
   _.next = 0;
   _.parent = 0;
+  _.handle = 0;
   _.show = function() {
     this.jQ = this._jQ.removeClass('blink');
     if ('intervalId' in this) //already was shown, just restart interval

@@ -104,7 +104,10 @@ function createRoot(container, root, textbox, editable) {
       // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = noop;
-    cursor.jQ.removeClass('show-handle');
+    if (cursor.handle) {
+      cursor.handle.remove();
+      delete cursor.handle;
+    }
     cursor.seek($(e.target), e.pageX, e.pageY);
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
@@ -159,7 +162,7 @@ function createRoot(container, root, textbox, editable) {
   }
 
   container.bind('touchstart.mathquill', firstFingerOnly(function(e) {
-    if (e.target === cursor.jQ[0]) return;
+    if (e.target === cursor.handle[0]) return;
     cursor.blink = noop;
 
     cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
@@ -168,13 +171,15 @@ function createRoot(container, root, textbox, editable) {
         cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
       },
       touchend: function(e) {
-        cursor.jQ.addClass('show-handle');
+        if (!cursor.handle) {
+          cursor.handle = $('<span class="handle"></span>').appendTo(cursor.jQ);
+        }
         cursor.blink = blink;
         cursor.show();
       }
     };
   }));
-  cursor.jQ.bind('touchstart.mathquill', firstFingerOnly(function(e) {
+  cursor.jQ.delegate('.handle', 'touchstart.mathquill', firstFingerOnly(function(e) {
     cursor.blink = noop;
     var cursorPos = cursor.jQ.offset();
     var offsetX = e.pageX - cursorPos.left;
@@ -183,8 +188,17 @@ function createRoot(container, root, textbox, editable) {
       touchmove: function(e) {
         var adjustedX = e.pageX - offsetX, adjustedY = e.pageY - offsetY;
         cursor.seek(elAtPt(adjustedX, adjustedY), adjustedX, adjustedY);
+
+        // visual "haptic" feedback
+        var cursorPos = cursor.jQ.offset();
+        var dx = adjustedX - cursorPos.left;
+        var dy = adjustedY - (cursorPos.top + cursor.jQ.height()/2);
+        var dist = Math.sqrt(dx*dx + dy*dy), weight = (Math.log(dist)+1)/dist;
+        var skewX = 0, scaleY = (weight*dy + offsetY)/offsetY;
+        cursor.handle.css('WebkitTransform', 'translateX(-.5px) skewX('+skewX+'rad) scaleY('+scaleY+')');
       },
       touchend: function(e) {
+        cursor.handle.css('WebkitTransform', '');
         cursor.blink = blink;
         cursor.show();
       }
