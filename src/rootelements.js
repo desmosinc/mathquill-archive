@@ -159,6 +159,7 @@ function createRoot(container, root, textbox, editable) {
   }
 
   container.bind('touchstart.mathquill', firstFingerOnly(function(e) {
+    if (root.blurred) textarea.focus();
     if (e.target === cursor.jQ[0]) return;
     cursor.blink = noop;
 
