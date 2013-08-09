@@ -18,6 +18,7 @@ var $ = jQuery,
 var __slice = [].slice;
 
 function noop() {}
+var log = noop;
 
 /**
  * sugar to make defining lots of commands easier.
