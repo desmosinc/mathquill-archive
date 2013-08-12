@@ -115,9 +115,9 @@ var MathElement = P(Node, function(_) {
       log('adding node');
       var pos = node.jQ.offset(), x = pos.left, y = pos.top;
       log('got offset');
-      var closestX = pageX <= x ? x : min(pageX, x + node.jQ.outerWidth(true));
+      var closestX = pageX <= x ? x : min(pageX, x + node.jQ.innerWidth());
       log('maybe got width');
-      var closestY = pageY <= y ? y : min(pageY, y + node.jQ.outerHeight(true));
+      var closestY = pageY <= y ? y : min(pageY, y + node.jQ.innerHeight());
       log('maybe got height');
       var dx = pageX - closestX, dy = pageY - closestY;
       frontier.push({ node: node, sqDist: dx*dx + dy*dy });
