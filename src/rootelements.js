@@ -56,7 +56,9 @@ function createRoot(container, root, textbox, editable) {
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
   container.bind('mousedown.mathquill', function(e) {
+    log('mousedown');
     function mousemove(e) {
+      log('mousemove');
       cursor.seek($(e.target), e.pageX, e.pageY);
 
       if (cursor.prev !== anticursor.prev
@@ -176,14 +178,21 @@ function createRoot(container, root, textbox, editable) {
     };
   }));
   cursor.jQ.bind('touchstart.mathquill', firstFingerOnly(function(e) {
+    log('touchstart on cursor');
     cursor.blink = noop;
     var cursorPos = cursor.jQ.offset();
     var offsetX = e.pageX - cursorPos.left;
     var offsetY = e.pageY - (cursorPos.top + cursor.jQ.height()/2);
+    log('got offsets: '+offsetX+', '+offsetY);
     return {
       touchmove: function(e) {
+        log('touchmove on cursor');
         var adjustedX = e.pageX - offsetX, adjustedY = e.pageY - offsetY;
-        cursor.seek(elAtPt(adjustedX, adjustedY), adjustedX, adjustedY);
+        log('computed adjusted coords: '+adjustedX+', '+adjustedY);
+        var el = elAtPt(adjustedX, adjustedY);
+        log('got elAtPt');
+        cursor.seek(el, adjustedX, adjustedY);
+        log('cursor sought.');
       },
       touchend: function(e) {
         cursor.blink = blink;

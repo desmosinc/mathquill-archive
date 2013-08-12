@@ -151,9 +151,10 @@ td {
 <tr><td><span class="mathquill-embedded-latex">1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span><td><span>1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span>
 </table>
 
-<h3>Dynamic rendering performance</h3>
+<h3>Performance</h3>
 <p id="latex-render-perf">LaTeX: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-editable"></span></p>
 <p id="html-render-perf">HTML: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-rendered-math"></span></p>
+<p id="seek-perf"><span class="mathquill-editable">\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
 
 <p>There should be no space between here <span class="mathquill-embedded-latex">            </span>and here, even in IE8</p>
 
@@ -298,6 +299,16 @@ function timeAndLog(f) {
     });
     $('<p>'+duration+'ms rendering <code></code>, for an average of '+avgs.add(html, duration)+'</p>').find('code').text(html).end()
       .insertAfter('#html-render-perf');
+  });
+}());
+(function() {
+  $('#seek-perf .mathquill-editable').on('touchstart mousedown', function() {
+    var log = startLog(), start = performance.now();
+    $(this).one('touchend mouseup', function() {
+      console.log(finishLog(log, start));
+      //var timeline = finishLog(log, start);
+      //setTimeout(function(){ alert(timeline); });
+    });
   });
 }());
 </script>
