@@ -248,8 +248,10 @@ function finishLog(currentLog, start) {
 
   var timeline = [], prev = 0;
   for (var i = 0; i < currentLog.length; i += 1) {
-    var now = Math.round((currentLog[i].now - start)*1000);
-    timeline.push(now + ': [' + (now - prev) + 'µs] ' + currentLog[i].msg);
+    var now = currentLog[i].now - start;
+    if (window.performance!==Date) now = Math.round(now*1000);
+    timeline.push(now + ': [' + (now - prev) + (window.performance!==Date?'µ':'m')+'s] '
+        + currentLog[i].msg);
     prev = now;
   }
   return timeline.join('\n');
