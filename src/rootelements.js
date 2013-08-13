@@ -53,13 +53,41 @@ function createRoot(container, root, textbox, editable) {
     e.stopPropagation();
   });
 
+  function getCachedBoxFnForNewCache() {
+    var Box = P(function(_) {
+      _.init = function(node) { this.jQ = node.jQ; };
+      _.x = function() { return this._x || this.calcOffset()._x; }
+      _.y = function() { return this._y || this.calcOffset()._y; }
+      _.calcOffset = function() {
+        var offset = this.jQ.offset();
+        this._x = offset.left, this._y = offset.top;
+        return this;
+      };
+      _.innerWidth = function() {
+        return this._innerWidth || (this._innerWidth = this.jQ.innerWidth());
+      };
+      _.innerHeight = function() {
+        return this._innerHeight || (this._innerHeight = this.jQ.innerHeight());
+      };
+      _.outerWidth = function() {
+        return this._outerWidth || (this._outerWidth = this.jQ.outerWidth(true));
+      };
+      _.outerHeight = function() {
+        return this._outerHeight || (this._outerHeight = this.jQ.outerHeight(true));
+      };
+    });
+    var cache = {};
+    return function(n) { return cache[n.id] || (cache[n.id] = Box(n)); };
+  }
+
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
   container.bind('mousedown.mathquill', function(e) {
     log('mousedown');
+    var getCachedBox = getCachedBoxFnForNewCache();
     function mousemove(e) {
       log('mousemove');
-      cursor.seek($(e.target), e.pageX, e.pageY);
+      cursor.seek($(e.target), e.pageX, e.pageY, getCachedBox);
 
       if (cursor.prev !== anticursor.prev
           || cursor.parent !== anticursor.parent) {
@@ -107,7 +135,7 @@ function createRoot(container, root, textbox, editable) {
 
     cursor.blink = noop;
     cursor.jQ.removeClass('show-handle');
-    cursor.seek($(e.target), e.pageX, e.pageY);
+    cursor.seek($(e.target), e.pageX, e.pageY, getCachedBox);
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
@@ -165,10 +193,11 @@ function createRoot(container, root, textbox, editable) {
     if (e.target === cursor.jQ[0]) return;
     cursor.blink = noop;
 
-    cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
+    var getCachedBox = getCachedBoxFnForNewCache();
+    cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY, getCachedBox);
     return {
       touchmove: function(e) {
-        cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
+        cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY, getCachedBox);
       },
       touchend: function(e) {
         cursor.jQ.addClass('show-handle');
@@ -184,6 +213,7 @@ function createRoot(container, root, textbox, editable) {
     var offsetX = e.pageX - cursorPos.left;
     var offsetY = e.pageY - (cursorPos.top + cursor.jQ.height()/2);
     log('got offsets: '+offsetX+', '+offsetY);
+    var getCachedBox = getCachedBoxFnForNewCache();
     return {
       touchmove: function(e) {
         log('touchmove on cursor');
@@ -191,7 +221,7 @@ function createRoot(container, root, textbox, editable) {
         log('computed adjusted coords: '+adjustedX+', '+adjustedY);
         var el = elAtPt(adjustedX, adjustedY);
         log('got elAtPt');
-        cursor.seek(el, adjustedX, adjustedY);
+        cursor.seek(el, adjustedX, adjustedY, getCachedBox);
         log('cursor sought.');
       },
       touchend: function(e) {

@@ -99,7 +99,7 @@ var MathElement = P(Node, function(_) {
     self.bubble('redraw');
   };
 
-  _.seek = function(cursor, pageX, pageY, root) {
+  _.seek = function(cursor, pageX, pageY, root, getBox) {
     log('entered MathElement::seek');
     var frontier = [];
     function popClosest() {
@@ -113,11 +113,11 @@ var MathElement = P(Node, function(_) {
     function addNode(node) {
       if (!node) return;
       log('adding node');
-      var pos = node.jQ.offset(), x = pos.left, y = pos.top;
+      var box = getBox(node), x = box.x(), y = box.y();
       log('got offset');
-      var closestX = pageX <= x ? x : min(pageX, x + node.jQ.innerWidth());
+      var closestX = pageX <= x ? x : min(pageX, x + box.innerWidth());
       log('maybe got width');
-      var closestY = pageY <= y ? y : min(pageY, y + node.jQ.innerHeight());
+      var closestY = pageY <= y ? y : min(pageY, y + box.innerHeight());
       log('maybe got height');
       var dx = pageX - closestX, dy = pageY - closestY;
       frontier.push({ node: node, sqDist: dx*dx + dy*dy });
@@ -126,18 +126,18 @@ var MathElement = P(Node, function(_) {
     function addContainer(node) {
       if (node === root) return; // no potential Points outside root container
       log('adding container');
-      var pos = node.jQ.offset(), xMin = pos.left, yMin = pos.top;
+      var box = getBox(node), xMin = box.x(), yMin = box.y();
       log('got offset');
-      var yMax = yMin + node.jQ.outerWidth(true);
+      var yMax = yMin + box.outerWidth(true);
       log('got width');
-      var xMax = xMin + node.jQ.outerHeight(true);
+      var xMax = xMin + box.outerHeight(true);
       log('got height');
       var dist = min(pageX - xMin, pageY - yMin, xMax - pageX, yMax - pageY);
       frontier.push({ container: node, sqDist: dist * dist });
     }
 
     log('set up frontier');
-    addPoint(this.seekPoint(pageX, pageY));
+    addPoint(this.seekPoint(pageX, pageY, getBox));
     log('added point');
     this.eachChild(addNode);
     log('added nodes');
@@ -147,7 +147,7 @@ var MathElement = P(Node, function(_) {
       if (closest.container) {
         log('expanding container');
         var container = closest.container, outer = container.parent;
-        addPoint(outer.seekPoint(pageX, pageY));
+        addPoint(outer.seekPoint(pageX, pageY, getBox));
         log('added point');
         outer.eachChild(function(n) { if (n !== container) addNode(n); });
         log('added nodes');
@@ -155,7 +155,7 @@ var MathElement = P(Node, function(_) {
         log('added container');
       }
       else {
-        addPoint(closest.node.seekPoint(pageX, pageY));
+        addPoint(closest.node.seekPoint(pageX, pageY, getBox));
         closest.node.eachChild(addNode);
         log('entered node');
       }
@@ -441,16 +441,16 @@ var MathBlock = P(MathElement, function(_) {
   _.isEmpty = function() {
     return this.firstChild === 0 && this.lastChild === 0;
   };
-  _.seekPoint = function(pageX, pageY) {
+  _.seekPoint = function(pageX, pageY, getBox) {
     if (!this.firstChild) {
-      var next = 0, closestX = this.jQ.offset().left + this.jQ.outerWidth()/2;
+      var next = 0, closestX = getBox(this).x() + getBox(this).outerWidth()/2;
     }
     else {
-      function pointLeftOf(n) { return { next: n, x: n.jQ.offset().left }; }
+      function pointLeftOf(n) { return { next: n, x: getBox(n).x() }; }
       var pt = pointLeftOf(this.firstChild);
       if (pageX > pt.x) {
         pt = pointLeftOf(this.lastChild);
-        var rightwardPt = { next: 0, x: pt.x + pt.next.jQ.outerWidth() };
+        var rightwardPt = { next: 0, x: pt.x + getBox(pt.next).outerWidth() };
         while (pageX < pt.x) rightwardPt = pt, pt = pointLeftOf(pt.next.prev);
         if (rightwardPt.x - pageX < pageX - pt.x) pt = rightwardPt;
       }
