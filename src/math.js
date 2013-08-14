@@ -255,8 +255,8 @@ var MathCommand = P(MathElement, function(_, _super) {
   };
 
   _.seekPoint = noop;
-  _.expectedCursorYNextTo = function() {
-    return this.firstChild.expectedCursorYInside();
+  _.expectedCursorYNextTo = function(getBox) {
+    return this.firstChild.expectedCursorYInside(getBox);
   };
 
   // remove()
@@ -420,8 +420,8 @@ var Symbol = P(MathCommand, function(_, _super) {
     else
       cursor.insertAfter(this);
   };
-  _.expectedCursorYNextTo = function() {
-    return this.jQ.offset().top + this.jQ.outerHeight()/2;
+  _.expectedCursorYNextTo = function(getBox) {
+    return getBox(this).y() + getBox(this).outerHeight()/2;
   };
 
   _.latex = function(){ return this.ctrlSeq; };
@@ -465,11 +465,12 @@ var MathBlock = P(MathElement, function(_) {
         if (rightwardPt.x - pageX < pageX - pt.x) pt = rightwardPt;
       }
     }
-    return { parent: this, next: pt.next, x: pt.x, y: this.expectedCursorYInside() };
+    return { parent: this, next: pt.next,
+             x: pt.x, y: this.expectedCursorYInside(getBox) };
   };
-  _.expectedCursorYInside = function() {
-    if (this.firstChild) return this.firstChild.expectedCursorYNextTo();
-    else return this.jQ.offset().top + this.jQ.outerHeight()/2;
+  _.expectedCursorYInside = function(getBox) {
+    if (this.firstChild) return this.firstChild.expectedCursorYNextTo(getBox);
+    else return getBox(this).y() + getBox(this).outerHeight()/2;
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');
