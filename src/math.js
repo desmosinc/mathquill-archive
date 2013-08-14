@@ -103,7 +103,15 @@ var MathElement = P(Node, function(_) {
     log('entered MathElement::seek');
     var frontier = [];
     function popClosest() {
-      return frontier.sort(function(a, b) { return b.sqDist - a.sqDist; }).pop();
+      var iClosest, minSqDist = Infinity;
+      for (var i = 0; i < frontier.length; i += 1) {
+        if (!frontier[i]) continue;
+        var sqDist = frontier[i].sqDist;
+        if (sqDist < minSqDist) iClosest = i, minSqDist = sqDist;
+      }
+      var closest = frontier[iClosest];
+      frontier[iClosest] = null;
+      return closest;
     }
     function addPoint(pt) {
       if (!pt) return;
