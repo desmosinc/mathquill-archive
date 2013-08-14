@@ -152,12 +152,14 @@ var MathElement = P(Node, function(_) {
         outer.eachChild(function(n) { if (n !== container) addNode(n); });
         log('added nodes');
         addContainer(outer);
-        log('added container');
+        log('added container; expanded container');
       }
       else {
+        log('entering node');
         addPoint(closest.node.seekPoint(pageX, pageY, getBox));
+        log('added point');
         closest.node.eachChild(addNode);
-        log('entered node');
+        log('added nodes; entered node');
       }
     }
     log('got closest point');
