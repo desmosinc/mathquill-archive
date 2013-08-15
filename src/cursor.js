@@ -182,8 +182,9 @@ var Cursor = P(function(_) {
                   self.appendTo(cached.parent);
                 }
               } else {
-                var pageX = offset(self).left, height = self.jQ.outerHeight(true);
-                prop.seek(self, coords.left, coords.top + height, prop);
+                var coords = self.jQ[0].getBoundingClientRect();
+                var cachedClientRect = cachedClientRectFnForNewCache();
+                prop.seek(self, coords.left, coords.bottom, prop, cachedClientRect);
               }
             }
             break;

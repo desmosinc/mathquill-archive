@@ -53,16 +53,6 @@ function createRoot(container, root, textbox, editable) {
     e.stopPropagation();
   });
 
-  function cachedClientRectFnForNewCache() {
-    var cache = {};
-    function elById(el, id) {
-      return cache[id] || (cache[id] = el.getBoundingClientRect());
-    };
-    function cachedClientRect(node) { return elById(node.jQ[0], node.id); };
-    cachedClientRect.elById = elById;
-    return cachedClientRect;
-  }
-
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
   container.bind('mousedown.mathquill', function(e) {
@@ -286,6 +276,16 @@ function createRoot(container, root, textbox, editable) {
     cursor.writeLatex(text).show();
     root.triggerSpecialEvent('render');
   });
+}
+
+function cachedClientRectFnForNewCache() {
+  var cache = {};
+  function elById(el, id) {
+    return cache[id] || (cache[id] = el.getBoundingClientRect());
+  };
+  function cachedClientRect(node) { return elById(node.jQ[0], node.id); };
+  cachedClientRect.elById = elById;
+  return cachedClientRect;
 }
 
 var RootMathBlock = P(MathBlock, function(_, _super) {
