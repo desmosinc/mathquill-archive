@@ -55,9 +55,12 @@ function createRoot(container, root, textbox, editable) {
 
   function cachedClientRectFnForNewCache() {
     var cache = {};
-    return function(node) {
-      return cache[node.id] || (cache[node.id] = node.jQ[0].getBoundingClientRect());
+    function elById(el, id) {
+      return cache[id] || (cache[id] = el.getBoundingClientRect());
     };
+    function cachedClientRect(node) { return elById(node.jQ[0], node.id); };
+    cachedClientRect.elById = elById;
+    return cachedClientRect;
   }
 
   //drag-to-select event handling

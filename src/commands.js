@@ -324,7 +324,7 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   _.expectedCursorYNextTo = function(clientRect) {
     // vertical-align-ed -0.5em, so the top edge of the span that sets
     // the baseline almost perfectly aligns with the cursor's center
-    return clientRect({ id: this.id+.5, jQ: $(this.jQ[0].lastChild) }).top;
+    return clientRect.elById(this.jQ[0].lastChild, this.id+.5).top;
   };
 });
 
@@ -436,7 +436,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   _.expectedCursorYNextTo = function(clientRect) {
     // superscripts are vertical-align-ed 0.5em, so their bottom edge
     // almost perfectly aligns with the cursor's center
-    return clientRect({ id: this.id+.5, jQ: this.jQ.first() }).bottom;
+    return clientRect.elById(this.jQ[0], this.id+.5).bottom;
   };
 });
 
