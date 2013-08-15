@@ -100,7 +100,6 @@ var MathElement = P(Node, function(_) {
   };
 
   _.seek = function(cursor, clientX, clientY, root, clientRect) {
-    log('entered MathElement::seek');
     var frontier = [];
     function popClosest() {
       var iClosest, minSqDist = Infinity;
@@ -134,36 +133,23 @@ var MathElement = P(Node, function(_) {
       frontier.push({ container: node, sqDist: dist * dist });
     }
 
-    log('set up frontier');
     addPoint(this.seekPoint(clientX, clientY, clientRect));
-    log('added point');
     this.eachChild(addNode);
-    log('added nodes');
     addContainer(this);
-    log('added container');
     for (var closest = popClosest(); !closest.point; closest = popClosest()) {
       if (closest.container) {
-        log('expanding container');
         var container = closest.container, outer = container.parent;
         addPoint(outer.seekPoint(clientX, clientY, clientRect));
-        log('added point');
         outer.eachChild(function(n) { if (n !== container) addNode(n); });
-        log('added nodes');
         addContainer(outer);
-        log('added container; expanded container');
       }
       else {
-        log('entering node');
         addPoint(closest.node.seekPoint(clientX, clientY, clientRect));
-        log('added point');
         closest.node.eachChild(addNode);
-        log('added nodes; entered node');
       }
     }
-    log('got closest point');
     if (closest.point.next) cursor.insertBefore(closest.point.next)
     else cursor.appendTo(closest.point.parent);
-    log('inserted cursor');
   };
 });
 

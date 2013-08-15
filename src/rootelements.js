@@ -66,10 +66,8 @@ function createRoot(container, root, textbox, editable) {
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
   container.bind('mousedown.mathquill', function(e) {
-    log('mousedown');
     var cachedClientRect = cachedClientRectFnForNewCache();
     function mousemove(e) {
-      log('mousemove');
       cursor.seek($(e.target), e.clientX, e.clientY, cachedClientRect);
 
       if (cursor.prev !== anticursor.prev
@@ -186,22 +184,15 @@ function createRoot(container, root, textbox, editable) {
     };
   }));
   cursor.jQ.bind('touchstart.mathquill', firstFingerOnly(function(e) {
-    log('touchstart on cursor');
     cursor.blink = noop;
     var cursorRect = cursor.jQ[0].getBoundingClientRect();
     var offsetX = e.clientX - cursorRect.left;
     var offsetY = e.clientY - (cursorRect.top + cursorRect.bottom)/2;
-    log('got offsets: '+offsetX+', '+offsetY);
     var cachedClientRect = cachedClientRectFnForNewCache();
     return {
       touchmove: function(e) {
-        log('touchmove on cursor');
         var adjustedX = e.clientX - offsetX, adjustedY = e.clientY - offsetY;
-        log('computed adjusted coords: '+adjustedX+', '+adjustedY);
-        var el = elAtPt(adjustedX, adjustedY);
-        log('got elAtPt');
-        cursor.seek(el, adjustedX, adjustedY, cachedClientRect);
-        log('cursor sought.');
+        cursor.seek(elAtPt(adjustedX, adjustedY), adjustedX, adjustedY, cachedClientRect);
       },
       touchend: function(e) {
         cursor.blink = blink;
