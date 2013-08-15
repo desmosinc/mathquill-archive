@@ -99,7 +99,7 @@ var MathElement = P(Node, function(_) {
     self.bubble('redraw');
   };
 
-  _.seek = function(cursor, pageX, pageY, root, getBox) {
+  _.seek = function(cursor, clientX, clientY, root, clientRect) {
     log('entered MathElement::seek');
     var frontier = [];
     function popClosest() {
@@ -115,37 +115,27 @@ var MathElement = P(Node, function(_) {
     }
     function addPoint(pt) {
       if (!pt) return;
-      var dx = pageX - pt.x, dy = pageY - pt.y;
+      var dx = clientX - pt.x, dy = clientY - pt.y;
       frontier.push({ point: pt, sqDist: dx*dx + dy*dy });
     }
     function addNode(node) {
       if (!node) return;
-      log('adding node');
-      var box = getBox(node), x = box.x(), y = box.y();
-      log('got offset');
-      var closestX = pageX <= x ? x : min(pageX, x + box.innerWidth());
-      log('maybe got width');
-      var closestY = pageY <= y ? y : min(pageY, y + box.innerHeight());
-      log('maybe got height');
-      var dx = pageX - closestX, dy = pageY - closestY;
+      var rect = clientRect(node);
+      var closestX = max(rect.left, min(rect.right, clientX));
+      var closestY = max(rect.top, min(rect.bottom, clientY));
+      var dx = clientX - closestX, dy = clientY - closestY;
       frontier.push({ node: node, sqDist: dx*dx + dy*dy });
-      log('done adding node');
     }
     function addContainer(node) {
       if (node === root) return; // no potential Points outside root container
-      log('adding container');
-      var box = getBox(node), xMin = box.x(), yMin = box.y();
-      log('got offset');
-      var yMax = yMin + box.outerWidth(true);
-      log('got width');
-      var xMax = xMin + box.outerHeight(true);
-      log('got height');
-      var dist = min(pageX - xMin, pageY - yMin, xMax - pageX, yMax - pageY);
+      var rect = clientRect(node);
+      var dist = min(clientX - rect.left, clientY - rect.top,
+                     rect.right - clientX, rect.bottom - clientY);
       frontier.push({ container: node, sqDist: dist * dist });
     }
 
     log('set up frontier');
-    addPoint(this.seekPoint(pageX, pageY, getBox));
+    addPoint(this.seekPoint(clientX, clientY, clientRect));
     log('added point');
     this.eachChild(addNode);
     log('added nodes');
@@ -155,7 +145,7 @@ var MathElement = P(Node, function(_) {
       if (closest.container) {
         log('expanding container');
         var container = closest.container, outer = container.parent;
-        addPoint(outer.seekPoint(pageX, pageY, getBox));
+        addPoint(outer.seekPoint(clientX, clientY, clientRect));
         log('added point');
         outer.eachChild(function(n) { if (n !== container) addNode(n); });
         log('added nodes');
@@ -164,7 +154,7 @@ var MathElement = P(Node, function(_) {
       }
       else {
         log('entering node');
-        addPoint(closest.node.seekPoint(pageX, pageY, getBox));
+        addPoint(closest.node.seekPoint(clientX, clientY, clientRect));
         log('added point');
         closest.node.eachChild(addNode);
         log('added nodes; entered node');
@@ -255,8 +245,8 @@ var MathCommand = P(MathElement, function(_, _super) {
   };
 
   _.seekPoint = noop;
-  _.expectedCursorYNextTo = function(getBox) {
-    return this.firstChild.expectedCursorYInside(getBox);
+  _.expectedCursorYNextTo = function(clientRect) {
+    return this.firstChild.expectedCursorYInside(clientRect);
   };
 
   // remove()
@@ -413,15 +403,14 @@ var Symbol = P(MathCommand, function(_, _super) {
   };
   _.createBlocks = noop;
 
-  _.seek = function(cursor, pageX, pageY) {
+  _.seek = function(cursor, clientX, clientY, root, clientRect) {
+    var rect = clientRect(this), left = rect.left, right = rect.right;
     // insert at whichever side the click was closer to
-    if (pageX - this.jQ.offset().left < this.jQ.outerWidth()/2)
-      cursor.insertBefore(this);
-    else
-      cursor.insertAfter(this);
+    if (clientX - left < right - clientX) cursor.insertBefore(this);
+    else cursor.insertAfter(this);
   };
-  _.expectedCursorYNextTo = function(getBox) {
-    return getBox(this).y() + getBox(this).outerHeight()/2;
+  _.expectedCursorYNextTo = function(clientRect) {
+    return (clientRect(this).top + clientRect(this).bottom)/2;
   };
 
   _.latex = function(){ return this.ctrlSeq; };
@@ -451,26 +440,26 @@ var MathBlock = P(MathElement, function(_) {
   _.isEmpty = function() {
     return this.firstChild === 0 && this.lastChild === 0;
   };
-  _.seekPoint = function(pageX, pageY, getBox) {
+  _.seekPoint = function(clientX, clientY, clientRect) {
     if (!this.firstChild) {
-      var next = 0, closestX = getBox(this).x() + getBox(this).outerWidth()/2;
+      var next = 0, closestX = (clientRect(this).left + clientRect(this).right)/2;
     }
     else {
-      function pointLeftOf(n) { return { next: n, x: getBox(n).x() }; }
+      function pointLeftOf(n) { return { next: n, x: clientRect(n).left }; }
       var pt = pointLeftOf(this.firstChild);
-      if (pageX > pt.x) {
+      if (clientX > pt.x) {
         pt = pointLeftOf(this.lastChild);
-        var rightwardPt = { next: 0, x: pt.x + getBox(pt.next).outerWidth() };
-        while (pageX < pt.x) rightwardPt = pt, pt = pointLeftOf(pt.next.prev);
-        if (rightwardPt.x - pageX < pageX - pt.x) pt = rightwardPt;
+        var rightwardPt = { next: 0, x: clientRect(pt.next).right };
+        while (clientX < pt.x) rightwardPt = pt, pt = pointLeftOf(pt.next.prev);
+        if (rightwardPt.x - clientX < clientX - pt.x) pt = rightwardPt;
       }
     }
     return { parent: this, next: pt.next,
-             x: pt.x, y: this.expectedCursorYInside(getBox) };
+             x: pt.x, y: this.expectedCursorYInside(clientRect) };
   };
-  _.expectedCursorYInside = function(getBox) {
-    if (this.firstChild) return this.firstChild.expectedCursorYNextTo(getBox);
-    else return getBox(this).y() + getBox(this).outerHeight()/2;
+  _.expectedCursorYInside = function(clientRect) {
+    if (this.firstChild) return this.firstChild.expectedCursorYNextTo(clientRect);
+    else return (clientRect(this).top + clientRect(this).bottom)/2;
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');

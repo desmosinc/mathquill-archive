@@ -196,7 +196,7 @@ var Cursor = P(function(_) {
     return self.clearSelection().show();
   }
 
-  _.seek = function(target, pageX, pageY, getBox) {
+  _.seek = function(target, clientX, clientY, clientRect) {
     clearUpDownCache(this);
     var cursor = this.clearSelection().show();
 
@@ -208,7 +208,7 @@ var Cursor = P(function(_) {
     var node = nodeId ? MathElement[nodeId] : cursor.root;
     pray('nodeId is the id of some Node that exists', node);
 
-    node.seek(cursor, pageX, pageY, cursor.root, getBox);
+    node.seek(cursor, clientX, clientY, cursor.root, clientRect);
 
     return cursor;
   };
