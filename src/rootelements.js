@@ -53,11 +53,22 @@ function createRoot(container, root, textbox, editable) {
     e.stopPropagation();
   });
 
+  function cachedClientRectFnForNewCache() {
+    var cache = {};
+    function elById(el, id) {
+      return cache[id] || (cache[id] = el.getBoundingClientRect());
+    };
+    function cachedClientRect(node) { return elById(node.jQ[0], node.id); };
+    cachedClientRect.elById = elById;
+    return cachedClientRect;
+  }
+
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
   container.bind('mousedown.mathquill', function(e) {
+    var cachedClientRect = cachedClientRectFnForNewCache();
     function mousemove(e) {
-      cursor.seek($(e.target), e.pageX, e.pageY);
+      cursor.seek($(e.target), e.clientX, e.clientY, cachedClientRect);
 
       if (cursor.prev !== anticursor.prev
           || cursor.parent !== anticursor.parent) {
@@ -105,7 +116,7 @@ function createRoot(container, root, textbox, editable) {
 
     cursor.blink = noop;
     cursor.jQ.removeClass('show-handle');
-    cursor.seek($(e.target), e.pageX, e.pageY);
+    cursor.seek($(e.target), e.clientX, e.clientY, cachedClientRect);
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
@@ -149,12 +160,8 @@ function createRoot(container, root, textbox, editable) {
       });
     };
   }
-  /* returns the element at the given point looking "through" the cursor
-   * handle, if it's in the current editable */
-  function elAtPt(x, y) {
-    cursor.jQ.hide();
-    var el = $(document.elementFromPoint(x, y));
-    cursor.jQ.show();
+  function elAtPt(clientX, clientY) {
+    var el = $(document.elementFromPoint(clientX, clientY));
     return el.closest(root.jQ).length ? el : root.jQ;
   }
 
@@ -163,10 +170,11 @@ function createRoot(container, root, textbox, editable) {
     if (e.target === cursor.jQ[0]) return;
     cursor.blink = noop;
 
-    cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
+    var cachedClientRect = cachedClientRectFnForNewCache();
+    cursor.seek(elAtPt(e.clientX, e.clientY), e.clientX, e.clientY, cachedClientRect);
     return {
       touchmove: function(e) {
-        cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
+        cursor.seek(elAtPt(e.clientX, e.clientY), e.clientX, e.clientY, cachedClientRect);
       },
       touchend: function(e) {
         cursor.jQ.addClass('show-handle');
@@ -177,13 +185,14 @@ function createRoot(container, root, textbox, editable) {
   }));
   cursor.jQ.bind('touchstart.mathquill', firstFingerOnly(function(e) {
     cursor.blink = noop;
-    var cursorPos = cursor.jQ.offset();
-    var offsetX = e.pageX - cursorPos.left;
-    var offsetY = e.pageY - (cursorPos.top + cursor.jQ.height()/2);
+    var cursorRect = cursor.jQ[0].getBoundingClientRect();
+    var offsetX = e.clientX - cursorRect.left;
+    var offsetY = e.clientY - (cursorRect.top + cursorRect.bottom)/2;
+    var cachedClientRect = cachedClientRectFnForNewCache();
     return {
       touchmove: function(e) {
-        var adjustedX = e.pageX - offsetX, adjustedY = e.pageY - offsetY;
-        cursor.seek(elAtPt(adjustedX, adjustedY), adjustedX, adjustedY);
+        var adjustedX = e.clientX - offsetX, adjustedY = e.clientY - offsetY;
+        cursor.seek(elAtPt(adjustedX, adjustedY), adjustedX, adjustedY, cachedClientRect);
       },
       touchend: function(e) {
         cursor.blink = blink;

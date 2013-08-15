@@ -99,44 +99,52 @@ var MathElement = P(Node, function(_) {
     self.bubble('redraw');
   };
 
-  _.seek = function(cursor, pageX, pageY, root) {
+  _.seek = function(cursor, clientX, clientY, root, clientRect) {
     var frontier = [];
     function popClosest() {
-      return frontier.sort(function(a, b) { return b.sqDist - a.sqDist; }).pop();
+      var iClosest, minSqDist = Infinity;
+      for (var i = 0; i < frontier.length; i += 1) {
+        if (!frontier[i]) continue;
+        var sqDist = frontier[i].sqDist;
+        if (sqDist < minSqDist) iClosest = i, minSqDist = sqDist;
+      }
+      var closest = frontier[iClosest];
+      frontier[iClosest] = null;
+      return closest;
     }
     function addPoint(pt) {
       if (!pt) return;
-      var dx = pageX - pt.x, dy = pageY - pt.y;
+      var dx = clientX - pt.x, dy = clientY - pt.y;
       frontier.push({ point: pt, sqDist: dx*dx + dy*dy });
     }
     function addNode(node) {
       if (!node) return;
-      var pos = node.jQ.offset(), x = pos.left, y = pos.top;
-      var closestX = pageX <= x ? x : min(pageX, x + node.jQ.outerWidth(true));
-      var closestY = pageY <= y ? y : min(pageY, y + node.jQ.outerHeight(true));
-      var dx = pageX - closestX, dy = pageY - closestY;
+      var rect = clientRect(node);
+      var closestX = max(rect.left, min(rect.right, clientX));
+      var closestY = max(rect.top, min(rect.bottom, clientY));
+      var dx = clientX - closestX, dy = clientY - closestY;
       frontier.push({ node: node, sqDist: dx*dx + dy*dy });
     }
     function addContainer(node) {
       if (node === root) return; // no potential Points outside root container
-      var pos = node.jQ.offset(), xMin = pos.left, yMin = pos.top;
-      var xMax = xMin + node.jQ.outerHeight(true), yMax = yMin + node.jQ.outerWidth(true);
-      var dist = min(pageX - xMin, pageY - yMin, xMax - pageX, yMax - pageY);
+      var rect = clientRect(node);
+      var dist = max(0, min(clientX - rect.left, clientY - rect.top,
+                            rect.right - clientX, rect.bottom - clientY));
       frontier.push({ container: node, sqDist: dist * dist });
     }
 
-    addPoint(this.seekPoint(pageX, pageY));
+    addPoint(this.seekPoint(clientX, clientY, clientRect));
     this.eachChild(addNode);
     addContainer(this);
     for (var closest = popClosest(); !closest.point; closest = popClosest()) {
       if (closest.container) {
         var container = closest.container, outer = container.parent;
-        addPoint(outer.seekPoint(pageX, pageY));
+        addPoint(outer.seekPoint(clientX, clientY, clientRect));
         outer.eachChild(function(n) { if (n !== container) addNode(n); });
         addContainer(outer);
       }
       else {
-        addPoint(closest.node.seekPoint(pageX, pageY));
+        addPoint(closest.node.seekPoint(clientX, clientY, clientRect));
         closest.node.eachChild(addNode);
       }
     }
@@ -223,8 +231,8 @@ var MathCommand = P(MathElement, function(_, _super) {
   };
 
   _.seekPoint = noop;
-  _.expectedCursorYNextTo = function() {
-    return this.firstChild.expectedCursorYInside();
+  _.expectedCursorYNextTo = function(clientRect) {
+    return this.firstChild.expectedCursorYInside(clientRect);
   };
 
   // remove()
@@ -381,15 +389,14 @@ var Symbol = P(MathCommand, function(_, _super) {
   };
   _.createBlocks = noop;
 
-  _.seek = function(cursor, pageX, pageY) {
+  _.seek = function(cursor, clientX, clientY, root, clientRect) {
+    var rect = clientRect(this), left = rect.left, right = rect.right;
     // insert at whichever side the click was closer to
-    if (pageX - this.jQ.offset().left < this.jQ.outerWidth()/2)
-      cursor.insertBefore(this);
-    else
-      cursor.insertAfter(this);
+    if (clientX - left < right - clientX) cursor.insertBefore(this);
+    else cursor.insertAfter(this);
   };
-  _.expectedCursorYNextTo = function() {
-    return this.jQ.offset().top + this.jQ.outerHeight()/2;
+  _.expectedCursorYNextTo = function(clientRect) {
+    return (clientRect(this).top + clientRect(this).bottom)/2;
   };
 
   _.latex = function(){ return this.ctrlSeq; };
@@ -419,25 +426,26 @@ var MathBlock = P(MathElement, function(_) {
   _.isEmpty = function() {
     return this.firstChild === 0 && this.lastChild === 0;
   };
-  _.seekPoint = function(pageX, pageY) {
+  _.seekPoint = function(clientX, clientY, clientRect) {
     if (!this.firstChild) {
-      var next = 0, closestX = this.jQ.offset().left + this.jQ.outerWidth()/2;
+      var next = 0, closestX = (clientRect(this).left + clientRect(this).right)/2;
     }
     else {
-      function pointLeftOf(n) { return { next: n, x: n.jQ.offset().left }; }
+      function pointLeftOf(n) { return { next: n, x: clientRect(n).left }; }
       var pt = pointLeftOf(this.firstChild);
-      if (pageX > pt.x) {
+      if (clientX > pt.x) {
         pt = pointLeftOf(this.lastChild);
-        var rightwardPt = { next: 0, x: pt.x + pt.next.jQ.outerWidth() };
-        while (pageX < pt.x) rightwardPt = pt, pt = pointLeftOf(pt.next.prev);
-        if (rightwardPt.x - pageX < pageX - pt.x) pt = rightwardPt;
+        var rightwardPt = { next: 0, x: clientRect(pt.next).right };
+        while (clientX < pt.x) rightwardPt = pt, pt = pointLeftOf(pt.next.prev);
+        if (rightwardPt.x - clientX < clientX - pt.x) pt = rightwardPt;
       }
     }
-    return { parent: this, next: pt.next, x: pt.x, y: this.expectedCursorYInside() };
+    return { parent: this, next: pt.next,
+             x: pt.x, y: this.expectedCursorYInside(clientRect) };
   };
-  _.expectedCursorYInside = function() {
-    if (this.firstChild) return this.firstChild.expectedCursorYNextTo();
-    else return this.jQ.offset().top + this.jQ.outerHeight()/2;
+  _.expectedCursorYInside = function(clientRect) {
+    if (this.firstChild) return this.firstChild.expectedCursorYNextTo(clientRect);
+    else return (clientRect(this).top + clientRect(this).bottom)/2;
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');

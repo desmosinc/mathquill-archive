@@ -287,12 +287,12 @@ var SupSub = P(MathCommand, function(_, _super) {
     this.getCursor = function() { return cursor; };
     return this.getCursor();
   };
-  _.expectedCursorYNextTo = function() {
+  _.expectedCursorYNextTo = function(clientRect) {
     // superscripts and subscripts are vertical-align-ed +/- 0.5em, so
     // their bottom or top edge almost perfectly aligns with the
     // cursor's center
-    if (this.ctrlSeq === '_') return this.jQ.offset().top;
-    else return this.jQ.offset().top + this.jQ.outerHeight();
+    if (this.ctrlSeq === '_') return clientRect(this).top;
+    else return clientRect(this).bottom;
   };
 });
 
@@ -321,10 +321,10 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
     this.up = this.lastChild.up = this.firstChild;
     this.down = this.firstChild.down = this.lastChild;
   };
-  _.expectedCursorYNextTo = function() {
+  _.expectedCursorYNextTo = function(clientRect) {
     // vertical-align-ed -0.5em, so the top edge of the span that sets
     // the baseline almost perfectly aligns with the cursor's center
-    return $(this.jQ[0].lastChild).offset().top;
+    return clientRect.elById(this.jQ[0].lastChild, this.id+.5).top;
   };
 });
 
@@ -433,10 +433,10 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
     }
   };
   _.getCursor = SupSub.prototype.getCursor;
-  _.expectedCursorYNextTo = function() {
+  _.expectedCursorYNextTo = function(clientRect) {
     // superscripts are vertical-align-ed 0.5em, so their bottom edge
     // almost perfectly aligns with the cursor's center
-    return this.jQ.first().offset().top + this.jQ.first().outerHeight();
+    return clientRect.elById(this.jQ[0], this.id+.5).bottom;
   };
 });
 
