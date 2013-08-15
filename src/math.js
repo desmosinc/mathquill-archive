@@ -112,7 +112,8 @@ var MathElement = P(Node, function(_) {
       frontier[iClosest] = null;
       return closest;
     }
-    function addPoint(pt) {
+    function seekPoint(node) {
+      var pt = node.seekPoint(clientX, clientY, clientRect);
       if (!pt) return;
       var dx = clientX - pt.x, dy = clientY - pt.y;
       frontier.push({ point: pt, sqDist: dx*dx + dy*dy });
@@ -133,18 +134,18 @@ var MathElement = P(Node, function(_) {
       frontier.push({ container: node, sqDist: dist * dist });
     }
 
-    addPoint(this.seekPoint(clientX, clientY, clientRect));
+    seekPoint(this);
     this.eachChild(addNode);
     addContainer(this);
     for (var closest = popClosest(); !closest.point; closest = popClosest()) {
       if (closest.container) {
         var container = closest.container, outer = container.parent;
-        addPoint(outer.seekPoint(clientX, clientY, clientRect));
+        seekPoint(outer);
         outer.eachChild(function(n) { if (n !== container) addNode(n); });
         addContainer(outer);
       }
       else {
-        addPoint(closest.node.seekPoint(clientX, clientY, clientRect));
+        seekPoint(closest.node);
         closest.node.eachChild(addNode);
       }
     }
