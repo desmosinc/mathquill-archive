@@ -189,9 +189,9 @@ function createRoot(container, root, textbox, editable) {
   cursor.jQ.bind('touchstart.mathquill', firstFingerOnly(function(e) {
     log('touchstart on cursor');
     cursor.blink = noop;
-    var cursorPos = cursor.jQ.offset();
-    var offsetX = e.pageX - cursorPos.left;
-    var offsetY = e.pageY - (cursorPos.top + cursor.jQ.height()/2);
+    var cursorRect = cursor.jQ[0].getBoundingClientRect();
+    var offsetX = e.clientX - cursorRect.left;
+    var offsetY = e.clientY - (cursorRect.top + cursorRect.bottom)/2;
     log('got offsets: '+offsetX+', '+offsetY);
     var cachedClientRect = cachedClientRectFnForNewCache();
     return {
