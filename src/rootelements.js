@@ -161,9 +161,9 @@ function createRoot(container, root, textbox, editable) {
   }
   /* returns the element at the given point looking "through" the cursor
    * handle, if it's in the current editable */
-  function elAtPt(x, y) {
+  function elAtPt(clientX, clientY) {
     cursor.jQ.hide();
-    var el = $(document.elementFromPoint(x, y));
+    var el = $(document.elementFromPoint(clientX, clientY));
     cursor.jQ.show();
     return el.closest(root.jQ).length ? el : root.jQ;
   }
@@ -174,10 +174,10 @@ function createRoot(container, root, textbox, editable) {
     cursor.blink = noop;
 
     var cachedClientRect = cachedClientRectFnForNewCache();
-    cursor.seek(elAtPt(e.pageX, e.pageY), e.clientX, e.clientY, cachedClientRect);
+    cursor.seek(elAtPt(e.clientX, e.clientY), e.clientX, e.clientY, cachedClientRect);
     return {
       touchmove: function(e) {
-        cursor.seek(elAtPt(e.pageX, e.pageY), e.clientX, e.clientY, cachedClientRect);
+        cursor.seek(elAtPt(e.clientX, e.clientY), e.clientX, e.clientY, cachedClientRect);
       },
       touchend: function(e) {
         cursor.jQ.addClass('show-handle');
