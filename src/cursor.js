@@ -235,7 +235,7 @@ var Cursor = P(function(_) {
 
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
 
-    if (block) {
+    if (block && !block.isEmpty()) {
       block.children().adopt(self.parent, self.prev, self.next);
       var html = block.join('html');
       var jQ = MathElement.jQize(html);
