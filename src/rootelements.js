@@ -159,12 +159,8 @@ function createRoot(container, root, textbox, editable) {
       });
     };
   }
-  /* returns the element at the given point looking "through" the cursor
-   * handle, if it's in the current editable */
   function elAtPt(clientX, clientY) {
-    cursor.jQ.hide();
     var el = $(document.elementFromPoint(clientX, clientY));
-    cursor.jQ.show();
     return el.closest(root.jQ).length ? el : root.jQ;
   }
 

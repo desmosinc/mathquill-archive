@@ -129,8 +129,8 @@ var MathElement = P(Node, function(_) {
     function addContainer(node) {
       if (node === root) return; // no potential Points outside root container
       var rect = clientRect(node);
-      var dist = min(clientX - rect.left, clientY - rect.top,
-                     rect.right - clientX, rect.bottom - clientY);
+      var dist = max(0, min(clientX - rect.left, clientY - rect.top,
+                            rect.right - clientX, rect.bottom - clientY));
       frontier.push({ container: node, sqDist: dist * dist });
     }
 
