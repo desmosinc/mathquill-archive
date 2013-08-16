@@ -151,8 +151,8 @@ function createRoot(container, root, textbox, editable) {
     };
   }
   function elAtPt(clientX, clientY) {
-    var el = $(document.elementFromPoint(clientX, clientY));
-    return el.closest(root.jQ).length ? el : root.jQ;
+    var el = document.elementFromPoint(clientX, clientY);
+    return $.contains(root.jQ[0], el) ? $(el) : root.jQ;
   }
 
   container.bind('touchstart.mathquill', firstFingerOnly(function(e) {
