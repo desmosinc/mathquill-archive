@@ -429,7 +429,7 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.seekPoint = function(clientX, clientY, clientRect) {
     if (!this.firstChild) {
-      var next = 0, closestX = (clientRect(this).left + clientRect(this).right)/2;
+      var pt = { next: 0, x: (clientRect(this).left + clientRect(this).right)/2 };
     }
     else {
       function pointLeftOf(n) { return { next: n, x: clientRect(n).left }; }
