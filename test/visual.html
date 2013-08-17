@@ -186,7 +186,7 @@ $('#show-textareas-button').click(function() {
 });
 
 // test selecting from outside the mathquill editable
-$('.math-container').mousedown(function(e) {
+$('.math-container').on('mousedown touchstart', function(e) {
   $(this).find('.mathquill-editable').triggerHandler(e);
 });
 

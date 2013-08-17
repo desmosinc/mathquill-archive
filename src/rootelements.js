@@ -131,22 +131,22 @@ function createRoot(container, root, textbox, editable) {
   function firstFingerOnly(ontouchstart) {
     return function(e) {
       e.preventDefault();
-      var e = e.originalEvent;
+      var e = e.originalEvent, target = $(e.target);
       if (e.changedTouches.length < e.touches.length) return; // not first finger
       var touchstart = e.changedTouches[0];
       var handlers = ontouchstart(touchstart) || 0;
       if (handlers.touchmove) {
-        $(this).bind('touchmove', function(e) {
+        target.bind('touchmove', function(e) {
           var touchmove = e.originalEvent.changedTouches[0];
           if (touchmove.id !== touchstart.id) return;
           handlers.touchmove.call(this, touchmove);
         });
       }
-      $(this).bind('touchend', function(e) {
+      target.bind('touchend', function(e) {
         var touchend = e.originalEvent.changedTouches[0];
         if (touchend.id !== touchstart.id) return;
         if (handlers.touchend) handlers.touchend.call(this, touchend);
-        $(this).unbind('touchmove touchend');
+        target.unbind('touchmove touchend');
       });
     };
   }
