@@ -173,7 +173,7 @@ function createRoot(container, root, textbox, editable) {
       }
     };
   }));
-  cursor.jQ.bind('touchstart.mathquill', firstFingerOnly(function(e) {
+  cursor.jQ.bind('touchstart', firstFingerOnly(function(e) {
     cursor.blink = noop;
     var cursorRect = cursor.jQ[0].getBoundingClientRect();
     var offsetX = e.clientX - cursorRect.left;
