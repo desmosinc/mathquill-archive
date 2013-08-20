@@ -72,7 +72,7 @@ td {
   <td><span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
 </table>
 
-<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-editable">a_2 x^2 + a_1 x + a_0 = 0</span></div>
+<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center; -webkit-tap-highlight-color: rgba(0,0,0,0)"><span class="mathquill-editable">a_2 x^2 + a_1 x + a_0 = 0</span></div>
 
 <h3>Redrawing</h3>
 <p>
@@ -186,8 +186,20 @@ $('#show-textareas-button').click(function() {
 });
 
 // test selecting from outside the mathquill editable
-$('.math-container').on('mousedown touchstart', function(e) {
-  $(this).find('.mathquill-editable').triggerHandler(e);
+var editable = $('.math-container .mathquill-editable');
+$('.math-container').on('touchstart', function() {
+  var moved = false;
+  $(this).on('touchmove.tmp', function() { moved = true; })
+  .on('touchend.tmp', function(e) {
+    $(this).off('.tmp');
+    editable.mathquill('ignoreNextMousedown', 1000);
+    if (moved) return;
+    var touch = e.originalEvent.changedTouches[0];
+    editable.mathquill('touchtap', touch.target, touch.clientX, touch.clientY);
+  });
+}).mousedown(function(e) {
+  if (e.target === editable[0] || $.contains(editable[0], e.target)) return;
+  editable.triggerHandler(e);
 });
 
 // Selection Tests

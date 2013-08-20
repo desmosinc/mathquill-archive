@@ -56,6 +56,11 @@ function createRoot(container, root, textbox, editable) {
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
   container.bind('mousedown.mathquill', function(e) {
+    if (root.ignoreMousedownTimeout !== undefined) {
+      clearTimeout(root.ignoreMousedownTimeout);
+      root.ignoreMousedownTimeout = undefined;
+      return;
+    }
     var cachedClientRect = cachedClientRectFnForNewCache();
     function mousemove(e) {
       cursor.seek($(e.target), e.clientX, e.clientY, cachedClientRect);
@@ -150,29 +155,6 @@ function createRoot(container, root, textbox, editable) {
       });
     };
   }
-  function elAtPt(clientX, clientY) {
-    var el = document.elementFromPoint(clientX, clientY);
-    return $.contains(root.jQ[0], el) ? $(el) : root.jQ;
-  }
-
-  container.bind('touchstart.mathquill', firstFingerOnly(function(e) {
-    if (root.blurred) textarea.focus();
-    if (e.target === cursor.jQ[0]) return;
-    cursor.blink = noop;
-
-    var cachedClientRect = cachedClientRectFnForNewCache();
-    cursor.seek(elAtPt(e.clientX, e.clientY), e.clientX, e.clientY, cachedClientRect);
-    return {
-      touchmove: function(e) {
-        cursor.seek(elAtPt(e.clientX, e.clientY), e.clientX, e.clientY, cachedClientRect);
-      },
-      touchend: function(e) {
-        cursor.jQ.addClass('show-handle');
-        cursor.blink = blink;
-        cursor.show();
-      }
-    };
-  }));
   cursor.jQ.bind('touchstart', firstFingerOnly(function(e) {
     cursor.blink = noop;
     var cursorRect = cursor.jQ[0].getBoundingClientRect();
@@ -182,7 +164,7 @@ function createRoot(container, root, textbox, editable) {
     return {
       touchmove: function(e) {
         var adjustedX = e.clientX - offsetX, adjustedY = e.clientY - offsetY;
-        cursor.seek(elAtPt(adjustedX, adjustedY), adjustedX, adjustedY, cachedClientRect);
+        cursor.seek(elAtPt(adjustedX, adjustedY, root), adjustedX, adjustedY, cachedClientRect);
       },
       touchend: function(e) {
         cursor.blink = blink;
@@ -278,6 +260,10 @@ function createRoot(container, root, textbox, editable) {
   });
 }
 
+function elAtPt(clientX, clientY, root) {
+  var el = document.elementFromPoint(clientX, clientY);
+  return $.contains(root.jQ[0], el) ? $(el) : root.jQ;
+}
 function cachedClientRectFnForNewCache() {
   var cache = {};
   function elById(el, id) {
