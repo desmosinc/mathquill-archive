@@ -287,6 +287,13 @@ var SupSub = P(MathCommand, function(_, _super) {
     this.getCursor = function() { return cursor; };
     return this.getCursor();
   };
+  _.expectedCursorYNextTo = function(clientRect) {
+    // superscripts and subscripts are vertical-align-ed +/- 0.5em, so
+    // their bottom or top edge almost perfectly aligns with the
+    // cursor's center
+    if (this.ctrlSeq === '_') return clientRect(this).top;
+    else return clientRect(this).bottom;
+  };
 });
 
 LatexCmds.subscript =
@@ -306,13 +313,18 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
       '<span class="fraction non-leaf">'
     +   '<span class="numerator">&0</span>'
     +   '<span class="denominator">&1</span>'
-    +   '<span style="display:inline-block;width:0">&nbsp;</span>'
+    +   '<span style="display:inline-block;width:0;overflow:hidden">&nbsp;</span>'
     + '</span>'
   ;
   _.textTemplate = ['(', '/', ')'];
   _.finalizeTree = function() {
     this.up = this.lastChild.up = this.firstChild;
     this.down = this.firstChild.down = this.lastChild;
+  };
+  _.expectedCursorYNextTo = function(clientRect) {
+    // vertical-align-ed -0.5em, so the top edge of the span that sets
+    // the baseline almost perfectly aligns with the cursor's center
+    return clientRect.elById(this.jQ[0].lastChild, this.id+.5).top;
   };
 });
 
@@ -421,6 +433,11 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
     }
   };
   _.getCursor = SupSub.prototype.getCursor;
+  _.expectedCursorYNextTo = function(clientRect) {
+    // superscripts are vertical-align-ed 0.5em, so their bottom edge
+    // almost perfectly aligns with the cursor's center
+    return clientRect.elById(this.jQ[0], this.id+.5).bottom;
+  };
 });
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
@@ -879,6 +896,8 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
     var parens = this.jQ.filter('.paren');
     scale(parens, min(1 + .2*(height - 1), 1.2), 1.05*height);
   };
+  // vertical-align: middle, so
+  _.expectedCursorYNextTo = Symbol.prototype.expectedCursorYNextTo;
 });
 
 var Choose =
@@ -987,4 +1006,6 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       }
     }
   };
+  // vertical-align: middle, so
+  _.expectedCursorYNextTo = Binomial.prototype.expectedCursorYNextTo;
 });

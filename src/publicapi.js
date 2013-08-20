@@ -120,6 +120,29 @@ $.fn.mathquill = function(cmd, latex) {
           if (block.blurred) cursor.hide().parent.blur();
         }
       });
+  case 'touchtap':
+    var touchstartTarget = arguments[1], x = arguments[2], y = arguments[3];
+    return this.each(function() {
+      var blockId = $(this).attr(mqBlockId),
+        block = blockId && MathElement[blockId],
+        cursor = block && block.cursor;
+      if (cursor && touchstartTarget !== cursor.jQ[0]) {
+        block.textarea.children().focus();
+        cursor.seek(elAtPt(x, y, block), x, y, cachedClientRectFnForNewCache())
+              .jQ.addClass('show-handle');
+      }
+    });
+  case 'ignoreNextMousedown':
+    var time = arguments[1];
+    return this.each(function() {
+      var blockId = $(this).attr(mqBlockId),
+        block = blockId && MathElement[blockId];
+      if (block) {
+        block.ignoreMousedownTimeout = setTimeout(function() {
+          block.ignoreMousedownTimeout = undefined;
+        }, time);
+      }
+    });
   case 'moveStart':
     var blockId = $(this).attr(mqBlockId),
       block = blockId && MathElement[blockId];

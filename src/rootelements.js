@@ -56,8 +56,17 @@ function createRoot(container, root, textbox, editable) {
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
   container.bind('mousedown.mathquill', function(e) {
+    e.preventDefault();
+
+    if (root.ignoreMousedownTimeout !== undefined) {
+      clearTimeout(root.ignoreMousedownTimeout);
+      root.ignoreMousedownTimeout = undefined;
+      return;
+    }
+
+    var cachedClientRect = cachedClientRectFnForNewCache();
     function mousemove(e) {
-      cursor.seek($(e.target), e.pageX, e.pageY);
+      cursor.seek($(e.target), e.clientX, e.clientY, cachedClientRect);
 
       if (cursor.prev !== anticursor.prev
           || cursor.parent !== anticursor.parent) {
@@ -104,7 +113,8 @@ function createRoot(container, root, textbox, editable) {
       // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = noop;
-    cursor.seek($(e.target), e.pageX, e.pageY);
+    cursor.jQ.removeClass('show-handle');
+    cursor.seek($(e.target), e.clientX, e.clientY, cachedClientRect);
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
@@ -112,9 +122,57 @@ function createRoot(container, root, textbox, editable) {
 
     container.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
-
-    e.preventDefault();
   });
+
+  // event handling for touch-draggable handle
+  /**
+   * Usage:
+   * jQ.on('touchstart', firstFingerOnly(function(touchstartCoords) {
+   *   return { // either of these are optional:
+   *     touchmove: function(touchmoveCoords) {},
+   *     touchend: function(touchendCoords) {}
+   *   };
+   * });
+   */
+  function firstFingerOnly(ontouchstart) {
+    return function(e) {
+      e.preventDefault();
+      var e = e.originalEvent, target = $(e.target);
+      if (e.changedTouches.length < e.touches.length) return; // not first finger
+      var touchstart = e.changedTouches[0];
+      var handlers = ontouchstart(touchstart) || 0;
+      if (handlers.touchmove) {
+        target.bind('touchmove', function(e) {
+          var touchmove = e.originalEvent.changedTouches[0];
+          if (touchmove.id !== touchstart.id) return;
+          handlers.touchmove.call(this, touchmove);
+        });
+      }
+      target.bind('touchend', function(e) {
+        var touchend = e.originalEvent.changedTouches[0];
+        if (touchend.id !== touchstart.id) return;
+        if (handlers.touchend) handlers.touchend.call(this, touchend);
+        target.unbind('touchmove touchend');
+      });
+    };
+  }
+  cursor.jQ.bind('touchstart', firstFingerOnly(function(e) {
+    cursor.blink = noop;
+    var cursorRect = cursor.jQ[0].getBoundingClientRect();
+    var offsetX = e.clientX - cursorRect.left;
+    var offsetY = e.clientY - (cursorRect.top + cursorRect.bottom)/2;
+    var cachedClientRect = cachedClientRectFnForNewCache();
+    return {
+      touchmove: function(e) {
+        var adjustedX = e.clientX - offsetX, adjustedY = e.clientY - offsetY;
+        cursor.seek(elAtPt(adjustedX, adjustedY, root), adjustedX, adjustedY, cachedClientRect);
+      },
+      touchend: function(e) {
+        cursor.blink = blink;
+        cursor.show();
+      }
+    };
+  }));
 
   if (!editable) {
     var textareaManager = manageTextarea(textarea, { container: container });
@@ -201,6 +259,20 @@ function createRoot(container, root, textbox, editable) {
     cursor.writeLatex(text).show();
     root.triggerSpecialEvent('render');
   });
+}
+
+function elAtPt(clientX, clientY, root) {
+  var el = document.elementFromPoint(clientX, clientY);
+  return $.contains(root.jQ[0], el) ? $(el) : root.jQ;
+}
+function cachedClientRectFnForNewCache() {
+  var cache = {};
+  function elById(el, id) {
+    return cache[id] || (cache[id] = el.getBoundingClientRect());
+  };
+  function cachedClientRect(node) { return elById(node.jQ[0], node.id); };
+  cachedClientRect.elById = elById;
+  return cachedClientRect;
 }
 
 var RootMathBlock = P(MathBlock, function(_, _super) {
