@@ -89,6 +89,7 @@ var manageTextarea = (function() {
   // create a textarea manager that calls callbacks at useful times
   // and exports useful public methods
   return function manageTextarea(el, opts) {
+    if (!el.is('textarea')) return { select: noop };
     var keydown = null;
     var keypress = null;
 
