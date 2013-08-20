@@ -56,11 +56,14 @@ function createRoot(container, root, textbox, editable) {
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
   container.bind('mousedown.mathquill', function(e) {
+    e.preventDefault();
+
     if (root.ignoreMousedownTimeout !== undefined) {
       clearTimeout(root.ignoreMousedownTimeout);
       root.ignoreMousedownTimeout = undefined;
       return;
     }
+
     var cachedClientRect = cachedClientRectFnForNewCache();
     function mousemove(e) {
       cursor.seek($(e.target), e.clientX, e.clientY, cachedClientRect);
@@ -119,8 +122,6 @@ function createRoot(container, root, textbox, editable) {
 
     container.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
-
-    e.preventDefault();
   });
 
   // event handling for touch-draggable handle
