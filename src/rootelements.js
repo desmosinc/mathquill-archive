@@ -197,10 +197,14 @@ function createRoot(container, root, textbox, editable) {
         var weight = (Math.log(dist)+1)/dist;
         var skewX = Math.atan2(weight*dx, offsetY);
         var scaleY = (weight*dy + offsetY)/offsetY;
-        cursor.handle.css('WebkitTransform', 'translateX(-.5px) skewX('+skewX+'rad) scaleY('+scaleY+')');
+        var steeperScale = 2*(scaleY - 1) + 1;
+        cursor.handle.css({
+          WebkitTransform: 'translateX(-.5px) skewX('+skewX+'rad) scaleY('+scaleY+')',
+          opacity: .5/steeperScale
+        });
       },
       touchend: function(e) {
-        cursor.handle.css('WebkitTransform', '');
+        cursor.handle.css({ WebkitTransform: '', opacity: '' });
         cursor.blink = blink;
         cursor.show();
       }
