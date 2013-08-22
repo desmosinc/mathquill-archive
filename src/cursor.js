@@ -183,8 +183,9 @@ var Cursor = P(function(_) {
                   self.appendTo(cached.parent);
                 }
               } else {
-                var pageX = offset(self).left, height = self.jQ.outerHeight(true);
-                prop.seek(self, coords.left, coords.top + height, prop);
+                var coords = self.jQ[0].getBoundingClientRect();
+                var cachedClientRect = cachedClientRectFnForNewCache();
+                prop.seek(self, coords.left, coords.bottom, prop, cachedClientRect);
               }
             }
             break;
@@ -197,7 +198,7 @@ var Cursor = P(function(_) {
     return self.clearSelection().show();
   }
 
-  _.seek = function(target, pageX, pageY) {
+  _.seek = function(target, clientX, clientY, clientRect) {
     clearUpDownCache(this);
     var cursor = this.clearSelection().show();
 
@@ -209,7 +210,7 @@ var Cursor = P(function(_) {
     var node = nodeId ? MathElement[nodeId] : cursor.root;
     pray('nodeId is the id of some Node that exists', node);
 
-    node.seek(cursor, pageX, pageY, cursor.root);
+    node.seek(cursor, clientX, clientY, cursor.root, clientRect);
 
     return cursor;
   };
@@ -235,7 +236,7 @@ var Cursor = P(function(_) {
 
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
 
-    if (block) {
+    if (block && !block.isEmpty()) {
       block.children().adopt(self.parent, self.prev, self.next);
       var html = block.join('html');
       var jQ = MathElement.jQize(html);

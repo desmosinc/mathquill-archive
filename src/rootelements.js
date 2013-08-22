@@ -56,8 +56,17 @@ function createRoot(container, root, textbox, editable) {
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
   container.bind('mousedown.mathquill', function(e) {
+    e.preventDefault();
+
+    if (root.ignoreMousedownTimeout !== undefined) {
+      clearTimeout(root.ignoreMousedownTimeout);
+      root.ignoreMousedownTimeout = undefined;
+      return;
+    }
+
+    var cachedClientRect = cachedClientRectFnForNewCache();
     function mousemove(e) {
-      cursor.seek($(e.target), e.pageX, e.pageY);
+      cursor.seek($(e.target), e.clientX, e.clientY, cachedClientRect);
 
       if (cursor.prev !== anticursor.prev
           || cursor.parent !== anticursor.parent) {
@@ -108,7 +117,7 @@ function createRoot(container, root, textbox, editable) {
       cursor.handle.remove();
       delete cursor.handle;
     }
-    cursor.seek($(e.target), e.pageX, e.pageY);
+    cursor.seek($(e.target), e.clientX, e.clientY, cachedClientRect);
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
@@ -116,8 +125,6 @@ function createRoot(container, root, textbox, editable) {
 
     container.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
-
-    e.preventDefault();
   });
 
   // event handling for touch-draggable handle
@@ -133,61 +140,35 @@ function createRoot(container, root, textbox, editable) {
   function firstFingerOnly(ontouchstart) {
     return function(e) {
       e.preventDefault();
-      var e = e.originalEvent;
+      var e = e.originalEvent, target = $(e.target);
       if (e.changedTouches.length < e.touches.length) return; // not first finger
       var touchstart = e.changedTouches[0];
       var handlers = ontouchstart(touchstart) || 0;
       if (handlers.touchmove) {
-        $(this).bind('touchmove', function(e) {
+        target.bind('touchmove', function(e) {
           var touchmove = e.originalEvent.changedTouches[0];
           if (touchmove.id !== touchstart.id) return;
           handlers.touchmove.call(this, touchmove);
         });
       }
-      $(this).bind('touchend', function(e) {
+      target.bind('touchend', function(e) {
         var touchend = e.originalEvent.changedTouches[0];
         if (touchend.id !== touchstart.id) return;
         if (handlers.touchend) handlers.touchend.call(this, touchend);
-        $(this).unbind('touchmove touchend');
+        target.unbind('touchmove touchend');
       });
     };
   }
-  /* returns the element at the given point looking "through" the cursor
-   * handle, if it's in the current editable */
-  function elAtPt(x, y) {
-    cursor.jQ.hide();
-    var el = $(document.elementFromPoint(x, y));
-    cursor.jQ.show();
-    return el.closest(root.jQ).length ? el : root.jQ;
-  }
-
-  container.bind('touchstart.mathquill', firstFingerOnly(function(e) {
-    if (e.target === cursor.handle[0]) return;
+  cursor.jQ.delegate('.handle', 'touchstart', firstFingerOnly(function(e) {
     cursor.blink = noop;
-
-    cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
+    var cursorRect = cursor.jQ[0].getBoundingClientRect();
+    var offsetX = e.clientX - cursorRect.left;
+    var offsetY = e.clientY - (cursorRect.top + cursorRect.bottom)/2;
+    var cachedClientRect = cachedClientRectFnForNewCache();
     return {
       touchmove: function(e) {
-        cursor.seek(elAtPt(e.pageX, e.pageY), e.pageX, e.pageY);
-      },
-      touchend: function(e) {
-        if (!cursor.handle) {
-          cursor.handle = $('<span class="handle"></span>').appendTo(cursor.jQ);
-        }
-        cursor.blink = blink;
-        cursor.show();
-      }
-    };
-  }));
-  cursor.jQ.delegate('.handle', 'touchstart.mathquill', firstFingerOnly(function(e) {
-    cursor.blink = noop;
-    var cursorPos = cursor.jQ.offset();
-    var offsetX = e.pageX - cursorPos.left;
-    var offsetY = e.pageY - (cursorPos.top + cursor.jQ.height()/2);
-    return {
-      touchmove: function(e) {
-        var adjustedX = e.pageX - offsetX, adjustedY = e.pageY - offsetY;
-        cursor.seek(elAtPt(adjustedX, adjustedY), adjustedX, adjustedY);
+        var adjustedX = e.clientX - offsetX, adjustedY = e.clientY - offsetY;
+        cursor.seek(elAtPt(adjustedX, adjustedY, root), adjustedX, adjustedY, cachedClientRect);
 
         // visual "haptic" feedback
         var cursorPos = cursor.jQ.offset();
@@ -296,6 +277,20 @@ function createRoot(container, root, textbox, editable) {
     cursor.writeLatex(text).show();
     root.triggerSpecialEvent('render');
   });
+}
+
+function elAtPt(clientX, clientY, root) {
+  var el = document.elementFromPoint(clientX, clientY);
+  return $.contains(root.jQ[0], el) ? $(el) : root.jQ;
+}
+function cachedClientRectFnForNewCache() {
+  var cache = {};
+  function elById(el, id) {
+    return cache[id] || (cache[id] = el.getBoundingClientRect());
+  };
+  function cachedClientRect(node) { return elById(node.jQ[0], node.id); };
+  cachedClientRect.elById = elById;
+  return cachedClientRect;
 }
 
 var RootMathBlock = P(MathBlock, function(_, _super) {
