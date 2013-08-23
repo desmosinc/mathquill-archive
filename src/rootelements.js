@@ -181,7 +181,7 @@ function createRoot(container, root, textbox, editable) {
         var steeperScale = 2*(scaleY - 1) + 1;
         cursor.handle.css({
           WebkitTransform: 'translateX(-.5px) skewX('+skewX+'rad) scaleY('+scaleY+')',
-          opacity: .5/steeperScale
+          opacity: 1 - steeperScale*.5
         });
       },
       touchend: function(e) {
