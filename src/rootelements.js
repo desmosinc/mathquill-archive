@@ -171,9 +171,9 @@ function createRoot(container, root, textbox, editable) {
         cursor.seek(elAtPt(adjustedX, adjustedY, root), adjustedX, adjustedY, cachedClientRect);
 
         // visual "haptic" feedback
-        var cursorPos = cursor.jQ.offset();
-        var dx = adjustedX - cursorPos.left;
-        var dy = adjustedY - (cursorPos.top + cursor.jQ.height()/2);
+        var cursorRect = cursor.jQ[0].getBoundingClientRect();
+        var dx = adjustedX - cursorRect.left;
+        var dy = adjustedY - (cursorRect.top + cursorRect.bottom)/2;
         var dist = Math.sqrt(dx*dx + dy*dy);
         var weight = (Math.log(dist)+1)/dist;
         var skewX = Math.atan2(weight*dx, offsetY);
