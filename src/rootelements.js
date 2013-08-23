@@ -180,7 +180,7 @@ function createRoot(container, root, textbox, editable) {
         var scaleY = (weight*dy + offsetY)/offsetY;
         var steeperScale = 2*(scaleY - 1) + 1;
         cursor.handle.css({
-          WebkitTransform: 'translateX(-.5px) skewX('+skewX+'rad) scaleY('+scaleY+')',
+          WebkitTransform: 'translateX(.5px) skewX('+skewX+'rad) scaleY('+scaleY+')',
           opacity: 1 - steeperScale*.5
         });
       },

@@ -13,28 +13,40 @@
 
     .handle {
       display: inline-block;
-      -webkit-transform-origin: 0.5px bottom;
-      -webkit-transform: translateX(-.5px);
+      -webkit-transform-origin: 10px -25px;
+      -webkit-transform: translateX(.5px);
       opacity: .5;
+
+      position: absolute;
+      left: -10px;
+
       &:before, &:after {
         content: '';
         position: absolute;
-        left: -10px;
       }
+
+      // square handle body
+      width: 20px;
+      height: 20px;
+      background: black;
+      bottom: -40px;
+
       // triangle tip
       &:before {
         border-left: 10px solid transparent;
         border-right: 10px solid transparent;
         border-bottom: 10px solid black;
-        bottom: -20px;
+        top: -10px;
+        // cover occasional subpixel (floating-point rounding error?) gap
+        -webkit-transform: translateY(.2px); // between tip and body
       }
-      // rectangle block/handle body
+
+      // invisible embiggened hit box / touch target
       &:after {
-        width: 20px;
-        height: 20px;
-        background: black;
-        bottom: -40px;
-        -webkit-transform: translateY(-.2px);
+        width: 40px;
+        height: 40px;
+        left: -10px;
+        bottom: -10px;
       }
     }
   }
