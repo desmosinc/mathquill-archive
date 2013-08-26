@@ -128,10 +128,8 @@ $.fn.mathquill = function(cmd, latex) {
         cursor = block && block.cursor;
       if (cursor && touchstartTarget !== cursor.handle[0]) {
         block.textarea.children().focus();
-        cursor.seek(elAtPt(x, y, block), x, y, cachedClientRectFnForNewCache());
-        if (!cursor.handle) {
-          cursor.handle = $('<span class="handle"></span>').appendTo(cursor.jQ);
-        }
+        cursor.seek(elAtPt(x, y, block), x, y, cachedClientRectFnForNewCache())
+              .showHandle();
       }
     });
   case 'ignoreNextMousedown':

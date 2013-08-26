@@ -113,11 +113,7 @@ function createRoot(container, root, textbox, editable) {
       // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = noop;
-    if (cursor.handle) {
-      cursor.handle.remove();
-      delete cursor.handle;
-    }
-    cursor.seek($(e.target), e.clientX, e.clientY, cachedClientRect);
+    cursor.hideHandle().seek($(e.target), e.clientX, e.clientY, cachedClientRect);
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
