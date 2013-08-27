@@ -108,16 +108,17 @@ var UnItalicizedCmds = {
   nPr: 1,
   gcd: 1,
   lcm: 1,
+  //spanish gcd & lcm
+  mcm: 1,
+  mcd: 1,
+
   ceil: 1,
   exp: 1,
   abs: 1,
   max: 1,
   mod: 1,
-  lcm: 1,
-  gcd: 1,
   gcf: 1,
   hcf: 1,
-//  lim: 1,
   exp: 1,
   floor: 1,
   sign: 1,
@@ -131,8 +132,7 @@ var UnItalicizedCmds = {
   phi: 1,
   tau: 1,
   gamma: 1,
-  theta: 1/*,
-  int: 1*/
+  theta: 1
 }, MAX_AUTOCMD_LEN = 7;
 
 (function() {
