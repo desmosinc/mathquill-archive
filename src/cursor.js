@@ -248,9 +248,7 @@ var Cursor = P(function(_) {
 
     return this;
   };
-  _.write = function(ch) {
-    return this.show().insertCh(ch);
-  };
+  _.write =
   _.insertCh = function(ch) {
     //Hack by Eli: don't exponentiate if there's nothing before the cursor
     if ((ch == '^' || ch == '_') && !this.prev) return;
@@ -290,6 +288,7 @@ var Cursor = P(function(_) {
     }
 
     clearUpDownCache(this);
+    this.show();
 
     var cmd;
     if (ch.match(/^[a-z]$/i))
@@ -314,6 +313,7 @@ var Cursor = P(function(_) {
   };
   _.insertCmd = function(latexCmd, replacedFragment) {
     clearUpDownCache(this);
+    this.show();
 
     var cmd = LatexCmds[latexCmd];
     if (cmd) {

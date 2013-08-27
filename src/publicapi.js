@@ -105,7 +105,6 @@ $.fn.mathquill = function(cmd, latex) {
           cursor = block && block.cursor;
 
         if (cursor) {
-          cursor.show();
           if (/^\\[a-z]+$/i.test(latex)) {
             var selection = cursor.selection;
             if (selection) {
