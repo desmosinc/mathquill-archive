@@ -113,11 +113,7 @@ function createRoot(container, root, textbox, editable) {
       // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = noop;
-    if (cursor.handle) {
-      cursor.handle.remove();
-      delete cursor.handle;
-    }
-    cursor.seek($(e.target), e.clientX, e.clientY, cachedClientRect);
+    cursor.hideHandle().seek($(e.target), e.clientX, e.clientY, cachedClientRect);
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
@@ -168,7 +164,7 @@ function createRoot(container, root, textbox, editable) {
     return {
       touchmove: function(e) {
         var adjustedX = e.clientX - offsetX, adjustedY = e.clientY - offsetY;
-        cursor.seek(elAtPt(adjustedX, adjustedY, root), adjustedX, adjustedY, cachedClientRect);
+        cursor.seek(elAtPt(adjustedX, adjustedY, root), adjustedX, adjustedY, cachedClientRect, true);
 
         // visual "haptic" feedback
         var cursorRect = cursor.jQ[0].getBoundingClientRect();
@@ -187,7 +183,7 @@ function createRoot(container, root, textbox, editable) {
       touchend: function(e) {
         cursor.handle.css({ WebkitTransform: '', opacity: '' });
         cursor.blink = blink;
-        cursor.show();
+        cursor.show(true);
       }
     };
   }));
