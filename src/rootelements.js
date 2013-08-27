@@ -557,45 +557,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     return false;
   };
   _.onText = function(ch) {
-    //Hack by Eli: don't exponentiate if there's nothing before the cursor
-    if ((ch == '^' || ch == '_') && !this.cursor.prev) return;
-
-    //Hack #2 by Eli: if you type '+' or '-' or '=' in an exponent or subscript, break out of it
-    if ((ch == '+' || ch == '=' || ch == '-' || ch == '<' || ch == '>') && (this.cursor.parent.parent.ctrlSeq === '^' || this.cursor.parent.parent.ctrlSeq === '_')
-      && !this.cursor.next && this.cursor.prev
-    ) {
-      this.cursor.moveRight();
-    }
-
-    //Hack #3 by Eli: if you type "^" just after a superscript, behave as though you just pressed up
-    if (ch === '^' && this.cursor.prev instanceof SupSub && 
-      //note: need both of these, because if it's a superscript and subscript,
-      //those could appear in either order
-      (this.cursor.prev.ctrlSeq === '^' || this.cursor.prev.prev.ctrlSeq === '^')) {
-      this.cursor.moveUp();
-      return;
-    }
-    
-    //Hack #4 by Eli: if you type "^" just _before_ a superscript, behave as though you just pressed up
-    if (ch === '^' && this.cursor.next instanceof SupSub && 
-      //note: need both of these, because if it's a superscript and subscript,
-      //those could appear in either order
-      (this.cursor.next.ctrlSeq === '^' || (this.cursor.next.next && this.cursor.next.next.ctrlSeq === '^'))) {
-      this.cursor.moveUp();
-      return;
-    }
-    
-    
-    if (ch === '_' && this.cursor.prev instanceof SupSub && 
-      //note: need both of these, because if it's a superscript and subscript,
-      //those could appear in either order
-      (this.cursor.prev.ctrlSeq === '_' || this.cursor.prev.prev.ctrlSeq === '_')) {
-      this.cursor.moveDown();
-      return;
-    }
-
-
-
     this.cursor.write(ch);
     this.triggerSpecialEvent('render');
     return false;
