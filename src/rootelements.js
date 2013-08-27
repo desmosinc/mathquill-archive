@@ -164,7 +164,7 @@ function createRoot(container, root, textbox, editable) {
     return {
       touchmove: function(e) {
         var adjustedX = e.clientX - offsetX, adjustedY = e.clientY - offsetY;
-        cursor.seek(elAtPt(adjustedX, adjustedY, root), adjustedX, adjustedY, cachedClientRect);
+        cursor.seek(elAtPt(adjustedX, adjustedY, root), adjustedX, adjustedY, cachedClientRect, true);
 
         // visual "haptic" feedback
         var cursorRect = cursor.jQ[0].getBoundingClientRect();
@@ -183,7 +183,7 @@ function createRoot(container, root, textbox, editable) {
       touchend: function(e) {
         cursor.handle.css({ WebkitTransform: '', opacity: '' });
         cursor.blink = blink;
-        cursor.show();
+        cursor.show(true);
       }
     };
   }));

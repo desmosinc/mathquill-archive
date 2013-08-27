@@ -38,7 +38,8 @@ var Cursor = P(function(_) {
     }
     return this;
   };
-  _.show = function() {
+  _.show = function(keepHandle) {
+    if (!keepHandle) this.hideHandle();
     this.jQ = this._jQ.removeClass('blink');
     if ('intervalId' in this) //already was shown, just restart interval
       clearInterval(this.intervalId);
@@ -211,9 +212,9 @@ var Cursor = P(function(_) {
     return self.clearSelection().show();
   }
 
-  _.seek = function(target, clientX, clientY, clientRect) {
+  _.seek = function(target, clientX, clientY, clientRect, keepHandle) {
     clearUpDownCache(this);
-    var cursor = this.clearSelection().show();
+    var cursor = this.clearSelection().show(keepHandle);
 
     var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
     if (!nodeId) {
