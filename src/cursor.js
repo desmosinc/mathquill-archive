@@ -249,7 +249,6 @@ var Cursor = P(function(_) {
     return this;
   };
   _.write = function(ch) {
-    clearUpDownCache(this);
     return this.show().insertCh(ch);
   };
   _.insertCh = function(ch) {
@@ -290,6 +289,8 @@ var Cursor = P(function(_) {
       return;
     }
 
+    clearUpDownCache(this);
+
     var cmd;
     if (ch.match(/^[a-z]$/i))
       cmd = Variable(ch);
@@ -312,6 +313,8 @@ var Cursor = P(function(_) {
     return this;
   };
   _.insertCmd = function(latexCmd, replacedFragment) {
+    clearUpDownCache(this);
+
     var cmd = LatexCmds[latexCmd];
     if (cmd) {
       cmd = cmd(latexCmd);
