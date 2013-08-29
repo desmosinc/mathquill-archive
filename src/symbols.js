@@ -451,39 +451,6 @@ LatexCmds.nsupersete = LatexCmds.nsuperseteq =
 LatexCmds.notsupersete = LatexCmds.notsuperseteq =
   bind(BinaryOperator,'\\not\\supseteq ','&#8841;');
 
-
-//sum, product, coproduct, integral
-var BigSymbol = P(Symbol, function(_, _super) {
-  _.init = function(ch, html) {
-    _super.init.call(this, ch, '<span class="large-operator non-leaf"><big>'+html+'</big></span>');
-    //FIXME HACK
-    if (ch !== '\\int ')
-      this.placeCursor = function(cursor) {
-        cursor.writeLatex('^{}_{n=}').appendTo(this.firstChild).show();
-      };
-  };
-  _.isEmpty = MathCommand.prototype.isEmpty;
-  _.latex = function() {
-    var fromLatex = this.firstChild ? '_'+simplify(this.firstChild.latex()) : '',
-      toLatex = this.lastChild ? '^'+simplify(this.lastChild.latex()) : '';
-    return this.ctrlSeq + fromLatex + toLatex;
-
-    function simplify(latex) {
-      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
-    }
-  };
-});
-
-LatexCmds['\u2211'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
-LatexCmds['\u220F'] = LatexCmds.prod = LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
-LatexCmds.coprod = LatexCmds.coproduct = bind(BigSymbol,'\\coprod ','&#8720;');
-/*LatexCmds['∫'] = LatexCmds['int'] = LatexCmds.integral = P(BigSymbol, function(_) {
-  _.init = function() {
-    Symbol.prototype.init.call(this, '\\int ', '<big>&int;</big>');
-  };
-});*/
-
-
 /*
 
 //the canonical sets of numbers
