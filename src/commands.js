@@ -92,27 +92,6 @@ var SupSub = P(MathCommand, function(_, _super) {
       this.ctrlSeq === '^' || this.ctrlSeq === '_'
     );
 
-    if (this.prev instanceof BigSymbol && this.prev.ctrlSeq !== '\\int ') {
-      var bigSym = this.prev, block = this.firstChild;
-      if (this.ctrlSeq === '_') {
-        block.adopt(bigSym, 0, bigSym.firstChild);
-        $('<span class="from"></span>').append(block.jQ.removeClass('sub'))
-        .appendTo(bigSym.jQ);
-        bigSym.down = block;
-        block.up = insertAfterUnlessAtBeginning;
-      }
-      else {
-        block.adopt(bigSym, bigSym.lastChild, 0);
-        $('<span class="to"></span>').append(block.jQ.removeClass('sup'))
-        .prependTo(bigSym.jQ);
-        bigSym.up = block;
-        block.down = insertAfterUnlessAtBeginning;
-      }
-      this.disown();
-      this.respace = noop; // don't let SupSub::respace reset the .up/.down ptrs
-      return;
-    }
-
     if (this.ctrlSeq === '_') {
       this.down = this.firstChild;
       this.firstChild.up = insertBeforeUnlessAtEnd;
@@ -122,20 +101,6 @@ var SupSub = P(MathCommand, function(_, _super) {
       this.firstChild.down = insertBeforeUnlessAtEnd;
     }
   };
-  function insertAfterUnlessAtBeginning(cursor) {
-    // cursor.insertAfter(cmd), unless cursor at the beginning of block, and every
-    // ancestor cmd is at the beginning of every ancestor block
-    var cmd = this.parent, ancestorCmd = cursor;
-    do {
-      if (ancestorCmd.prev) {
-        cursor.insertAfter(cmd);
-        return false;
-      }
-      ancestorCmd = ancestorCmd.parent.parent;
-    } while (ancestorCmd !== cmd);
-    cursor.insertBefore(cmd);
-    return false;
-  }
   function insertBeforeUnlessAtEnd(cursor) {
     // cursor.insertBefore(cmd), unless cursor at the end of block, and every
     // ancestor cmd is at the end of every ancestor block
@@ -302,6 +267,71 @@ LatexCmds._ = bind(SupSub, '_', 'sub', '_');
 LatexCmds.superscript =
 LatexCmds.supscript =
 LatexCmds['^'] = bind(SupSub, '^', 'sup', '**');
+
+var BigSymbol = P(MathCommand, function(_, _super) {
+  _.init = function(ch, html) {
+    var htmlTemplate =
+        '<span class="large-operator non-leaf">'
+      +   '<span class="to"><span>&1</span></span>'
+      +   '<big>'+html+'</big>'
+      +   '<span class="from"><span>&0</span></span>'
+      + '</span>'
+    ;
+    Symbol.prototype.init.call(this, ch, htmlTemplate);
+  };
+  _.placeCursor = function(cursor) {
+    cursor.appendTo(this.firstChild).writeLatex('n=').show();
+  };
+  _.latex = function() {
+    function simplify(latex) {
+      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
+    }
+    return this.ctrlSeq + '_' + simplify(this.firstChild.latex()) +
+      '^' + simplify(this.lastChild.latex());
+  };
+  _.parser = function() {
+    var string = Parser.string;
+    var optWhitespace = Parser.optWhitespace;
+    var succeed = Parser.succeed;
+    var block = latexMathParser.block;
+
+    var self = this;
+    var blocks = self.blocks = [ MathBlock(), MathBlock() ];
+    for (var i = 0; i < blocks.length; i += 1) {
+      blocks[i].adopt(self, self.lastChild, 0);
+    }
+
+    return optWhitespace.then(string('_').or(string('^'))).then(function(supOrSub) {
+      var child = blocks[supOrSub === '_' ? 0 : 1];
+      return block.then(function(block) {
+        block.children().adopt(child, child.lastChild, 0);
+        return succeed(self);
+      });
+    }).many().result(self);
+  };
+  _.finalizeTree = function() {
+    this.down = this.firstChild;
+    this.firstChild.up = insertAfterUnlessAtBeginning;
+    this.up = this.lastChild;
+    this.lastChild.down = insertAfterUnlessAtBeginning;
+  };
+  function insertAfterUnlessAtBeginning(cursor) {
+    // cursor.insertAfter(cmd), unless cursor at the beginning of block, and every
+    // ancestor cmd is at the beginning of every ancestor block
+    var cmd = this.parent, ancestorCmd = cursor;
+    do {
+      if (ancestorCmd.prev) {
+        cursor.insertAfter(cmd);
+        return false;
+      }
+      ancestorCmd = ancestorCmd.parent.parent;
+    } while (ancestorCmd !== cmd);
+    cursor.insertBefore(cmd);
+    return false;
+  }
+});
+LatexCmds['\u2211'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
+LatexCmds['\u220F'] = LatexCmds.prod = LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
 
 var Fraction =
 LatexCmds.frac =
