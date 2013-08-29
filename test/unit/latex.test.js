@@ -125,22 +125,36 @@ suite('latex', function() {
         assert.equal(el.mathquill('latex'), '\\sum_{n=0}^5x^n');
       });
 
-      test('only lower bound', function() {
+      test('only lower bound at first', function() {
         el.mathquill('write', '\\sum_{n=0}');
-        assert.equal(el.mathquill('latex'), '\\sum_{n=0}');
+        assert.equal(el.mathquill('latex'), '\\sum_{n=0}^{ }');
         el.mathquill('write', '^5');
         assert.equal(el.mathquill('latex'), '\\sum_{n=0}^5');
         el.mathquill('write', 'x^n');
         assert.equal(el.mathquill('latex'), '\\sum_{n=0}^5x^n');
       });
 
-      test('only upper bound', function() {
+      test('only upper bound at first', function() {
         el.mathquill('write', '\\sum^5');
-        assert.equal(el.mathquill('latex'), '\\sum^5');
+        assert.equal(el.mathquill('latex'), '\\sum_{ }^5');
         el.mathquill('write', '_{n=0}');
         assert.equal(el.mathquill('latex'), '\\sum_{n=0}^5');
         el.mathquill('write', 'x^n');
         assert.equal(el.mathquill('latex'), '\\sum_{n=0}^5x^n');
+      });
+
+      test('only lower bound', function() {
+        el.mathquill('write', '\\sum_{n=0}');
+        assert.equal(el.mathquill('latex'), '\\sum_{n=0}^{ }');
+        el.mathquill('write', 'x^n');
+        assert.equal(el.mathquill('latex'), '\\sum_{n=0}^{ }x^n');
+      });
+
+      test('only upper bound', function() {
+        el.mathquill('write', '\\sum^5');
+        assert.equal(el.mathquill('latex'), '\\sum_{ }^5');
+        el.mathquill('write', 'x^n');
+        assert.equal(el.mathquill('latex'), '\\sum_{ }^5x^n');
       });
     });
   });
