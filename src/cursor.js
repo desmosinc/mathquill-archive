@@ -262,11 +262,48 @@ var Cursor = P(function(_) {
 
     return this;
   };
-  _.write = function(ch) {
-    clearUpDownCache(this);
-    return this.show().insertCh(ch);
-  };
+  _.write =
   _.insertCh = function(ch) {
+    //Hack by Eli: don't exponentiate if there's nothing before the cursor
+    if ((ch == '^' || ch == '_') && !this.prev) return;
+
+    //Hack #2 by Eli: if you type '+' or '-' or '=' in an exponent or subscript, break out of it
+    if ((ch == '+' || ch == '=' || ch == '-' || ch == '<' || ch == '>') && (this.parent.parent.ctrlSeq === '^' || this.parent.parent.ctrlSeq === '_')
+      && !this.next && this.prev
+    ) {
+      this.moveRight();
+    }
+
+    //Hack #3 by Eli: if you type "^" just after a superscript, behave as though you just pressed up
+    if (ch === '^' && this.prev instanceof SupSub && 
+      //note: need both of these, because if it's a superscript and subscript,
+      //those could appear in either order
+      (this.prev.ctrlSeq === '^' || this.prev.prev.ctrlSeq === '^')) {
+      this.moveUp();
+      return;
+    }
+    
+    //Hack #4 by Eli: if you type "^" just _before_ a superscript, behave as though you just pressed up
+    if (ch === '^' && this.next instanceof SupSub && 
+      //note: need both of these, because if it's a superscript and subscript,
+      //those could appear in either order
+      (this.next.ctrlSeq === '^' || (this.next.next && this.next.next.ctrlSeq === '^'))) {
+      this.moveUp();
+      return;
+    }
+    
+    
+    if (ch === '_' && this.prev instanceof SupSub && 
+      //note: need both of these, because if it's a superscript and subscript,
+      //those could appear in either order
+      (this.prev.ctrlSeq === '_' || this.prev.prev.ctrlSeq === '_')) {
+      this.moveDown();
+      return;
+    }
+
+    clearUpDownCache(this);
+    this.show();
+
     var cmd;
     if (ch.match(/^[a-z]$/i))
       cmd = Variable(ch);
@@ -289,6 +326,9 @@ var Cursor = P(function(_) {
     return this;
   };
   _.insertCmd = function(latexCmd, replacedFragment) {
+    clearUpDownCache(this);
+    this.show();
+
     var cmd = LatexCmds[latexCmd];
     if (cmd) {
       cmd = cmd(latexCmd);
