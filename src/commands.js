@@ -857,7 +857,7 @@ P(MathCommand, function(_, _super) {
       var el = this.jQ[0];
       this.jQ =
         this._replacedFragment.jQ.addClass('blur').bind(
-          'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
+          'tapstart mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
           function(e) {
             $(e.target = el).trigger(e);
             return false;

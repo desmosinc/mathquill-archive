@@ -55,7 +55,7 @@ function createRoot(container, root, textbox, editable) {
 
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
-  container.bind('mousedown.mathquill', function(e) {
+  container.bind('tapstart.mathquill', function(e) {
     e.preventDefault();
 
     if (root.ignoreMousedownTimeout !== undefined) {
