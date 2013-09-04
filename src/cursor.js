@@ -458,7 +458,7 @@ var Cursor = P(function(_) {
   _.selectFrom = function(anticursor) {
     //find ancestors of each with common parent
     var oneA = this, otherA = anticursor; //one ancestor, the other ancestor
-    loopThroughAncestors: while (true) {
+    loopThroughAncestors: do {
       for (var oneI = this; oneI !== oneA.parent.parent; oneI = oneI.parent.parent) //one intermediate, the other intermediate
         if (oneI.parent === otherA.parent) {
           left = oneI;
@@ -477,7 +477,12 @@ var Cursor = P(function(_) {
         oneA = oneA.parent.parent;
       if (otherA.parent.parent)
         otherA = otherA.parent.parent;
-    }
+    } while (oneA.parent.parent || otherA.parent.parent);
+    // the only way for this condition to fail is if A and B are in separate
+    // trees, which should be impossible, but infinite loops must never happen,
+    // even under error conditions.
+    pray('cursor and anticursor are in the same tree', left && right);
+
     //figure out which is left/prev and which is right/next
     var left, right, leftRight;
     if (left.next !== right) {
