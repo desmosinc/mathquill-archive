@@ -314,7 +314,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       var html = block.join('html');
       jQ.html(html);
       MathElement.jQize(jQ);
-      this.finalizeInsert();
+      this.focus().finalizeInsert();
     }
     else {
       jQ.empty();
