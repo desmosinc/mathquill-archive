@@ -155,6 +155,18 @@ $.fn.mathquill = function(cmd, latex) {
     if (block && block.cursor)
       block.cursor.appendTo(block);
     break;
+  case 'isAtStart':
+    var blockId = $(this).attr(mqBlockId),
+      block = blockId && MathElement[blockId],
+      cursor = block && block.cursor;
+    if (cursor) return cursor.parent === cursor.root && !cursor.prev;
+    break;
+  case 'isAtEnd':
+    var blockId = $(this).attr(mqBlockId),
+      block = blockId && MathElement[blockId],
+      cursor = block && block.cursor;
+    if (cursor) return cursor.parent === cursor.root && !cursor.next;
+    break;
   case 'selection':
     var blockId = $(this).attr(mqBlockId),
       block = blockId && MathElement[blockId],
