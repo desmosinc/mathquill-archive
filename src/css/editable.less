@@ -96,8 +96,10 @@
 
 // separated from above because unrecognized pseudoclasses
 // invalidate the entire selector
-.mathquill-editable .cursor:only-child {
+.mathquill-editable .cursor:only-child:after {
   width: .5em;
+  display: inline-block;
+  content: '';
 }
 
 .mathquill-textbox {
