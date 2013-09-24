@@ -72,10 +72,6 @@
     margin-right: 1px;
     margin-left: 2px;
 
-    &.empty {
-      background: transparent;
-    }
-
     // TODO: dasherize has-cursor
     &.hasCursor {
       border-color: ActiveBorder;
@@ -86,12 +82,17 @@
 // Keeps blocks from collapsing to zero width/height
 // when empty by inserting invisible text.
 // TODO: find a way to unify the three concepts below.
-.mathquill-editable.empty:after,
+.mathquill-editable:empty:after,
 .mathquill-textbox:after,
-.mathquill-rendered-math .empty:after {
-  content: '';
+.mathquill-rendered-math span:empty:after {
+  content: ' ';
   width: .5em;
   display: inline-block;
+  background: transparent;
+}
+
+.mathquill-rendered-math span:not(.mathquill-root-block):empty:after {
+  background: #ccc;
 }
 
 // separated from above because unrecognized pseudoclasses
