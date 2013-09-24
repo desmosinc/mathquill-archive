@@ -76,7 +76,8 @@
 // Keeps blocks from collapsing to zero width/height
 // when empty by inserting invisible text.
 // TODO: find a way to unify the three concepts below.
-.mathquill-editable:empty:after,
+// What is mathquill-textbox? When is that used?
+.mathquill-rendered-math:empty:after,
 .mathquill-textbox:after,
 .mathquill-rendered-math span:empty:after {
   content: ' ';
