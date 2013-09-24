@@ -450,15 +450,10 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');
-    this.jQ.removeClass('empty');
-
     return this;
   };
   _.blur = function() {
     this.jQ.removeClass('hasCursor');
-    if (this.isEmpty())
-      this.jQ.addClass('empty');
-
     return this;
   };
 });
