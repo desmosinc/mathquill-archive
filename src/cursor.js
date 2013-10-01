@@ -477,11 +477,12 @@ var Cursor = P(function(_) {
         oneA = oneA.parent.parent;
       if (otherA.parent.parent)
         otherA = otherA.parent.parent;
-    } while (oneA.parent.parent || otherA.parent.parent);
+    } while (oneA.parent.parent || otherA.parent.parent || oneA.parent === otherA.parent);
     // the only way for this condition to fail is if A and B are in separate
     // trees, which should be impossible, but infinite loops must never happen,
     // even under error conditions.
-    pray('cursor and anticursor are in the same tree', left && right);
+    pray('cursor and anticursor are in the same tree',
+         oneA.parent.parent || otherA.parent.parent || oneA.parent === otherA.parent);
 
     //figure out which is left/prev and which is right/next
     var left, right, leftRight;
