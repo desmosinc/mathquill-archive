@@ -831,7 +831,7 @@ P(MathCommand, function(_, _super) {
     this._replacedFragment = replacedFragment.disown();
     this.isEmpty = function() { return false; };
   };
-  _.htmlTemplate = '<span class="latex-command-input non-leaf">\\<span>&0</span></span>';
+  _.htmlTemplate = '<span class="mq-latex-command-input non-leaf">\\<span>&0</span></span>';
   _.textTemplate = ['\\'];
   _.createBlocks = function() {
     _super.createBlocks.call(this);
