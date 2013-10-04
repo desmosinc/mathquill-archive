@@ -449,13 +449,13 @@ var MathBlock = P(MathElement, function(_) {
     else return (clientRect(this).top + clientRect(this).bottom)/2;
   };
   _.focus = function() {
-    this.jQ.addClass('hasCursor');
+    this.jQ.addClass('mq-hasCursor');
     this.jQ.removeClass('mq-empty');
 
     return this;
   };
   _.blur = function() {
-    this.jQ.removeClass('hasCursor');
+    this.jQ.removeClass('mq-hasCursor');
     if (this.isEmpty())
       this.jQ.addClass('mq-empty');
 

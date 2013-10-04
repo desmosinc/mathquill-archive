@@ -247,7 +247,7 @@ function createRoot(container, root, textbox, editable) {
     root.blurred = false;
     if (!cursor.parent)
       cursor.appendTo(root);
-    cursor.parent.jQ.addClass('hasCursor');
+    cursor.parent.jQ.addClass('mq-hasCursor');
     if (cursor.selection) {
       cursor.selection.jQ.removeClass('blur');
       setTimeout(root.selectionChanged); //re-select textarea contents after tabbing away and back

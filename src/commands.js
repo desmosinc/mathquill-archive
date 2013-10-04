@@ -738,7 +738,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
 
 var InnerTextBlock = P(MathBlock, function(_, _super) {
   _.blur = function() {
-    this.jQ.removeClass('hasCursor');
+    this.jQ.removeClass('mq-hasCursor');
     if (this.isEmpty()) {
       var textblock = this.parent, cursor = textblock.cursor;
       if (cursor.parent === this)
@@ -836,14 +836,14 @@ P(MathCommand, function(_, _super) {
   _.createBlocks = function() {
     _super.createBlocks.call(this);
     this.firstChild.focus = function() {
-      this.parent.jQ.addClass('hasCursor');
+      this.parent.jQ.addClass('mq-hasCursor');
       if (this.isEmpty())
         this.parent.jQ.removeClass('mq-empty');
 
       return this;
     };
     this.firstChild.blur = function() {
-      this.parent.jQ.removeClass('hasCursor');
+      this.parent.jQ.removeClass('mq-hasCursor');
       if (this.isEmpty())
         this.parent.jQ.addClass('mq-empty');
 

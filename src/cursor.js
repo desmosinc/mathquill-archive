@@ -76,13 +76,13 @@ var Cursor = P(function(_) {
   };
   _.insertBefore = function(el) {
     this.insertAt(el.parent, el.prev, el)
-    this.parent.jQ.addClass('hasCursor');
+    this.parent.jQ.addClass('mq-hasCursor');
     this.jQ.insertBefore(el.jQ.first());
     return this;
   };
   _.insertAfter = function(el) {
     this.insertAt(el.parent, el, el.next);
-    this.parent.jQ.addClass('hasCursor');
+    this.parent.jQ.addClass('mq-hasCursor');
     this.jQ.insertAfter(el.jQ.last());
     return this;
   };
