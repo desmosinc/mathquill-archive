@@ -403,7 +403,7 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
       '<span class="mq-non-leaf">'
-    +   '<span class="scaled sqrt-prefix">&radic;</span>'
+    +   '<span class="mq-scaled sqrt-prefix">&radic;</span>'
     +   '<span class="mq-non-leaf sqrt-stem">&0</span>'
     + '</span>'
   ;
@@ -430,8 +430,8 @@ var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   _.htmlTemplate =
       '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
-    + '<span class="scaled">'
-    +   '<span class="sqrt-prefix scaled">&radic;</span>'
+    + '<span class="mq-scaled">'
+    +   '<span class="sqrt-prefix mq-scaled">&radic;</span>'
     +   '<span class="sqrt-stem mq-non-leaf">&1</span>'
     + '</span>'
   ;
@@ -475,9 +475,9 @@ var Bracket = P(MathCommand, function(_, _super) {
   _.init = function(open, close, ctrlSeq, end) {
     _super.init.call(this, '\\left'+ctrlSeq,
         '<span class="mq-non-leaf">'
-      +   '<span class="scaled mq-paren">'+open+'</span>'
+      +   '<span class="mq-scaled mq-paren">'+open+'</span>'
       +   '<span class="mq-non-leaf">&0</span>'
-      +   '<span class="scaled mq-paren">'+close+'</span>'
+      +   '<span class="mq-scaled mq-paren">'+close+'</span>'
       + '</span>',
       [open, close]);
     this.end = '\\right'+end;
@@ -908,14 +908,14 @@ LatexCmds.binom =
 LatexCmds.binomial = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
-      '<span class="mq-paren scaled">(</span>'
+      '<span class="mq-paren mq-scaled">(</span>'
     + '<span class="mq-non-leaf">'
     +   '<span class="array mq-non-leaf">'
     +     '<span>&0</span>'
     +     '<span>&1</span>'
     +   '</span>'
     + '</span>'
-    + '<span class="mq-paren scaled">)</span>'
+    + '<span class="mq-paren mq-scaled">)</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
   _.redraw = function() {
