@@ -475,9 +475,9 @@ var Bracket = P(MathCommand, function(_, _super) {
   _.init = function(open, close, ctrlSeq, end) {
     _super.init.call(this, '\\left'+ctrlSeq,
         '<span class="mq-non-leaf">'
-      +   '<span class="scaled paren">'+open+'</span>'
+      +   '<span class="scaled mq-paren">'+open+'</span>'
       +   '<span class="mq-non-leaf">&0</span>'
-      +   '<span class="scaled paren">'+close+'</span>'
+      +   '<span class="scaled mq-paren">'+close+'</span>'
       + '</span>',
       [open, close]);
     this.end = '\\right'+end;
@@ -908,14 +908,14 @@ LatexCmds.binom =
 LatexCmds.binomial = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
-      '<span class="paren scaled">(</span>'
+      '<span class="mq-paren scaled">(</span>'
     + '<span class="mq-non-leaf">'
     +   '<span class="array mq-non-leaf">'
     +     '<span>&0</span>'
     +     '<span>&1</span>'
     +   '</span>'
     + '</span>'
-    + '<span class="paren scaled">)</span>'
+    + '<span class="mq-paren scaled">)</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
   _.redraw = function() {
@@ -923,7 +923,7 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
 
     var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
 
-    var parens = this.jQ.filter('.paren');
+    var parens = this.jQ.filter('.mq-paren');
     scale(parens, min(1 + .2*(height - 1), 1.2), 1.05*height);
   };
   // vertical-align: middle, so
