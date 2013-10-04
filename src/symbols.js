@@ -160,7 +160,7 @@ LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+    _super.init.call(this, ch, '<span class="mq-nonSymbola">'+(html || ch)+'</span>');
   };
 });
 
