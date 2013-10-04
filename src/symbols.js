@@ -38,7 +38,7 @@ var Variable = P(Symbol, function(_, _super) {
     //removeClass from all the things before figuring out what's an autocmd, if any
     MathFragment(prev.next || this.parent.firstChild, next.prev || this.parent.lastChild)
     .each(function(el) {
-      el.jQ.removeClass('un-italicized last');
+      el.jQ.removeClass('mq-un-italicized last');
       delete el.isFirstLetter;
       delete el.isLastLetter;
     });
@@ -49,7 +49,7 @@ var Variable = P(Symbol, function(_, _super) {
         if (UnItalicizedCmds.hasOwnProperty(ctrlSeq.slice(i, i + len))) {
           first.isFirstLetter = true;
           for (var j = 0, letter = first; j < len; j += 1, letter = letter.next) {
-            letter.jQ.addClass('un-italicized');
+            letter.jQ.addClass('mq-un-italicized');
             var last = letter;
           }
           last.isLastLetter = true;
