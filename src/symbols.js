@@ -344,7 +344,7 @@ var PlusMinus = P(BinaryOperator, function(_) {
       this.prev instanceof BinaryOperator &&
       this.next && !(this.next instanceof BinaryOperator)
     ) {
-      this.jQ[0].className = 'unary-operator';
+      this.jQ[0].className = 'mq-unary-operator';
     }
     else {
       this.jQ[0].className = 'mq-binary-operator';
