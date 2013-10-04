@@ -271,7 +271,7 @@ LatexCmds['^'] = bind(SupSub, '^', 'sup', '**');
 var BigSymbol = P(MathCommand, function(_, _super) {
   _.init = function(ch, html) {
     var htmlTemplate =
-        '<span class="large-operator non-leaf">'
+        '<span class="mq-large-operator non-leaf">'
       +   '<span class="to"><span>&1</span></span>'
       +   '<big>'+html+'</big>'
       +   '<span class="mq-from"><span>&0</span></span>'
