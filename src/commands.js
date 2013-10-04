@@ -742,7 +742,7 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
     if (this.isEmpty()) {
       var textblock = this.parent, cursor = textblock.cursor;
       if (cursor.parent === this)
-        this.jQ.addClass('empty');
+        this.jQ.addClass('mq-empty');
       else {
         cursor.hide();
         textblock.remove();
@@ -838,14 +838,14 @@ P(MathCommand, function(_, _super) {
     this.firstChild.focus = function() {
       this.parent.jQ.addClass('hasCursor');
       if (this.isEmpty())
-        this.parent.jQ.removeClass('empty');
+        this.parent.jQ.removeClass('mq-empty');
 
       return this;
     };
     this.firstChild.blur = function() {
       this.parent.jQ.removeClass('hasCursor');
       if (this.isEmpty())
-        this.parent.jQ.addClass('empty');
+        this.parent.jQ.addClass('mq-empty');
 
       return this;
     };
