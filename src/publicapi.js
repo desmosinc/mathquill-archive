@@ -84,7 +84,7 @@ $.fn.mathquill = function(cmd, latex) {
   case 'html':
     return this.children(':last').html().replace(/ ?hasCursor|hasCursor /, '')
       .replace(/ class=(""|(?= |>))/g, '')
-      .replace(/<span class="?cursor( blink)?"?>.?<\/span>/i, '');
+      .replace(/<span class="?cursor( mq-blink)?"?>.?<\/span>/i, '');
   case 'write':
     if (arguments.length > 1)
       return this.each(function() {
