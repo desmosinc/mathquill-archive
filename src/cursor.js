@@ -13,7 +13,7 @@ JS environment could actually contain many instances. */
 var Cursor = P(function(_) {
   _.init = function(root) {
     this.parent = this.root = root;
-    var jQ = this.jQ = this._jQ = $('<span class="cursor"><span class="line">&zwj;</span></span>');
+    var jQ = this.jQ = this._jQ = $('<span class="mq-cursor"><span class="line">&zwj;</span></span>');
 
     //closured for setInterval
     this.blink = function(){ jQ.toggleClass('mq-blink'); }
@@ -236,8 +236,8 @@ var Cursor = P(function(_) {
     //Opera bug DSK-360043
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
-    var offset = self.jQ.removeClass('cursor').offset();
-    self.jQ.addClass('cursor');
+    var offset = self.jQ.removeClass('mq-cursor').offset();
+    self.jQ.addClass('mq-cursor');
     return offset;
   }
   _.writeLatex = function(latex) {
