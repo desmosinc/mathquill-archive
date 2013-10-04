@@ -16,7 +16,7 @@ var Cursor = P(function(_) {
     var jQ = this.jQ = this._jQ = $('<span class="cursor"><span class="line">&zwj;</span></span>');
 
     //closured for setInterval
-    this.blink = function(){ jQ.toggleClass('blink'); }
+    this.blink = function(){ jQ.toggleClass('mq-blink'); }
 
     this.upDownCache = {};
   };
@@ -40,7 +40,7 @@ var Cursor = P(function(_) {
   };
   _.show = function(keepHandle) {
     if (!keepHandle) this.hideHandle();
-    this.jQ = this._jQ.removeClass('blink');
+    this.jQ = this._jQ.removeClass('mq-blink');
     if ('intervalId' in this) //already was shown, just restart interval
       clearInterval(this.intervalId);
     else { //was hidden and detached, insert this.jQ back into HTML DOM
