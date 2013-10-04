@@ -1,7 +1,7 @@
 // All these !important's are unfortunately necessary, because
 // pages using MathQuill who change the background color have to
 // have rules setting the background color of .matrixed and
-// .matrixed-container, and we need to guarantee that our rules
+// .mq-matrixed-container, and we need to guarantee that our rules
 // setting the background color of matrixed/containers inside
 // selections have higher specificity.
 
@@ -38,7 +38,7 @@
 
       background: #39F !important;
     }
-    .matrixed-container {
+    .mq-matrixed-container {
       filter: progid:DXImageTransform.Microsoft.Chroma(color='#3399FF') !important;
     }
 
@@ -49,7 +49,7 @@
         border-color: black;
       }
 
-      .matrixed-container {
+      .mq-matrixed-container {
         filter: progid:DXImageTransform.Microsoft.Chroma(color='#D4D4D4') !important;
       }
     }

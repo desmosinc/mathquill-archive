@@ -86,7 +86,7 @@ a MathQuill editable a background color other than white, and support
 square roots, parentheses, square brackets, or curly braces, you will
 need to, in addition to of course setting the background color on the
 editable itself, set it on elements with class `matrixed`, and then set
-a Chroma filter on elements with class `matrixed-container`.
+a Chroma filter on elements with class `mq-matrixed-container`.
 
 For example, to style as white-on-black instead of black-on-white:
 
@@ -98,7 +98,7 @@ For example, to style as white-on-black instead of black-on-white:
     #my-math-input .matrixed {
       background: black;
     }
-    #my-math-input .matrixed-container {
+    #my-math-input .mq-matrixed-container {
       filter: progid:DXImageTransform.Microsoft.Chroma(color='black');
     }
 
