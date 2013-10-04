@@ -49,7 +49,7 @@ var Variable = P(Symbol, function(_, _super) {
         if (UnItalicizedCmds.hasOwnProperty(ctrlSeq.slice(i, i + len))) {
           first.isFirstLetter = true;
           for (var j = 0, letter = first; j < len; j += 1, letter = letter.next) {
-            letter.jQ.addClass('un-italicized');
+            letter.jQ.addClass('mq-un-italicized');
             var last = letter;
           }
           last.isLastLetter = true;
