@@ -191,7 +191,7 @@ function createRoot(container, root, textbox, editable) {
   if (!editable) {
     var textareaManager = manageTextarea(textarea, { container: container });
     container.bind('cut paste', false).bind('copy', setTextareaSelection)
-      .prepend('<span class="selectable">$'+root.latex()+'$</span>');
+      .prepend('<span class="mq-selectable">$'+root.latex()+'$</span>');
     textarea.blur(function() {
       cursor.clearSelection();
       setTimeout(detach); //detaching during blur explodes in WebKit
