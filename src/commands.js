@@ -79,12 +79,12 @@ LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="mq-font"');
 LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="sans-serif mq-font"');
 LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"');
 //text-decoration
-LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="non-leaf underline"');
-LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="non-leaf overline"');
+LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf underline"');
+LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf overline"');
 
 var SupSub = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tag, text) {
-    _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf"><span class="non-leaf '+tag+'">&0</span></'+tag+'>', [ text ]);
+    _super.init.call(this, ctrlSeq, '<'+tag+' class="mq-non-leaf"><span class="non-leaf '+tag+'">&0</span></'+tag+'>', [ text ]);
   };
   _.finalizeTree = function() {
     //TODO: use inheritance
@@ -271,7 +271,7 @@ LatexCmds['^'] = bind(SupSub, '^', 'sup', '**');
 var BigSymbol = P(MathCommand, function(_, _super) {
   _.init = function(ch, html) {
     var htmlTemplate =
-        '<span class="mq-large-operator non-leaf">'
+        '<span class="mq-large-operator mq-non-leaf">'
       +   '<span class="to"><span>&1</span></span>'
       +   '<big>'+html+'</big>'
       +   '<span class="mq-from"><span>&0</span></span>'
@@ -340,7 +340,7 @@ LatexCmds.cfrac =
 LatexCmds.fraction = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\frac';
   _.htmlTemplate =
-      '<span class="mq-fraction non-leaf">'
+      '<span class="mq-fraction mq-non-leaf">'
     +   '<span class="numerator">&0</span>'
     +   '<span class="mq-denominator">&1</span>'
     +   '<span style="display:inline-block;width:0;overflow:hidden">&nbsp;</span>'
@@ -402,9 +402,9 @@ LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
-      '<span class="non-leaf">'
+      '<span class="mq-non-leaf">'
     +   '<span class="scaled sqrt-prefix">&radic;</span>'
-    +   '<span class="non-leaf sqrt-stem">&0</span>'
+    +   '<span class="mq-non-leaf sqrt-stem">&0</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
@@ -429,10 +429,10 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   _.htmlTemplate =
-      '<sup class="nthroot non-leaf">&0</sup>'
+      '<sup class="nthroot mq-non-leaf">&0</sup>'
     + '<span class="scaled">'
     +   '<span class="sqrt-prefix scaled">&radic;</span>'
-    +   '<span class="sqrt-stem non-leaf">&1</span>'
+    +   '<span class="sqrt-stem mq-non-leaf">&1</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt[', '](', ')'];
@@ -474,9 +474,9 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
 var Bracket = P(MathCommand, function(_, _super) {
   _.init = function(open, close, ctrlSeq, end) {
     _super.init.call(this, '\\left'+ctrlSeq,
-        '<span class="non-leaf">'
+        '<span class="mq-non-leaf">'
       +   '<span class="scaled paren">'+open+'</span>'
-      +   '<span class="non-leaf">&0</span>'
+      +   '<span class="mq-non-leaf">&0</span>'
       +   '<span class="scaled paren">'+close+'</span>'
       + '</span>',
       [open, close]);
@@ -831,7 +831,7 @@ P(MathCommand, function(_, _super) {
     this._replacedFragment = replacedFragment.disown();
     this.isEmpty = function() { return false; };
   };
-  _.htmlTemplate = '<span class="mq-latex-command-input non-leaf">\\<span>&0</span></span>';
+  _.htmlTemplate = '<span class="mq-latex-command-input mq-non-leaf">\\<span>&0</span></span>';
   _.textTemplate = ['\\'];
   _.createBlocks = function() {
     _super.createBlocks.call(this);
@@ -909,8 +909,8 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
       '<span class="paren scaled">(</span>'
-    + '<span class="non-leaf">'
-    +   '<span class="array non-leaf">'
+    + '<span class="mq-non-leaf">'
+    +   '<span class="array mq-non-leaf">'
     +     '<span>&0</span>'
     +     '<span>&1</span>'
     +   '</span>'
