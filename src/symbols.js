@@ -319,7 +319,7 @@ LatexCmds['\u2154'] = bind(LatexFragment, '\\frac23');
 var BinaryOperator = P(Symbol, function(_, _super) {
   _.init = function(ctrlSeq, html, text) {
     _super.init.call(this,
-      ctrlSeq, '<span class="binary-operator">'+html+'</span>', text
+      ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text
     );
   };
   _.createBefore = function(cursor) {
@@ -347,7 +347,7 @@ var PlusMinus = P(BinaryOperator, function(_) {
       this.jQ[0].className = 'unary-operator';
     }
     else {
-      this.jQ[0].className = 'binary-operator';
+      this.jQ[0].className = 'mq-binary-operator';
     }
     return this;
   };
