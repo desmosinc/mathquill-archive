@@ -249,7 +249,7 @@ function createRoot(container, root, textbox, editable) {
       cursor.appendTo(root);
     cursor.parent.jQ.addClass('mq-hasCursor');
     if (cursor.selection) {
-      cursor.selection.jQ.removeClass('blur');
+      cursor.selection.jQ.removeClass('mq-blur');
       setTimeout(root.selectionChanged); //re-select textarea contents after tabbing away and back
     }
     else
@@ -258,7 +258,7 @@ function createRoot(container, root, textbox, editable) {
     root.blurred = true;
     cursor.hide().parent.blur();
     if (cursor.selection)
-      cursor.selection.jQ.addClass('blur');
+      cursor.selection.jQ.addClass('mq-blur');
   }).blur();
 
   container.bind('select_all', function(e) {
