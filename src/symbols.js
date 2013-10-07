@@ -54,7 +54,7 @@ var Variable = P(Symbol, function(_, _super) {
           }
           last.isLastLetter = true;
           if (!(last.next instanceof SupSub || last.next instanceof Bracket))
-            last.jQ.addClass('last');
+            last.jQ.addClass('mq-last');
           i += len - 1;
           first = last;
           continue outer;
