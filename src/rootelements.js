@@ -24,8 +24,8 @@ function createRoot(container, root, textbox, editable) {
   var is_android = navigator.userAgent.match(/(Android|Silk|Kindle)/i) !== null;
   
   var textareaSpan = root.textarea = (is_ios || is_android) ?
-      $('<span class="textarea"><span tabindex=0></span></span>')
-    : $('<span class="textarea"><textarea></textarea></span>'),
+      $('<span class="mq-textarea"><span tabindex=0></span></span>')
+    : $('<span class="mq-textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
   /******
