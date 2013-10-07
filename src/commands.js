@@ -154,13 +154,13 @@ var SupSub = P(MathCommand, function(_, _super) {
     ) {
       if (!this['int']) {
         this['int'] = true;
-        this.jQ.addClass('int');
+        this.jQ.addClass('mq-int');
       }
     }
     else {
       if (this['int']) {
         this['int'] = false;
-        this.jQ.removeClass('int');
+        this.jQ.removeClass('mq-int');
       }
     }
 
