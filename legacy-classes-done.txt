@@ -28,3 +28,14 @@ sqrt-stem
 un-italicized
 unary-operator
 underline
+text
+textarea
+sup
+sub
+selection
+last
+int
+handle
+blur
+array
+to
