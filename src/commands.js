@@ -910,7 +910,7 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
   _.htmlTemplate =
       '<span class="mq-paren mq-scaled">(</span>'
     + '<span class="mq-non-leaf">'
-    +   '<span class="array mq-non-leaf">'
+    +   '<span class="mq-array mq-non-leaf">'
     +     '<span>&0</span>'
     +     '<span>&1</span>'
     +   '</span>'
@@ -938,7 +938,7 @@ LatexCmds.choose = P(Binomial, function(_) {
 var Vector =
 LatexCmds.vector = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\vector';
-  _.htmlTemplate = '<span class="array"><span>&0</span></span>';
+  _.htmlTemplate = '<span class="mq-array"><span>&0</span></span>';
   _.latex = function() {
     return '\\begin{matrix}' + this.foldChildren([], function(latex, child) {
       latex.push(child.latex());
