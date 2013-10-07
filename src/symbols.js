@@ -38,7 +38,7 @@ var Variable = P(Symbol, function(_, _super) {
     //removeClass from all the things before figuring out what's an autocmd, if any
     MathFragment(prev.next || this.parent.firstChild, next.prev || this.parent.lastChild)
     .each(function(el) {
-      el.jQ.removeClass('mq-un-italicized last');
+      el.jQ.removeClass('mq-un-italicized mq-last');
       delete el.isFirstLetter;
       delete el.isLastLetter;
     });
@@ -54,7 +54,7 @@ var Variable = P(Symbol, function(_, _super) {
           }
           last.isLastLetter = true;
           if (!(last.next instanceof SupSub || last.next instanceof Bracket))
-            last.jQ.addClass('last');
+            last.jQ.addClass('mq-last');
           i += len - 1;
           first = last;
           continue outer;
