@@ -607,7 +607,7 @@ var Selection = P(MathFragment, function(_, _super) {
     frag.jQwrap(frag.jQ);
   };
   _.jQwrap = function(children) {
-    this.jQ = children.wrapAll('<span class="selection"></span>').parent();
+    this.jQ = children.wrapAll('<span class="mq-selection"></span>').parent();
       //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   };
   _.adopt = function() {
