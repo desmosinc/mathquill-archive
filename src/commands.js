@@ -642,7 +642,7 @@ LatexCmds.textrm =
 LatexCmds.textup =
 LatexCmds.textmd = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\text';
-  _.htmlTemplate = '<span class="text">&0</span>';
+  _.htmlTemplate = '<span class="mq-text">&0</span>';
   _.replaces = function(replacedText) {
     if (replacedText instanceof MathFragment)
       this.replacedText = replacedText.remove().jQ.text();
@@ -808,19 +808,19 @@ function makeTextBlock(latex, tagName, attrs) {
 
 LatexCmds.em = LatexCmds.italic = LatexCmds.italics =
 LatexCmds.emph = LatexCmds.textit = LatexCmds.textsl =
-  makeTextBlock('\\textit', 'i', 'class="text"');
+  makeTextBlock('\\textit', 'i', 'class="mq-text"');
 LatexCmds.strong = LatexCmds.bold = LatexCmds.textbf =
-  makeTextBlock('\\textbf', 'b', 'class="text"');
+  makeTextBlock('\\textbf', 'b', 'class="mq-text"');
 LatexCmds.sf = LatexCmds.textsf =
-  makeTextBlock('\\textsf', 'span', 'class="mq-sans-serif text"');
+  makeTextBlock('\\textsf', 'span', 'class="mq-sans-serif mq-text"');
 LatexCmds.tt = LatexCmds.texttt =
-  makeTextBlock('\\texttt', 'span', 'class="mq-monospace text"');
+  makeTextBlock('\\texttt', 'span', 'class="mq-monospace mq-text"');
 LatexCmds.textsc =
-  makeTextBlock('\\textsc', 'span', 'style="font-variant:small-caps" class="text"');
+  makeTextBlock('\\textsc', 'span', 'style="font-variant:small-caps" class="mq-text"');
 LatexCmds.uppercase =
-  makeTextBlock('\\uppercase', 'span', 'style="text-transform:uppercase" class="text"');
+  makeTextBlock('\\uppercase', 'span', 'style="text-transform:uppercase" class="mq-text"');
 LatexCmds.lowercase =
-  makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="text"');
+  makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="mq-text"');
 
 // input box to type a variety of LaTeX commands beginning with a backslash
 // DISABLED in DCG
