@@ -27,7 +27,7 @@ var Cursor = P(function(_) {
   _.handle = 0;
   _.showHandle = function() {
     if (!this.handle) {
-      this.handle = $('<span class="handle"></span>').appendTo(this.jQ);
+      this.handle = $('<span class="mq-handle"></span>').appendTo(this.jQ);
     }
     return this;
   };

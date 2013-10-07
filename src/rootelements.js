@@ -155,7 +155,7 @@ function createRoot(container, root, textbox, editable) {
       });
     };
   }
-  cursor.jQ.delegate('.handle', 'touchstart', firstFingerOnly(function(e) {
+  cursor.jQ.delegate('.mq-handle', 'touchstart', firstFingerOnly(function(e) {
     cursor.blink = noop;
     var cursorRect = cursor.jQ[0].getBoundingClientRect();
     var offsetX = e.clientX - cursorRect.left;
