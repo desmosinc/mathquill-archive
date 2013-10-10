@@ -44,11 +44,11 @@ td {
 
 /* Non-white background test */
 .different-bgcolor.mathquill-editable,
-.different-bgcolor.mathquill-editable .matrixed {
+.different-bgcolor.mathquill-editable .mq-matrixed {
   background: black;
   color: white;
 }
-.different-bgcolor.mathquill-editable .cursor {
+.different-bgcolor.mathquill-editable .mq-cursor {
   border-color: white;
 }
 </style>
@@ -169,14 +169,14 @@ window.onerror = function() {
 var _prepend = $.fn.prepend;
 $('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');
-  $('.textarea,.shown-textarea').toggleClass('textarea shown-textarea');
+  $('.mq-textarea,.shown-textarea').toggleClass('mq-textarea shown-textarea');
   if ($.fn.prepend === _prepend) {
     //FUGLY HACK: monkey-patch jQuery to show/hide static math textareas when prepended
     $.fn.prepend = function(el) {
-      if ($(el).hasClass('textarea') && $(document.body).hasClass('show-textareas'))
-        $(el).removeClass('textarea').addClass('shown-textarea');
+      if ($(el).hasClass('mq-textarea') && $(document.body).hasClass('show-textareas'))
+        $(el).removeClass('mq-textarea').addClass('shown-textarea');
       else if ($(el).hasClass('shown-textarea'))
-        $(el).removeClass('shown-textarea').addClass('textarea');
+        $(el).removeClass('shown-textarea').addClass('mq-textarea');
       return _prepend.apply(this, arguments);
     };
   }

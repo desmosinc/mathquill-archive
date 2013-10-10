@@ -38,7 +38,7 @@ var Variable = P(Symbol, function(_, _super) {
     //removeClass from all the things before figuring out what's an autocmd, if any
     MathFragment(prev.next || this.parent.firstChild, next.prev || this.parent.lastChild)
     .each(function(el) {
-      el.jQ.removeClass('un-italicized last');
+      el.jQ.removeClass('mq-un-italicized mq-last');
       delete el.isFirstLetter;
       delete el.isLastLetter;
     });
@@ -49,12 +49,12 @@ var Variable = P(Symbol, function(_, _super) {
         if (UnItalicizedCmds.hasOwnProperty(ctrlSeq.slice(i, i + len))) {
           first.isFirstLetter = true;
           for (var j = 0, letter = first; j < len; j += 1, letter = letter.next) {
-            letter.jQ.addClass('un-italicized');
+            letter.jQ.addClass('mq-un-italicized');
             var last = letter;
           }
           last.isLastLetter = true;
           if (!(last.next instanceof SupSub || last.next instanceof Bracket))
-            last.jQ.addClass('last');
+            last.jQ.addClass('mq-last');
           i += len - 1;
           first = last;
           continue outer;
@@ -160,7 +160,7 @@ LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+    _super.init.call(this, ch, '<span class="mq-nonSymbola">'+(html || ch)+'</span>');
   };
 });
 
@@ -319,7 +319,7 @@ LatexCmds['\u2154'] = bind(LatexFragment, '\\frac23');
 var BinaryOperator = P(Symbol, function(_, _super) {
   _.init = function(ctrlSeq, html, text) {
     _super.init.call(this,
-      ctrlSeq, '<span class="binary-operator">'+html+'</span>', text
+      ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text
     );
   };
   _.createBefore = function(cursor) {
@@ -344,10 +344,10 @@ var PlusMinus = P(BinaryOperator, function(_) {
       this.prev instanceof BinaryOperator &&
       this.next && !(this.next instanceof BinaryOperator)
     ) {
-      this.jQ[0].className = 'unary-operator';
+      this.jQ[0].className = 'mq-unary-operator';
     }
     else {
-      this.jQ[0].className = 'binary-operator';
+      this.jQ[0].className = 'mq-binary-operator';
     }
     return this;
   };

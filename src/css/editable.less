@@ -1,17 +1,17 @@
 .mathquill-editable {
   .inline-block;
 
-  .cursor {
+  .mq-cursor {
     margin-right: -1px;
     position: relative;
     z-index: 1;
     padding: 0;
     .inline-block;
 
-    .line { border-left: 1px solid black; }
-    &.blink .line { visibility: hidden; }
+    .mq-line { border-left: 1px solid black; }
+    &.mq-blink .mq-line { visibility: hidden; }
 
-    .handle {
+    .mq-handle {
       display: inline-block;
       -webkit-transform-origin: 10px -25px;
       -webkit-transform: translateX(.5px);
@@ -58,7 +58,7 @@
 
   ////
   // command input with \
-  .latex-command-input {
+  .mq-latex-command-input {
     color: inherit;
     font-family: @mono;
     border: 1px solid gray;
@@ -66,12 +66,12 @@
     margin-right: 1px;
     margin-left: 2px;
 
-    &.empty {
+    &.mq-empty {
       background: transparent;
     }
 
     // TODO: dasherize has-cursor
-    &.hasCursor {
+    &.mq-hasCursor {
       border-color: ActiveBorder;
     }
   }
@@ -80,9 +80,9 @@
 // Keeps blocks from collapsing to zero width/height
 // when empty by inserting invisible text.
 // TODO: find a way to unify the three concepts below.
-.mathquill-editable.empty:after,
+.mathquill-editable.mq-empty:after,
 .mathquill-textbox:after,
-.mathquill-rendered-math .empty:after {
+.mathquill-rendered-math .mq-empty:after {
   content: '';
   width: .5em;
   display: inline-block;
@@ -90,7 +90,7 @@
 
 // separated from above because unrecognized pseudoclasses
 // invalidate the entire selector
-.mathquill-editable .cursor:only-child:after {
+.mathquill-editable .mq-cursor:only-child:after {
   width: .5em;
   display: inline-block;
   content: '';

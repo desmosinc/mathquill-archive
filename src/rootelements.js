@@ -24,8 +24,8 @@ function createRoot(container, root, textbox, editable) {
   var is_android = navigator.userAgent.match(/(Android|Silk|Kindle)/i) !== null;
   
   var textareaSpan = root.textarea = (is_ios || is_android) ?
-      $('<span class="textarea"><span tabindex=0></span></span>')
-    : $('<span class="textarea"><textarea></textarea></span>'),
+      $('<span class="mq-textarea"><span tabindex=0></span></span>')
+    : $('<span class="mq-textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
   /******
@@ -155,7 +155,7 @@ function createRoot(container, root, textbox, editable) {
       });
     };
   }
-  cursor.jQ.delegate('.handle', 'touchstart', firstFingerOnly(function(e) {
+  cursor.jQ.delegate('.mq-handle', 'touchstart', firstFingerOnly(function(e) {
     cursor.blink = noop;
     var cursorRect = cursor.jQ[0].getBoundingClientRect();
     var offsetX = e.clientX - cursorRect.left;
@@ -191,7 +191,7 @@ function createRoot(container, root, textbox, editable) {
   if (!editable) {
     var textareaManager = manageTextarea(textarea, { container: container });
     container.bind('cut paste', false).bind('copy', setTextareaSelection)
-      .prepend('<span class="selectable">$'+root.latex()+'$</span>');
+      .prepend('<span class="mq-selectable">$'+root.latex()+'$</span>');
     textarea.blur(function() {
       cursor.clearSelection();
       setTimeout(detach); //detaching during blur explodes in WebKit
@@ -247,9 +247,9 @@ function createRoot(container, root, textbox, editable) {
     root.blurred = false;
     if (!cursor.parent)
       cursor.appendTo(root);
-    cursor.parent.jQ.addClass('hasCursor');
+    cursor.parent.jQ.addClass('mq-hasCursor');
     if (cursor.selection) {
-      cursor.selection.jQ.removeClass('blur');
+      cursor.selection.jQ.removeClass('mq-blur');
       setTimeout(root.selectionChanged); //re-select textarea contents after tabbing away and back
     }
     else
@@ -258,7 +258,7 @@ function createRoot(container, root, textbox, editable) {
     root.blurred = true;
     cursor.hide().parent.blur();
     if (cursor.selection)
-      cursor.selection.jQ.addClass('blur');
+      cursor.selection.jQ.addClass('mq-blur');
   }).blur();
 
   container.bind('select_all', function(e) {

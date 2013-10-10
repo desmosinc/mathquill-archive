@@ -12,12 +12,12 @@
   }
 
   .inline-block;
-  .non-leaf, .scaled {
+  .mq-non-leaf, .mq-scaled {
     .inline-block;
   }
 
   // TODO: dasherize non-symbola
-  var, .text, .nonSymbola {
+  var, .mq-text, .mq-nonSymbola {
     font-family: @times;
     line-height: .9;
   }
@@ -33,23 +33,23 @@
   }
 
   // TODO: what's the difference between these?
-  .empty {
+  .mq-empty {
     background: #ccc;
     &.mathquill-root-block {
       background: transparent;
     }
   }
 
-  &.empty {
+  &.mq-empty {
     background: transparent;
   }
 
 
-  .text {
+  .mq-text {
     font-size: 87%;
   }
 
-  .font {
+  .mq-font {
     font: 1em @times;
     line-height: .9;
 
@@ -59,12 +59,12 @@
     }
   }
 
-  // TODO [Han]: Why do we have to special-case .font?
-  b, b.font {
+  // TODO [Han]: Why do we have to special-case .mq-font?
+  b, b.mq-font {
     font-weight: bolder;
   }
 
-  var, i, i.font {
+  var, i, i.mq-font {
     font-style: italic;
   }
 
@@ -72,24 +72,24 @@
     font-size: 125%;
   }
 
-  .roman {
+  .mq-roman {
     font-style: normal;
   }
 
-  .sans-serif {
+  .mq-sans-serif {
     
     font-family: @sans-serif;
   }
 
-  .monospace {
+  .mq-monospace {
     font-family: @monospace;
   }
 
-  .overline {
+  .mq-overline {
     border-top: 1px solid black;
     margin-top: 1px;
   }
-  .underline {
+  .mq-underline {
     border-bottom: 1px solid black;
     margin-bottom: 1px;
   }
@@ -97,12 +97,12 @@
   ////
   // operators
 
-  .binary-operator {
+  .mq-binary-operator {
     padding: 0 0.1em;
     .inline-block;
   }
 
-  .unary-operator {
+  .mq-unary-operator {
     padding-left: 0.2em;
   }
 
@@ -114,47 +114,47 @@
     font-size: 90%;
     top: 0;
 
-    .binary-operator {
+    .mq-binary-operator {
       padding: 0 .1em;
     }
 
-    .unary-operator {
+    .mq-unary-operator {
       padding-left: .1em;
     }
 
-    &.int, &.nthroot {
+    &.mq-int, &.mq-nthroot {
       font-size: 80%;
     }
 
     // special styles for fractions
     // within sup/sub.
-    .fraction {
+    .mq-fraction {
       font-size: 70%;
       vertical-align: -0.4em;
     }
 
-    .numerator {
+    .mq-numerator {
       padding-bottom: 0;
     }
 
-    .denominator {
+    .mq-denominator {
       padding-top: 0;
     }
   }
 
   sup {
     vertical-align: .5em;
-    &.int, &.nthroot {
+    &.mq-int, &.mq-nthroot {
       vertical-align: 0.8em
     }
 
-    &.nthroot {
+    &.mq-nthroot {
       margin-right: -.6em;
       margin-left: .2em;
       min-width: .5em;
     }
 
-    .sup {
+    .mq-sup {
       vertical-align: bottom;
     }
   }
@@ -162,18 +162,18 @@
   sub {
     vertical-align: -.4em;
 
-    &.int {
+    &.mq-int {
       vertical-align: -.6em;
     }
 
-    .sub {
+    .mq-sub {
       vertical-align: top;
     }
   }
 
   ////
   // parentheses
-  .paren {
+  .mq-paren {
     padding: 0 .1em;
     vertical-align: bottom;
     -webkit-transform-origin: bottom center;
@@ -183,31 +183,31 @@
     transform-origin: bottom center;
   }
 
-  .array {
+  .mq-array {
     vertical-align: middle;
     text-align: center;
   }
 
-  .array > span {
+  .mq-array > span {
     display: block;
   }
 
   ////
   // non-italicized functions
   // like \sin, \cos, \ln, etc.
-  .un-italicized {
+  .mq-un-italicized {
     font-family: @times;
     line-height: 1;
     font-style: normal;
   }
-  var.un-italicized.last {
+  var.mq-un-italicized.mq-last {
     padding-right: .2em;
   }
 
   ////
   // \frac
   // fractions
-  .fraction {
+  .mq-fraction {
     font-size: 90%;
     text-align: center;
     vertical-align: -.5em;
@@ -216,25 +216,25 @@
 
   // Firefox 2 (and older?) only
   // because display:inline-block is FUBAR in Gecko < 1.9.0
-  .fraction, .large-operator, x:-moz-any-link {
+  .mq-fraction, .mq-large-operator, x:-moz-any-link {
     display: -moz-groupbox;
   }
 
   // Firefox 3+ (Gecko 1.9.0+)
-  .fraction, .large-operator, x:-moz-any-link, x:default {
+  .mq-fraction, .mq-large-operator, x:-moz-any-link, x:default {
     display: inline-block;
   }
 
-  .numerator, .denominator {
+  .mq-numerator, .mq-denominator {
     display: block;
   }
 
-  .numerator {
+  .mq-numerator {
     padding: 0 0.1em;
     margin-bottom: -0.1em;
   }
 
-  .denominator {
+  .mq-denominator {
     border-top: 1px solid;
     float: right; // take out of normal flow to manipulate baseline
     width: 100%;
@@ -246,7 +246,7 @@
   ////
   // \sqrt
   // square roots
-  .sqrt-prefix {
+  .mq-sqrt-prefix {
     padding-top: 0;
     position: relative;
     top: .1em;
@@ -254,7 +254,7 @@
     .transform-origin(top);
   }
 
-  .sqrt-stem {
+  .mq-sqrt-stem {
     border-top: 1px solid;
     margin-top: 1px;
     padding-left: .15em;
@@ -262,20 +262,20 @@
     margin-right: .1em;
   }
 
-  .large-operator {
+  .mq-large-operator {
     text-align: center;
 
     big {
       display: inline-block;
     }
 
-    .from, .to  {
+    .mq-from, .mq-to  {
       display: block;
     }
-    .from, .to  {
+    .mq-from, .mq-to  {
       font-size: 80%;
     }
-    .from {
+    .mq-from {
       margin-top: -.1em;
       float: right; /* take out of normal flow to manipulate baseline */
       width: 100%;

@@ -13,10 +13,10 @@ JS environment could actually contain many instances. */
 var Cursor = P(function(_) {
   _.init = function(root) {
     this.parent = this.root = root;
-    var jQ = this.jQ = this._jQ = $('<span class="cursor"><span class="line">&zwj;</span></span>');
+    var jQ = this.jQ = this._jQ = $('<span class="mq-cursor"><span class="mq-line">&zwj;</span></span>');
 
     //closured for setInterval
-    this.blink = function(){ jQ.toggleClass('blink'); }
+    this.blink = function(){ jQ.toggleClass('mq-blink'); }
 
     this.upDownCache = {};
   };
@@ -27,7 +27,7 @@ var Cursor = P(function(_) {
   _.handle = 0;
   _.showHandle = function() {
     if (!this.handle) {
-      this.handle = $('<span class="handle"></span>').appendTo(this.jQ);
+      this.handle = $('<span class="mq-handle"></span>').appendTo(this.jQ);
     }
     return this;
   };
@@ -40,7 +40,7 @@ var Cursor = P(function(_) {
   };
   _.show = function(keepHandle) {
     if (!keepHandle) this.hideHandle();
-    this.jQ = this._jQ.removeClass('blink');
+    this.jQ = this._jQ.removeClass('mq-blink');
     if ('intervalId' in this) //already was shown, just restart interval
       clearInterval(this.intervalId);
     else { //was hidden and detached, insert this.jQ back into HTML DOM
@@ -76,13 +76,13 @@ var Cursor = P(function(_) {
   };
   _.insertBefore = function(el) {
     this.insertAt(el.parent, el.prev, el)
-    this.parent.jQ.addClass('hasCursor');
+    this.parent.jQ.addClass('mq-hasCursor');
     this.jQ.insertBefore(el.jQ.first());
     return this;
   };
   _.insertAfter = function(el) {
     this.insertAt(el.parent, el, el.next);
-    this.parent.jQ.addClass('hasCursor');
+    this.parent.jQ.addClass('mq-hasCursor');
     this.jQ.insertAfter(el.jQ.last());
     return this;
   };
@@ -236,8 +236,8 @@ var Cursor = P(function(_) {
     //Opera bug DSK-360043
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
-    var offset = self.jQ.removeClass('cursor').offset();
-    self.jQ.addClass('cursor');
+    var offset = self.jQ.removeClass('mq-cursor').offset();
+    self.jQ.addClass('mq-cursor');
     return offset;
   }
   _.writeLatex = function(latex) {
@@ -607,7 +607,7 @@ var Selection = P(MathFragment, function(_, _super) {
     frag.jQwrap(frag.jQ);
   };
   _.jQwrap = function(children) {
-    this.jQ = children.wrapAll('<span class="selection"></span>').parent();
+    this.jQ = children.wrapAll('<span class="mq-selection"></span>').parent();
       //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   };
   _.adopt = function() {

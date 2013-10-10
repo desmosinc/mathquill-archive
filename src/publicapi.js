@@ -82,9 +82,9 @@ $.fn.mathquill = function(cmd, latex) {
       block = blockId && MathElement[blockId];
     return block && block.text();
   case 'html':
-    return this.children(':last').html().replace(/ ?hasCursor|hasCursor /, '')
+    return this.children(':last').html().replace(/ ?mq-hasCursor|mq-hasCursor /, '')
       .replace(/ class=(""|(?= |>))/g, '')
-      .replace(/<span class="?cursor( blink)?"?>.?<\/span>/i, '');
+      .replace(/<span class="?mq-cursor( mq-blink)?"?>.?<\/span>/i, '');
   case 'write':
     if (arguments.length > 1)
       return this.each(function() {
