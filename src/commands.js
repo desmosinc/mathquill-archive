@@ -41,9 +41,9 @@ else if ('filter' in div_style) { //IE 6, 7, & 8 fallback, see https://github.co
   scale = function(jQ, x, y) { //NOTE: assumes y > x
     x /= (1+(y-1)/2);
     jQ.css('fontSize', y + 'em');
-    if (!jQ.hasClass('matrixed-container')) {
-      jQ.addClass('matrixed-container')
-      .wrapInner('<span class="matrixed"></span>');
+    if (!jQ.hasClass('mq-matrixed-container')) {
+      jQ.addClass('mq-matrixed-container')
+      .wrapInner('<span class="mq-matrixed"></span>');
     }
     var innerjQ = jQ.children()
     .css('filter', 'progid:DXImageTransform.Microsoft'
@@ -73,18 +73,18 @@ var Style = P(MathCommand, function(_, _super) {
 });
 
 //fonts
-LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="roman font"');
-LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="font"');
-LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="font"');
-LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="sans-serif font"');
-LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="monospace font"');
+LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="mq-roman mq-font"');
+LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="mq-font"');
+LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="mq-font"');
+LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="mq-sans-serif mq-font"');
+LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"');
 //text-decoration
-LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="non-leaf underline"');
-LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="non-leaf overline"');
+LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
+LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
 
 var SupSub = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tag, text) {
-    _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf"><span class="non-leaf '+tag+'">&0</span></'+tag+'>', [ text ]);
+    _super.init.call(this, ctrlSeq, '<'+tag+' class="mq-non-leaf"><span class="mq-non-leaf mq-'+tag+'">&0</span></'+tag+'>', [ text ]);
   };
   _.finalizeTree = function() {
     //TODO: use inheritance
@@ -154,13 +154,13 @@ var SupSub = P(MathCommand, function(_, _super) {
     ) {
       if (!this['int']) {
         this['int'] = true;
-        this.jQ.addClass('int');
+        this.jQ.addClass('mq-int');
       }
     }
     else {
       if (this['int']) {
         this['int'] = false;
-        this.jQ.removeClass('int');
+        this.jQ.removeClass('mq-int');
       }
     }
 
@@ -271,10 +271,10 @@ LatexCmds['^'] = bind(SupSub, '^', 'sup', '**');
 var BigSymbol = P(MathCommand, function(_, _super) {
   _.init = function(ch, html) {
     var htmlTemplate =
-        '<span class="large-operator non-leaf">'
-      +   '<span class="to"><span>&1</span></span>'
+        '<span class="mq-large-operator mq-non-leaf">'
+      +   '<span class="mq-to"><span>&1</span></span>'
       +   '<big>'+html+'</big>'
-      +   '<span class="from"><span>&0</span></span>'
+      +   '<span class="mq-from"><span>&0</span></span>'
       + '</span>'
     ;
     Symbol.prototype.init.call(this, ch, htmlTemplate);
@@ -340,9 +340,9 @@ LatexCmds.cfrac =
 LatexCmds.fraction = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\frac';
   _.htmlTemplate =
-      '<span class="fraction non-leaf">'
-    +   '<span class="numerator">&0</span>'
-    +   '<span class="denominator">&1</span>'
+      '<span class="mq-fraction mq-non-leaf">'
+    +   '<span class="mq-numerator">&0</span>'
+    +   '<span class="mq-denominator">&1</span>'
     +   '<span style="display:inline-block;width:0;overflow:hidden">&nbsp;</span>'
     + '</span>'
   ;
@@ -402,9 +402,9 @@ LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
-      '<span class="non-leaf">'
-    +   '<span class="scaled sqrt-prefix">&radic;</span>'
-    +   '<span class="non-leaf sqrt-stem">&0</span>'
+      '<span class="mq-non-leaf">'
+    +   '<span class="mq-scaled mq-sqrt-prefix">&radic;</span>'
+    +   '<span class="mq-non-leaf mq-sqrt-stem">&0</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
@@ -429,10 +429,10 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   _.htmlTemplate =
-      '<sup class="nthroot non-leaf">&0</sup>'
-    + '<span class="scaled">'
-    +   '<span class="sqrt-prefix scaled">&radic;</span>'
-    +   '<span class="sqrt-stem non-leaf">&1</span>'
+      '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
+    + '<span class="mq-scaled">'
+    +   '<span class="mq-sqrt-prefix mq-scaled">&radic;</span>'
+    +   '<span class="mq-sqrt-stem mq-non-leaf">&1</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt[', '](', ')'];
@@ -474,10 +474,10 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
 var Bracket = P(MathCommand, function(_, _super) {
   _.init = function(open, close, ctrlSeq, end) {
     _super.init.call(this, '\\left'+ctrlSeq,
-        '<span class="non-leaf">'
-      +   '<span class="scaled paren">'+open+'</span>'
-      +   '<span class="non-leaf">&0</span>'
-      +   '<span class="scaled paren">'+close+'</span>'
+        '<span class="mq-non-leaf">'
+      +   '<span class="mq-scaled mq-paren">'+open+'</span>'
+      +   '<span class="mq-non-leaf">&0</span>'
+      +   '<span class="mq-scaled mq-paren">'+close+'</span>'
       + '</span>',
       [open, close]);
     this.end = '\\right'+end;
@@ -642,7 +642,7 @@ LatexCmds.textrm =
 LatexCmds.textup =
 LatexCmds.textmd = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\text';
-  _.htmlTemplate = '<span class="text">&0</span>';
+  _.htmlTemplate = '<span class="mq-text">&0</span>';
   _.replaces = function(replacedText) {
     if (replacedText instanceof MathFragment)
       this.replacedText = replacedText.remove().jQ.text();
@@ -738,11 +738,11 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
 
 var InnerTextBlock = P(MathBlock, function(_, _super) {
   _.blur = function() {
-    this.jQ.removeClass('hasCursor');
+    this.jQ.removeClass('mq-hasCursor');
     if (this.isEmpty()) {
       var textblock = this.parent, cursor = textblock.cursor;
       if (cursor.parent === this)
-        this.jQ.addClass('empty');
+        this.jQ.addClass('mq-empty');
       else {
         cursor.hide();
         textblock.remove();
@@ -808,19 +808,19 @@ function makeTextBlock(latex, tagName, attrs) {
 
 LatexCmds.em = LatexCmds.italic = LatexCmds.italics =
 LatexCmds.emph = LatexCmds.textit = LatexCmds.textsl =
-  makeTextBlock('\\textit', 'i', 'class="text"');
+  makeTextBlock('\\textit', 'i', 'class="mq-text"');
 LatexCmds.strong = LatexCmds.bold = LatexCmds.textbf =
-  makeTextBlock('\\textbf', 'b', 'class="text"');
+  makeTextBlock('\\textbf', 'b', 'class="mq-text"');
 LatexCmds.sf = LatexCmds.textsf =
-  makeTextBlock('\\textsf', 'span', 'class="sans-serif text"');
+  makeTextBlock('\\textsf', 'span', 'class="mq-sans-serif mq-text"');
 LatexCmds.tt = LatexCmds.texttt =
-  makeTextBlock('\\texttt', 'span', 'class="monospace text"');
+  makeTextBlock('\\texttt', 'span', 'class="mq-monospace mq-text"');
 LatexCmds.textsc =
-  makeTextBlock('\\textsc', 'span', 'style="font-variant:small-caps" class="text"');
+  makeTextBlock('\\textsc', 'span', 'style="font-variant:small-caps" class="mq-text"');
 LatexCmds.uppercase =
-  makeTextBlock('\\uppercase', 'span', 'style="text-transform:uppercase" class="text"');
+  makeTextBlock('\\uppercase', 'span', 'style="text-transform:uppercase" class="mq-text"');
 LatexCmds.lowercase =
-  makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="text"');
+  makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="mq-text"');
 
 // input box to type a variety of LaTeX commands beginning with a backslash
 // DISABLED in DCG
@@ -831,21 +831,21 @@ P(MathCommand, function(_, _super) {
     this._replacedFragment = replacedFragment.disown();
     this.isEmpty = function() { return false; };
   };
-  _.htmlTemplate = '<span class="latex-command-input non-leaf">\\<span>&0</span></span>';
+  _.htmlTemplate = '<span class="mq-latex-command-input mq-non-leaf">\\<span>&0</span></span>';
   _.textTemplate = ['\\'];
   _.createBlocks = function() {
     _super.createBlocks.call(this);
     this.firstChild.focus = function() {
-      this.parent.jQ.addClass('hasCursor');
+      this.parent.jQ.addClass('mq-hasCursor');
       if (this.isEmpty())
-        this.parent.jQ.removeClass('empty');
+        this.parent.jQ.removeClass('mq-empty');
 
       return this;
     };
     this.firstChild.blur = function() {
-      this.parent.jQ.removeClass('hasCursor');
+      this.parent.jQ.removeClass('mq-hasCursor');
       if (this.isEmpty())
-        this.parent.jQ.addClass('empty');
+        this.parent.jQ.addClass('mq-empty');
 
       return this;
     };
@@ -856,7 +856,7 @@ P(MathCommand, function(_, _super) {
     if (this._replacedFragment) {
       var el = this.jQ[0];
       this.jQ =
-        this._replacedFragment.jQ.addClass('blur').bind(
+        this._replacedFragment.jQ.addClass('mq-blur').bind(
           'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
           function(e) {
             $(e.target = el).trigger(e);
@@ -908,14 +908,14 @@ LatexCmds.binom =
 LatexCmds.binomial = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
-      '<span class="paren scaled">(</span>'
-    + '<span class="non-leaf">'
-    +   '<span class="array non-leaf">'
+      '<span class="mq-paren mq-scaled">(</span>'
+    + '<span class="mq-non-leaf">'
+    +   '<span class="mq-array mq-non-leaf">'
     +     '<span>&0</span>'
     +     '<span>&1</span>'
     +   '</span>'
     + '</span>'
-    + '<span class="paren scaled">)</span>'
+    + '<span class="mq-paren mq-scaled">)</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
   _.redraw = function() {
@@ -923,7 +923,7 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
 
     var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
 
-    var parens = this.jQ.filter('.paren');
+    var parens = this.jQ.filter('.mq-paren');
     scale(parens, min(1 + .2*(height - 1), 1.2), 1.05*height);
   };
   // vertical-align: middle, so
@@ -938,7 +938,7 @@ LatexCmds.choose = P(Binomial, function(_) {
 var Vector =
 LatexCmds.vector = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\vector';
-  _.htmlTemplate = '<span class="array"><span>&0</span></span>';
+  _.htmlTemplate = '<span class="mq-array"><span>&0</span></span>';
   _.latex = function() {
     return '\\begin{matrix}' + this.foldChildren([], function(latex, child) {
       latex.push(child.latex());

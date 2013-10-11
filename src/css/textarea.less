@@ -1,14 +1,14 @@
 @import "./mixins/css3";
 
 .mathquill-editable, .mathquill-rendered-math {
-  .textarea {
+  .mq-textarea {
     position: relative;
 
     // TODO: why is this here?
     .user-select(text);
   }
 
-  .textarea textarea, .selectable {
+  .mq-textarea textarea, .mq-selectable {
     .user-select(text);
     // the only way to hide the textarea
     // *and the blinking insertion point* in IE
@@ -19,7 +19,7 @@
   // to be focusable, need to be visible, i.e. nonzero height/width;
   // Mobile Safari needs tabindex=0 span instead of textarea to not
   // pull up on-screen keyboard
-  .textarea span {
+  .mq-textarea span {
     position: absolute;
     display: inline-block;
     height: 1px;
