@@ -547,15 +547,31 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       break;
 
     default:
+      this.scrollHoriz();
       return false;
     }
     e.preventDefault();
+    this.scrollHoriz();
     return false;
   };
   _.onText = function(ch) {
     this.cursor.write(ch);
     this.triggerSpecialEvent('render');
+    this.scrollHoriz();
     return false;
+  };
+  _.scrollHoriz = function() {
+    var container = this.jQ.parent();
+    var cursorRect = this.cursor.jQ[0].getBoundingClientRect();
+    var boxRect = container[0].getBoundingClientRect();
+    if (cursorRect.left - 20 < boxRect.left) {
+      var scrollBy = cursorRect.left - 20 - boxRect.left;
+    }
+    else if (cursorRect.right + 20 > boxRect.right) {
+      var scrollBy = cursorRect.right + 20 - boxRect.right;
+    }
+    else return;
+    container.scrollLeft(container.scrollLeft() + scrollBy);
   };
 
   //triggers a special event occured:
