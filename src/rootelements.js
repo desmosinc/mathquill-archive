@@ -572,7 +572,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       var scrollBy = cursorRect.right + 20 - boxRect.right;
     }
     else return;
-    container.scrollLeft(container.scrollLeft() + scrollBy);
+    container.stop().animate({ scrollLeft: '+=' + scrollBy }, 100);
   };
 
   //triggers a special event occured:
