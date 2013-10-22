@@ -561,6 +561,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     return false;
   };
   _.scrollHoriz = function() {
+    if (this.cursor.jQ.length === 0) return;
     var container = this.jQ.parent();
     var cursorRect = this.cursor.jQ[0].getBoundingClientRect();
     var boxRect = container[0].getBoundingClientRect();
