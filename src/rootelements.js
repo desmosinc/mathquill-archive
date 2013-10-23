@@ -568,9 +568,9 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       var cursorX = seln.first === cursor.next ? rect.left : rect.right;
     }
     var container = this.jQ.parent();
-    var boxRect = container[0].getBoundingClientRect();
-    if (cursorX > boxRect.right - 20) var bound = boxRect.right - 20;
-    else if (cursorX < boxRect.left + 20) var bound = boxRect.left + 20;
+    var rootRect = container[0].getBoundingClientRect();
+    if (cursorX > rootRect.right - 20) var bound = rootRect.right - 20;
+    else if (cursorX < rootRect.left + 20) var bound = rootRect.left + 20;
     else return;
     container.stop().animate({ scrollLeft: '+=' + (cursorX - bound) }, 100);
   };
