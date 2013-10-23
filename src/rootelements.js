@@ -561,9 +561,13 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     return false;
   };
   _.scrollHoriz = function() {
-    if (this.cursor.jQ.length === 0) return;
+    var cursor = this.cursor, seln = cursor.selection;
+    if (!seln) var cursorX = cursor.jQ[0].getBoundingClientRect().left;
+    else {
+      var rect = seln.jQ[0].getBoundingClientRect();
+      var cursorX = seln.first === cursor.next ? rect.left : rect.right;
+    }
     var container = this.jQ.parent();
-    var cursorX = this.cursor.jQ[0].getBoundingClientRect().left;
     var boxRect = container[0].getBoundingClientRect();
     if (cursorX - 20 < boxRect.left) {
       var scrollBy = cursorX - 20 - boxRect.left;
