@@ -569,14 +569,10 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     }
     var container = this.jQ.parent();
     var boxRect = container[0].getBoundingClientRect();
-    if (cursorX - 20 < boxRect.left) {
-      var scrollBy = cursorX - 20 - boxRect.left;
-    }
-    else if (cursorX + 20 > boxRect.right) {
-      var scrollBy = cursorX + 20 - boxRect.right;
-    }
+    if (cursorX > boxRect.right - 20) var bound = boxRect.right - 20;
+    else if (cursorX < boxRect.left + 20) var bound = boxRect.left + 20;
     else return;
-    container.stop().animate({ scrollLeft: '+=' + scrollBy }, 100);
+    container.stop().animate({ scrollLeft: '+=' + (cursorX - bound) }, 100);
   };
 
   //triggers a special event occured:
