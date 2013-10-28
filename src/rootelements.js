@@ -562,17 +562,36 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   };
   _.scrollHoriz = function() {
     var cursor = this.cursor, seln = cursor.selection;
-    if (!seln) var cursorX = cursor.jQ[0].getBoundingClientRect().left;
-    else {
-      var rect = seln.jQ[0].getBoundingClientRect();
-      var cursorX = seln.first === cursor.next ? rect.left : rect.right;
-    }
     var container = this.jQ.parent();
     var rootRect = container[0].getBoundingClientRect();
-    if (cursorX > rootRect.right - 20) var bound = rootRect.right - 20;
-    else if (cursorX < rootRect.left + 20) var bound = rootRect.left + 20;
-    else return;
-    container.stop().animate({ scrollLeft: '+=' + (cursorX - bound) }, 100);
+    if (!seln) {
+      var x = cursor.jQ[0].getBoundingClientRect().left;
+      if (x > rootRect.right - 20) var scrollBy = x - (rootRect.right - 20);
+      else if (x < rootRect.left + 20) var scrollBy = x - (rootRect.left + 20);
+      else return;
+    }
+    else {
+      var rect = seln.jQ[0].getBoundingClientRect();
+      var overLeft = rect.left - (rootRect.left + 20);
+      var overRight = rect.right - (rootRect.right - 20);
+      if (seln.first === cursor.next) {
+        if (overLeft < 0) var scrollBy = overLeft;
+        else if (overRight > 0) {
+          if (rect.left - overRight < rootRect.left + 20) var scrollBy = overLeft;
+          else var scrollBy = overRight;
+        }
+        else return;
+      }
+      else {
+        if (overRight > 0) var scrollBy = overRight;
+        else if (overLeft < 0) {
+          if (rect.right - overLeft > rootRect.right - 20) var scrollBy = overRight;
+          else var scrollBy = overLeft;
+        }
+        else return;
+      }
+    }
+    container.stop().animate({ scrollLeft: '+=' + scrollBy }, 100);
   };
 
   //triggers a special event occured:
