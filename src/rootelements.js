@@ -562,8 +562,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   };
   _.scrollHoriz = function() {
     var cursor = this.cursor, seln = cursor.selection;
-    var container = this.jQ.parent();
-    var rootRect = container[0].getBoundingClientRect();
+    var rootRect = this.jQ[0].getBoundingClientRect();
     if (!seln) {
       var x = cursor.jQ[0].getBoundingClientRect().left;
       if (x > rootRect.right - 20) var scrollBy = x - (rootRect.right - 20);
@@ -591,7 +590,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         else return;
       }
     }
-    container.stop().animate({ scrollLeft: '+=' + scrollBy }, 100);
+    this.jQ.stop().animate({ scrollLeft: '+=' + scrollBy }, 100);
   };
 
   //triggers a special event occured:
