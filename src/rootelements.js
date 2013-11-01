@@ -700,4 +700,5 @@ var RootTextBlock = P(MathBlock, function(_) {
 
     return false;
   };
+  _.scrollHoriz = RootMathBlock.prototype.scrollHoriz;
 });
