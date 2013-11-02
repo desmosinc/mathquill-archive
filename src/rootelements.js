@@ -155,7 +155,7 @@ function createRoot(container, root, textbox, editable) {
       });
     };
   }
-  cursor.jQ.delegate('.mq-handle', 'touchstart', firstFingerOnly(function(e) {
+  cursor.handle.on('touchstart', firstFingerOnly(function(e) {
     cursor.blink = noop;
     var cursorRect = cursor.jQ[0].getBoundingClientRect();
     var offsetX = e.clientX - cursorRect.left;
@@ -166,8 +166,10 @@ function createRoot(container, root, textbox, editable) {
         var adjustedX = e.clientX - offsetX, adjustedY = e.clientY - offsetY;
         cursor.seek(elAtPt(adjustedX, adjustedY, root), adjustedX, adjustedY, cachedClientRect, true);
 
-        // visual "haptic" feedback
         var cursorRect = cursor.jQ[0].getBoundingClientRect();
+        cursor.repositionHandle(cursorRect);
+
+        // visual "haptic" feedback
         var dx = adjustedX - cursorRect.left;
         var dy = adjustedY - (cursorRect.top + cursorRect.bottom)/2;
         var dist = Math.sqrt(dx*dx + dy*dy);
