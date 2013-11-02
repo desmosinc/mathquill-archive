@@ -6,7 +6,11 @@
     white-space: nowrap;
     overflow: hidden;
     vertical-align: middle;
-    padding-right: 1px;
+    &:after {
+      content: '';
+      display: inline-block;
+      width: 1px;
+    }
   }
 
   .mq-cursor {
