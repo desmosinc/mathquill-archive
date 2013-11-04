@@ -284,7 +284,10 @@ function elAtPt(clientX, clientY, root) {
 function cachedClientRectFnForNewCache() {
   var cache = {};
   function elById(el, id) {
-    return cache[id] || (cache[id] = el.getBoundingClientRect());
+    if (!cache[id]) {
+      cache[id] = el.getBoundingClientRect();
+    }
+    return cache[id];
   };
   function cachedClientRect(node) { return elById(node.jQ[0], node.id); };
   cachedClientRect.elById = elById;
