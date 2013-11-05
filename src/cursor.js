@@ -240,7 +240,13 @@ var Cursor = P(function(_) {
     var node = nodeId ? MathElement[nodeId] : cursor.root;
     pray('nodeId is the id of some Node that exists', node);
 
-    node.seek(cursor, clientX, clientY, cursor.root, clientRect);
+    var dx = clientRect.scrollLeft = this.root.jQ.scrollLeft();
+    node.seek(cursor, clientX + dx, clientY, cursor.root, clientRect);
+    delete clientRect.scrollLeft; // be defensive: was only valid in this event
+                                  // thread, unlike the cache of clientRect's
+
+    this.root.scrollHoriz(); // before .selectFrom when mouse-selecting, so
+      // always hits no-selection case in scrollHoriz and scrolls slower
 
     return cursor;
   };

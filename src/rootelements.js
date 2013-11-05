@@ -285,7 +285,10 @@ function cachedClientRectFnForNewCache() {
   var cache = {};
   function elById(el, id) {
     if (!cache[id]) {
-      cache[id] = el.getBoundingClientRect();
+      pray('only called within Cursor::seek', 'scrollLeft' in cachedClientRect);
+      var rect = el.getBoundingClientRect(), dx = cachedClientRect.scrollLeft;
+      cache[id] = { top: rect.top, right: rect.right + dx,
+                    bottom: rect.bottom, left: rect.left + dx };
     }
     return cache[id];
   };
