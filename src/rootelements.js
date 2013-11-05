@@ -186,6 +186,9 @@ function createRoot(container, root, textbox, editable) {
         cursor.handle.css({ WebkitTransform: '', opacity: '' });
         cursor.blink = blink;
         cursor.show(true);
+        setTimeout(function() {
+          cursor.repositionHandle(cursor.jQ[0].getBoundingClientRect());
+        }, 100);
       }
     };
   }));
