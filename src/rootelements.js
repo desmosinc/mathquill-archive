@@ -168,6 +168,10 @@ function createRoot(container, root, textbox, editable) {
 
         var cursorRect = cursor.jQ[0].getBoundingClientRect();
         cursor.repositionHandle(cursorRect);
+        cursor.handle.onAnimationEnd = function() {
+          cursor.repositionHandle(cursor.jQ[0].getBoundingClientRect());
+          delete cursor.handle.onAnimationEnd;
+        };
 
         // visual "haptic" feedback
         var dx = adjustedX - cursorRect.left;
@@ -186,9 +190,6 @@ function createRoot(container, root, textbox, editable) {
         cursor.handle.css({ WebkitTransform: '', opacity: '' });
         cursor.blink = blink;
         cursor.show(true);
-        setTimeout(function() {
-          cursor.repositionHandle(cursor.jQ[0].getBoundingClientRect());
-        }, 100);
       }
     };
   }));
@@ -601,7 +602,8 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         else return;
       }
     }
-    this.jQ.stop().animate({ scrollLeft: '+=' + scrollBy }, 100);
+    this.jQ.stop().animate({ scrollLeft: '+=' + scrollBy,
+                             complete: cursor.handle.onAnimationEnd }, 100);
   };
 
   //triggers a special event occured:
