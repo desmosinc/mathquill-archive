@@ -203,7 +203,6 @@ $('#show-textareas-button').click(function() {
 // Util: basic touchtap implementation
 // used by selecting from outside test, and in overflow test
 function touchtap(editable) {
-  editable = $(editable);
   return function() {
     var moved = false;
     $(this).on('touchmove.tmp', function() { moved = true; })
@@ -218,14 +217,15 @@ function touchtap(editable) {
 }
 
 // test selecting from outside the mathquill editable
-$('.math-container').on('touchstart', touchtap('.math-container .mathquill-editable'))
+var editable = $('.math-container .mathquill-editable');
+$('.math-container').on('touchstart', touchtap(editable))
 .mousedown(function(e) {
   if (e.target === editable[0] || $.contains(editable[0], e.target)) return;
   editable.triggerHandler(e);
 });
 
 // overflow test
-$('#overflow-test').on('touchstart', touchtap('#overflow-test'));
+$('#overflow-test').on('touchstart', touchtap($('#overflow-test')));
 
 // Selection Tests
 document.body.onload = function() {
