@@ -155,7 +155,7 @@ function createRoot(container, root, textbox, editable) {
       });
     };
   }
-  cursor.jQ.delegate('.mq-handle', 'touchstart', firstFingerOnly(function(e) {
+  cursor.handle.on('touchstart', firstFingerOnly(function(e) {
     cursor.blink = noop;
     var cursorRect = cursor.jQ[0].getBoundingClientRect();
     var offsetX = e.clientX - cursorRect.left;
@@ -166,8 +166,14 @@ function createRoot(container, root, textbox, editable) {
         var adjustedX = e.clientX - offsetX, adjustedY = e.clientY - offsetY;
         cursor.seek(elAtPt(adjustedX, adjustedY, root), adjustedX, adjustedY, cachedClientRect, true);
 
-        // visual "haptic" feedback
         var cursorRect = cursor.jQ[0].getBoundingClientRect();
+        cursor.repositionHandle(cursorRect);
+        cursor.handle.onAnimationEnd = function() {
+          cursor.repositionHandle(cursor.jQ[0].getBoundingClientRect());
+          delete cursor.handle.onAnimationEnd;
+        };
+
+        // visual "haptic" feedback
         var dx = adjustedX - cursorRect.left;
         var dy = adjustedY - (cursorRect.top + cursorRect.bottom)/2;
         var dist = Math.sqrt(dx*dx + dy*dy);
@@ -282,7 +288,13 @@ function elAtPt(clientX, clientY, root) {
 function cachedClientRectFnForNewCache() {
   var cache = {};
   function elById(el, id) {
-    return cache[id] || (cache[id] = el.getBoundingClientRect());
+    if (!cache[id]) {
+      pray('only called within Cursor::seek', 'scrollLeft' in cachedClientRect);
+      var rect = el.getBoundingClientRect(), dx = cachedClientRect.scrollLeft;
+      cache[id] = { top: rect.top, right: rect.right + dx,
+                    bottom: rect.bottom, left: rect.left + dx };
+    }
+    return cache[id];
   };
   function cachedClientRect(node) { return elById(node.jQ[0], node.id); };
   cachedClientRect.elById = elById;
@@ -547,15 +559,51 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       break;
 
     default:
+      this.scrollHoriz();
       return false;
     }
     e.preventDefault();
+    this.scrollHoriz();
     return false;
   };
   _.onText = function(ch) {
     this.cursor.write(ch);
     this.triggerSpecialEvent('render');
+    this.scrollHoriz();
     return false;
+  };
+  _.scrollHoriz = function() {
+    var cursor = this.cursor, seln = cursor.selection;
+    var rootRect = this.jQ[0].getBoundingClientRect();
+    if (!seln) {
+      var x = cursor.jQ[0].getBoundingClientRect().left;
+      if (x > rootRect.right - 20) var scrollBy = x - (rootRect.right - 20);
+      else if (x < rootRect.left + 20) var scrollBy = x - (rootRect.left + 20);
+      else return;
+    }
+    else {
+      var rect = seln.jQ[0].getBoundingClientRect();
+      var overLeft = rect.left - (rootRect.left + 20);
+      var overRight = rect.right - (rootRect.right - 20);
+      if (seln.first === cursor.next) {
+        if (overLeft < 0) var scrollBy = overLeft;
+        else if (overRight > 0) {
+          if (rect.left - overRight < rootRect.left + 20) var scrollBy = overLeft;
+          else var scrollBy = overRight;
+        }
+        else return;
+      }
+      else {
+        if (overRight > 0) var scrollBy = overRight;
+        else if (overLeft < 0) {
+          if (rect.right - overLeft > rootRect.right - 20) var scrollBy = overRight;
+          else var scrollBy = overLeft;
+        }
+        else return;
+      }
+    }
+    this.jQ.stop().animate({ scrollLeft: '+=' + scrollBy,
+                             complete: cursor.handle.onAnimationEnd }, 100);
   };
 
   //triggers a special event occured:
@@ -665,4 +713,5 @@ var RootTextBlock = P(MathBlock, function(_) {
 
     return false;
   };
+  _.scrollHoriz = RootMathBlock.prototype.scrollHoriz;
 });
