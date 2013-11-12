@@ -43,6 +43,7 @@ code span {
 <p><small>Try typing <code>1/2\sqrt x</code> and using the arrow keys to move around. Shortcut: use the tab key instead of arrow keys to get &quot;out&quot; of a command, like <code>a_n<span>[tab]</span>x^n</code>. Many LaTeX-style symbols and commands preceded by a backslash are supported, such as <code>\forall</code> or <code>n\choose k</code>.</small></p>
 
 <p>Latex source: <textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p>
+<p>MathML: <textarea id="mathml-source" style="width:80%;vertical-align:top"></textarea></p>
 
 <p><button id="codecogs">Render LaTeX as an image with Code Cogs</button> <a id="codecogslink"><img id="codecogsimg" alt="LaTeX rendered as an image"> <span>Link</span></a></p>
 
@@ -61,6 +62,7 @@ code span {
 </div>
 <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
+<script src="mathml/ASCIIMathML.js"></script>
 <script type="text/javascript">
 $('#show-html-source').toggle(function() {
   $(this).html('Hide Semantically Meaningful HTML Source').parent().next().show();
@@ -68,7 +70,9 @@ $('#show-html-source').toggle(function() {
   $(this).html('Show Semantically Meaningful HTML Source').parent().next().hide();
 });
 
-var latexMath = $('#editable-math'), latexSource = $('#latex-source'), htmlSource = $('#html-source'), codecogsimg = $('#codecogsimg'), codecogslink = $('#codecogslink');
+window.translateOnLoad = false;
+
+var latexMath = $('#editable-math'), latexSource = $('#latex-source'), mathmlSource = $('#mathml-source'), htmlSource = $('#html-source'), codecogsimg = $('#codecogsimg'), codecogslink = $('#codecogslink');
 
 $('#codecogs').click(function() {
   var latex = latexSource.val();
@@ -81,6 +85,7 @@ $(function() {
     setTimeout(function() {
       var latex = latexMath.mathquill('latex');
       latexSource.val(latex);
+      mathmlSource.val(AMparseMath(latex).innerHTML);
 //      location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
       htmlSource.text(printTree(latexMath.mathquill('html')));
     });
