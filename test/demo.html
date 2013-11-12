@@ -46,6 +46,7 @@ code span {
 <p>MathML: <textarea id="mathml-source" style="width:80%;vertical-align:top"></textarea></p>
 
 <p><button id="codecogs">Render LaTeX as an image with Code Cogs</button> <a id="codecogslink"><img id="codecogsimg" alt="LaTeX rendered as an image"> <span>Link</span></a></p>
+<p><button id="loadmathml">Update mathquill from mathml</button>
 
 <p><a href="javascript:;" id="show-html-source">Show Semantically Meaningful HTML Source</a></p>
 <pre id="html-source"></pre>
@@ -80,12 +81,36 @@ $('#codecogs').click(function() {
   codecogsimg.attr('src','http://latex.codecogs.com/gif.latex?'+latex);
 });
 
+//Load xslt stylesheet
+//NOTE - had to merge together into a single stylesheet
+//Chrome doesn't support xsl:include and fails silently
+var xsl
+$.get('mathml/all.xsl').done(function(data){
+  xsl = data;
+});
+
+$('#loadmathml').click(function() {
+  var mathml = mathmlSource.val()
+  xsltProcessor = new XSLTProcessor()
+  xsltProcessor.importStylesheet(xsl)  
+  //Parse mathml into an XML document
+  var doc = (new DOMParser).parseFromString(mathml, "text/xml")
+  //Modify mathml fragment to be namespaced properly
+  doc.childNodes[0].setAttribute('xmlns', 'http://www.w3.org/1998/Math/MathML')
+  //Use XSLT to convert into latex
+  var fragment = xsltProcessor.transformToFragment(doc, document)
+  //Extract latex and strip off dollar signs
+  var latex = fragment.textContent.slice(1, -1)
+  //Load latex into mathquill
+  latexMath.mathquill('latex', latex) 
+});
+
 $(function() {
   latexMath.bind('keydown keypress', function() {
     setTimeout(function() {
       var latex = latexMath.mathquill('latex');
       latexSource.val(latex);
-      mathmlSource.val(AMparseMath(latex).innerHTML);
+      mathmlSource.val(printTree(AMparseMath(latex).innerHTML));
 //      location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
       htmlSource.text(printTree(latexMath.mathquill('html')));
     });
