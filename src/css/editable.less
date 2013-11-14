@@ -5,6 +5,10 @@
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
+    // this is to make sure that characters like "y" aren't cut off
+    padding-left: 5px;
+    margin-left: -5px;
+
     vertical-align: middle;
     &:after {
       content: '';
