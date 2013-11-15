@@ -193,11 +193,14 @@ $.fn.mathquill = function(cmd, latex) {
   }
 };
 
+//NOTE desmos doesn't want auto-render functionality because we want to avoid
+//interfering with clients' mathquill in our api
+//
 //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
 //elements according to their CSS class.
-$(function() {
-  $('.mathquill-editable:not(.mathquill-rendered-math)').mathquill('editable');
-  $('.mathquill-textbox:not(.mathquill-rendered-math)').mathquill('textbox');
-  $('.mathquill-embedded-latex:not(.mathquill-rendered-math)').mathquill();
-});
+// $(function() {
+//   $('.mathquill-editable:not(.mathquill-rendered-math)').mathquill('editable');
+//   $('.mathquill-textbox:not(.mathquill-rendered-math)').mathquill('textbox');
+//   $('.mathquill-embedded-latex:not(.mathquill-rendered-math)').mathquill();
+// });
 
