@@ -161,35 +161,41 @@ function createRoot(container, root, textbox, editable) {
     var offsetX = e.clientX - cursorRect.left;
     var offsetY = e.clientY - (cursorRect.top + cursorRect.bottom)/2;
     var cachedClientRect = cachedClientRectFnForNewCache();
+    var onAnimationEnd;
+    root.onAnimationEnd = function() { onAnimationEnd(); };
     return {
       touchmove: function(e) {
         var adjustedX = e.clientX - offsetX, adjustedY = e.clientY - offsetY;
         cursor.seek(elAtPt(adjustedX, adjustedY, root), adjustedX, adjustedY, cachedClientRect, true);
+        visualHapticFeedback();
+        onAnimationEnd = visualHapticFeedback;
 
-        var cursorRect = cursor.jQ[0].getBoundingClientRect();
-        cursor.repositionHandle(cursorRect);
-        cursor.handle.onAnimationEnd = function() {
-          cursor.repositionHandle(cursor.jQ[0].getBoundingClientRect());
-          delete cursor.handle.onAnimationEnd;
-        };
+        function visualHapticFeedback() {
+          var cursorRect = cursor.jQ[0].getBoundingClientRect();
+          cursor.repositionHandle(cursorRect);
 
-        // visual "haptic" feedback
-        var dx = adjustedX - cursorRect.left;
-        var dy = adjustedY - (cursorRect.top + cursorRect.bottom)/2;
-        var dist = Math.sqrt(dx*dx + dy*dy);
-        var weight = (Math.log(dist)+1)/dist;
-        var skewX = Math.atan2(weight*dx, offsetY);
-        var scaleY = (weight*dy + offsetY)/offsetY;
-        var steeperScale = 2*(scaleY - 1) + 1;
-        cursor.handle.css({
-          WebkitTransform: 'translateX(.5px) skewX('+skewX+'rad) scaleY('+scaleY+')',
-          opacity: 1 - steeperScale*.5
-        });
+          var dx = adjustedX - cursorRect.left;
+          var dy = adjustedY - (cursorRect.top + cursorRect.bottom)/2;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          var weight = (Math.log(dist)+1)/dist;
+          var skewX = Math.atan2(weight*dx, offsetY);
+          var scaleY = (weight*dy + offsetY)/offsetY;
+          var steeperScale = 2*(scaleY - 1) + 1;
+          cursor.handle.css({
+            WebkitTransform: 'translateX(.5px) skewX('+skewX+'rad) scaleY('+scaleY+')',
+            opacity: 1 - steeperScale*.5
+          });
+        }
       },
       touchend: function(e) {
         cursor.handle.css({ WebkitTransform: '', opacity: '' });
         cursor.blink = blink;
         cursor.show(true);
+        onAnimationEnd = function() {
+          cursor.repositionHandle(cursor.jQ[0].getBoundingClientRect());
+          cursor.handle.css({ WebkitTransform: '', opacity: '' });
+          delete root.onAnimationEnd;
+        };
       }
     };
   }));
@@ -602,8 +608,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         else return;
       }
     }
-    this.jQ.stop().animate({ scrollLeft: '+=' + scrollBy,
-                             complete: cursor.handle.onAnimationEnd }, 100);
+    this.jQ.stop().animate({ scrollLeft: '+=' + scrollBy }, 100, this.onAnimationEnd);
   };
 
   //triggers a special event occured:

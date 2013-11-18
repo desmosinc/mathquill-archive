@@ -215,6 +215,7 @@ var Cursor = P(function(_) {
               } else {
                 var coords = self.jQ[0].getBoundingClientRect();
                 var cachedClientRect = cachedClientRectFnForNewCache();
+                cachedClientRect.scrollLeft = 0; // only used in this event thread
                 prop.seek(self, coords.left, coords.bottom, prop, cachedClientRect);
               }
             }
