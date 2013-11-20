@@ -1040,35 +1040,31 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
   _.expectedCursorYNextTo = Binomial.prototype.expectedCursorYNextTo;
 });
 
-LatexCmds.editable = P(RootMathCommand, function(_, _super) {
-  _.init = function() {
-    MathCommand.prototype.init.call(this, '\\editable');
-  };
+LatexCmds.editable = P(MathCommand, function(_, _super) {
+  _.ctrlSeq = '\\editable';
+  _.htmlTemplate = '<span class="mathquill-editable">&0</span>';
+  _.finalizeTree = function() {
+    // parsed \editable{contents}, `this` is this MathCommand,
+    // replace its sole child MathBlock with a RootMathBlock
+    var self = this, rootBlock = RootMathBlock();
 
-  _.jQadd = function() {
-    var self = this;
-    // FIXME: this entire method is a giant hack to get around
-    // having to call createBlocks, and createRoot expecting to
-    // render the contents' LaTeX. Both need to be refactored.
-    _super.jQadd.apply(self, arguments);
-    var block = self.firstChild.disown();
-    var blockjQ = self.jQ.children().detach();
+    delete MathElement[rootBlock.id];
+    rootBlock.id = self.firstChild.id;
+    MathElement[rootBlock.id] = rootBlock;
 
-    self.firstChild =
-    self.lastChild =
-      RootMathBlock();
+    self.firstChild.children().disown().adopt(rootBlock, 0, 0);
+    rootBlock.parent = self;
+    self.firstChild = self.lastChild = rootBlock;
+    self.blocks = [ rootBlock ];
 
-    self.blocks = [ self.firstChild ];
+    rootBlock.jQ = self.jQ.wrapInner('<span class="mathquill-root-block"/>').children();
 
-    self.firstChild.parent = self;
-
-    createRoot(self.jQ, self.firstChild, false, true);
-    self.cursor = self.firstChild.cursor;
-
-    block.children().adopt(self.firstChild, 0, 0);
-    blockjQ.appendTo(self.firstChild.jQ);
-
-    self.firstChild.cursor.appendTo(self.firstChild);
+    rootBlock.editable = true;
+    var cursor = rootBlock.cursor = Cursor(rootBlock).appendTo(rootBlock);
+    var textarea = setupTextarea(true, self.jQ, rootBlock, cursor);
+    setupTouchHandle(true, rootBlock, cursor);
+    focusBlurEvents(rootBlock, cursor, textarea);
+    desmosCustomEvents(self.jQ, rootBlock, cursor);
   };
 
   _.latex = function(){ return this.firstChild.latex(); };

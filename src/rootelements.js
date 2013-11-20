@@ -60,11 +60,15 @@ function setupTextarea(editable, container, root, cursor) {
   return textarea;
 }
 
-function mouseEvents(editable, container, root, cursor, textarea, textareaSpan) {
+function mouseEvents(ultimateRootjQ) {
   //drag-to-select event handling
-  var anticursor, blink = cursor.blink;
-  container.bind('mousedown.mathquill', function(e) {
+  ultimateRootjQ.bind('mousedown.mathquill', function(e) {
     e.preventDefault();
+
+    var container = $(e.target).closest('.mathquill-root-block').parent();
+    var root = MathElement[container.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
+    var cursor = root.cursor, blink = cursor.blink;
+    var textareaSpan = root.textarea, textarea = textareaSpan.children();
 
     if (root.ignoreMousedownTimeout !== undefined) {
       clearTimeout(root.ignoreMousedownTimeout);
@@ -101,7 +105,7 @@ function mouseEvents(editable, container, root, cursor, textarea, textareaSpan) 
       anticursor = undefined;
       cursor.blink = blink;
       if (!cursor.selection) {
-        if (editable) {
+        if (root.editable) {
           cursor.show();
         }
         else {
@@ -117,9 +121,9 @@ function mouseEvents(editable, container, root, cursor, textarea, textareaSpan) 
     cursor.blink = noop;
     cursor.hideHandle().seek($(e.target), e.clientX, e.clientY, cachedClientRect);
 
-    anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
+    var anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
-    if (!editable && root.blurred) container.prepend(textareaSpan);
+    if (!root.editable && root.blurred) container.prepend(textareaSpan);
     textarea.focus();
     root.blurred = false;
 

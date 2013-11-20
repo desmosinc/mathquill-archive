@@ -193,7 +193,8 @@ $.fn.mathquill = function(cmd, latex) {
       var cursor = root.cursor;
       var textarea = setupTextarea(editable, container, root, cursor);
       var textareaSpan = root.textarea;
-      mouseEvents(editable, container, root, cursor, textarea, textareaSpan);
+      root.editable = editable;
+      mouseEvents(container);
       setupTouchHandle(editable, root, cursor);
       if (!editable) return;
       rootCSSClasses(container, textbox);
