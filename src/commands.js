@@ -1040,11 +1040,11 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
   _.expectedCursorYNextTo = Binomial.prototype.expectedCursorYNextTo;
 });
 
-LatexCmds.editable = P(MathCommand, function(_, _super) {
-  _.ctrlSeq = '\\editable';
+LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
+  _.ctrlSeq = '\\MathQuillMathField';
   _.htmlTemplate = '<span class="mathquill-editable">&0</span>';
   _.finalizeTree = function() {
-    // parsed \editable{contents}, `this` is this MathCommand,
+    // parsed \MathQuillMathField{contents}, `this` is this MathCommand,
     // replace its sole child MathBlock with a RootMathBlock
     var self = this, rootBlock = RootMathBlock();
 
