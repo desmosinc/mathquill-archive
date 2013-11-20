@@ -180,6 +180,12 @@ window.onerror = function() {
 </script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
 <script type="text/javascript">
+$(function() {
+  $('.mathquill-editable:not(.mathquill-rendered-math)').mathquill('editable');
+  $('.mathquill-textbox:not(.mathquill-rendered-math)').mathquill('textbox');
+  $('.mathquill-embedded-latex').mathquill();
+});
+
 var _prepend = $.fn.prepend;
 $('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');
