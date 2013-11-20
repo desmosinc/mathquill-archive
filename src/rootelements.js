@@ -111,8 +111,9 @@ function createRoot(container, root, textbox, editable) {
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
-    if (!editable) container.prepend(textareaSpan);
+    if (!editable && root.blurred) container.prepend(textareaSpan);
     textarea.focus();
+    root.blurred = false;
 
     container.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
@@ -196,6 +197,7 @@ function createRoot(container, root, textbox, editable) {
   }));
 
   if (!editable) {
+    root.blurred = true;
     var textareaManager = manageTextarea(textarea, { container: container });
     container.bind('cut paste', false).bind('copy', setTextareaSelection)
       .prepend('<span class="mq-selectable">$'+root.latex()+'$</span>');
@@ -205,6 +207,7 @@ function createRoot(container, root, textbox, editable) {
     });
     function detach() {
       textareaSpan.detach();
+      root.blurred = true;
     }
     return;
   }
