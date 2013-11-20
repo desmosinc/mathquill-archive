@@ -16,10 +16,12 @@ function createRoot(container, root, textbox, editable) {
       .append(contents);
   };
 
-  var cursor = root.cursor = Cursor(root);
+  root.cursor = Cursor(root);
 
   root.renderLatex(contents.text());
+}
 
+function setupTextarea(editable, container, root, cursor) {
   var is_ios = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) !== null;
   var is_android = navigator.userAgent.match(/(Android|Silk|Kindle)/i) !== null;
   
@@ -53,6 +55,12 @@ function createRoot(container, root, textbox, editable) {
     e.stopPropagation();
   });
 
+  var textareaManager = hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection);
+
+  return textarea;
+}
+
+function mouseEvents(editable, container, root, cursor, textarea, textareaSpan) {
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
   container.bind('mousedown.mathquill', function(e) {
@@ -118,7 +126,9 @@ function createRoot(container, root, textbox, editable) {
     container.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
   });
+}
 
+function setupTouchHandle(editable, root, cursor) {
   // event handling for touch-draggable handle
   /**
    * Usage:
@@ -195,7 +205,9 @@ function createRoot(container, root, textbox, editable) {
       }
     };
   }));
+}
 
+function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection) {
   if (!editable) {
     root.blurred = true;
     var textareaManager = manageTextarea(textarea, { container: container });
@@ -209,7 +221,7 @@ function createRoot(container, root, textbox, editable) {
       textareaSpan.detach();
       root.blurred = true;
     }
-    return;
+    return textareaManager;
   }
 
   var textareaManager = manageTextarea(textarea, {
@@ -246,13 +258,16 @@ function createRoot(container, root, textbox, editable) {
   });
 
   container.prepend(textareaSpan);
+  return textareaManager;
+}
 
-  //root CSS classes
+function rootCSSClasses(container, textbox) {
   container.addClass('mathquill-editable');
   if (textbox)
     container.addClass('mathquill-textbox');
+}
 
-  //focus and blur handling
+function focusBlurEvents(root, cursor, textarea) {
   textarea.focus(function(e) {
     root.blurred = false;
     if (!cursor.parent)
@@ -270,7 +285,9 @@ function createRoot(container, root, textbox, editable) {
     if (cursor.selection)
       cursor.selection.jQ.addClass('mq-blur');
   }).blur();
+}
 
+function desmosCustomEvents(container, root, cursor) {
   container.bind('select_all', function(e) {
     cursor.prepareMove().appendTo(root);
     while (cursor.prev) cursor.selectLeft();
