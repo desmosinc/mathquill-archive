@@ -33,7 +33,7 @@ function setupTextarea(editable, container, root, cursor) {
   /******
    * TODO [Han]: Document this
    */
-  var textareaSelectionTimeout, prevLatex;
+  var textareaSelectionTimeout;
   root.selectionChanged = function() {
     if (textareaSelectionTimeout === undefined) {
       textareaSelectionTimeout = setTimeout(setTextareaSelection);
@@ -43,9 +43,7 @@ function setupTextarea(editable, container, root, cursor) {
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
     var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
-    if (latex === prevLatex) return;
     textareaManager.select(latex);
-    prevLatex = latex;
     root.triggerSpecialEvent('selectionChanged');
   }
 
