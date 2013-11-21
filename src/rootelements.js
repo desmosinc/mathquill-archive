@@ -63,7 +63,10 @@ function mouseEvents(ultimateRootjQ) {
   ultimateRootjQ.bind('mousedown.mathquill', function(e) {
     e.preventDefault();
 
-    var container = $(e.target).closest('.mathquill-root-block').parent();
+    var container = $(e.target);
+    if (!container.hasClass('mathquill-editable')) {
+      container = container.closest('.mathquill-root-block').parent();
+    }
     var root = MathElement[container.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
     var cursor = root.cursor, blink = cursor.blink;
     var textareaSpan = root.textarea, textarea = textareaSpan.children();
