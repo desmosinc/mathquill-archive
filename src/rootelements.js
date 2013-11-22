@@ -216,9 +216,9 @@ function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpa
   if (!editable) {
     root.blurred = true;
     var textareaManager = manageTextarea(textarea, { container: container });
-    container.bind('cut paste', false).bind('copy', setTextareaSelection)
+    container.bind('copy', setTextareaSelection)
       .prepend('<span class="mq-selectable">$'+root.latex()+'$</span>');
-    textarea.blur(function() {
+    textarea.bind('cut paste', false).blur(function() {
       cursor.clearSelection();
       setTimeout(detach); //detaching during blur explodes in WebKit
     });
