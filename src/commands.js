@@ -1039,3 +1039,34 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
   // vertical-align: middle, so
   _.expectedCursorYNextTo = Binomial.prototype.expectedCursorYNextTo;
 });
+
+LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
+  _.ctrlSeq = '\\MathQuillMathField';
+  _.htmlTemplate = '<span class="mathquill-editable">&0</span>';
+  _.finalizeTree = function() {
+    // parsed \MathQuillMathField{contents}, `this` is this MathCommand,
+    // replace its sole child MathBlock with a RootMathBlock
+    var self = this, rootBlock = RootMathBlock();
+
+    delete MathElement[rootBlock.id];
+    rootBlock.id = self.firstChild.id;
+    MathElement[rootBlock.id] = rootBlock;
+
+    self.firstChild.children().disown().adopt(rootBlock, 0, 0);
+    rootBlock.parent = self;
+    self.firstChild = self.lastChild = rootBlock;
+    self.blocks = [ rootBlock ];
+
+    rootBlock.jQ = self.jQ.wrapInner('<span class="mathquill-root-block"/>').children();
+
+    rootBlock.editable = true;
+    var cursor = rootBlock.cursor = Cursor(rootBlock).appendTo(rootBlock);
+    var textarea = setupTextarea(true, self.jQ, rootBlock, cursor);
+    setupTouchHandle(true, rootBlock, cursor);
+    focusBlurEvents(rootBlock, cursor, textarea);
+    desmosCustomEvents(self.jQ, rootBlock, cursor);
+  };
+
+  _.latex = function(){ return this.firstChild.latex(); };
+  _.text = function(){ return this.firstChild.text(); };
+});

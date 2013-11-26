@@ -30,16 +30,12 @@ td {
 .show-textareas .mathquill-textbox {
   overflow: visible;
 }
-.shown-textarea {
-  position: relative;
-  display: inline;
-}
-.shown-textarea textarea {
-  position: absolute;
+.show-textareas .mq-textarea textarea {
+  clip: auto !important;
+  resize: auto !important;
+  height: auto !important;
+  width: auto !important;
   top: -45px;
-  user-select: text;
-  -moz-user-select: text;
-  -webkit-user-select: text;
 }
 
 #overflow-test {
@@ -74,6 +70,7 @@ td {
 <tr>
   <td><span class="mathquill-editable">\frac{d}{dx}\sqrt{x}=\frac{1}{2\sqrt{x}}</span>
   <td><span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
+  <td><span class="mathquill-embedded-latex">\sqrt{\MathQuillMathField{x^2+y^2}}</span>
 </table>
 
 <p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center; -webkit-tap-highlight-color: rgba(0,0,0,0)"><span class="mathquill-editable">a_2 x^2 + a_1 x + a_0 = 0</span></div>
@@ -186,23 +183,8 @@ $(function() {
   $('.mathquill-embedded-latex').mathquill();
 });
 
-var _prepend = $.fn.prepend;
 $('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');
-  $('.mq-textarea,.shown-textarea').toggleClass('mq-textarea shown-textarea');
-  if ($.fn.prepend === _prepend) {
-    //FUGLY HACK: monkey-patch jQuery to show/hide static math textareas when prepended
-    $.fn.prepend = function(el) {
-      if ($(el).hasClass('mq-textarea') && $(document.body).hasClass('show-textareas'))
-        $(el).removeClass('mq-textarea').addClass('shown-textarea');
-      else if ($(el).hasClass('shown-textarea'))
-        $(el).removeClass('shown-textarea').addClass('mq-textarea');
-      return _prepend.apply(this, arguments);
-    };
-  }
-  else {
-    $.fn.prepend = _prepend;
-  }
 });
 
 

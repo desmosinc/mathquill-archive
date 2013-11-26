@@ -16,10 +16,12 @@ function createRoot(container, root, textbox, editable) {
       .append(contents);
   };
 
-  var cursor = root.cursor = Cursor(root);
+  root.cursor = Cursor(root);
 
   root.renderLatex(contents.text());
+}
 
+function setupTextarea(editable, container, root, cursor) {
   var is_ios = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) !== null;
   var is_android = navigator.userAgent.match(/(Android|Silk|Kindle)/i) !== null;
   
@@ -31,7 +33,7 @@ function createRoot(container, root, textbox, editable) {
   /******
    * TODO [Han]: Document this
    */
-  var textareaSelectionTimeout, prevLatex;
+  var textareaSelectionTimeout;
   root.selectionChanged = function() {
     if (textareaSelectionTimeout === undefined) {
       textareaSelectionTimeout = setTimeout(setTextareaSelection);
@@ -41,9 +43,7 @@ function createRoot(container, root, textbox, editable) {
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
     var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
-    if (latex === prevLatex) return;
     textareaManager.select(latex);
-    prevLatex = latex;
     root.triggerSpecialEvent('selectionChanged');
   }
 
@@ -53,10 +53,23 @@ function createRoot(container, root, textbox, editable) {
     e.stopPropagation();
   });
 
+  var textareaManager = hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection);
+
+  return textarea;
+}
+
+function mouseEvents(ultimateRootjQ) {
   //drag-to-select event handling
-  var anticursor, blink = cursor.blink;
-  container.bind('mousedown.mathquill', function(e) {
+  ultimateRootjQ.bind('mousedown.mathquill', function(e) {
     e.preventDefault();
+
+    var container = $(e.target);
+    if (!container.hasClass('mathquill-editable')) {
+      container = container.closest('.mathquill-root-block').parent();
+    }
+    var root = MathElement[container.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
+    var cursor = root.cursor, blink = cursor.blink;
+    var textareaSpan = root.textarea, textarea = textareaSpan.children();
 
     if (root.ignoreMousedownTimeout !== undefined) {
       clearTimeout(root.ignoreMousedownTimeout);
@@ -93,7 +106,7 @@ function createRoot(container, root, textbox, editable) {
       anticursor = undefined;
       cursor.blink = blink;
       if (!cursor.selection) {
-        if (editable) {
+        if (root.editable) {
           cursor.show();
         }
         else {
@@ -106,23 +119,21 @@ function createRoot(container, root, textbox, editable) {
       $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
-    setTimeout(function() { if (root.blurred) textarea.focus(); });
-      // preventDefault won't prevent focus on mousedown in IE<9
-      // that means immediately after this mousedown, whatever was
-      // mousedown-ed will receive focus
-      // http://bugs.jquery.com/ticket/10345
-
     cursor.blink = noop;
     cursor.hideHandle().seek($(e.target), e.clientX, e.clientY, cachedClientRect);
 
-    anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
+    var anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
-    if (!editable) container.prepend(textareaSpan);
+    if (!root.editable && root.blurred) container.prepend(textareaSpan);
+    textarea.focus();
+    root.blurred = false;
 
     container.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
   });
+}
 
+function setupTouchHandle(editable, root, cursor) {
   // event handling for touch-draggable handle
   /**
    * Usage:
@@ -199,19 +210,23 @@ function createRoot(container, root, textbox, editable) {
       }
     };
   }));
+}
 
+function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection) {
   if (!editable) {
+    root.blurred = true;
     var textareaManager = manageTextarea(textarea, { container: container });
-    container.bind('cut paste', false).bind('copy', setTextareaSelection)
+    container.bind('copy', setTextareaSelection)
       .prepend('<span class="mq-selectable">$'+root.latex()+'$</span>');
-    textarea.blur(function() {
+    textarea.bind('cut paste', false).blur(function() {
       cursor.clearSelection();
       setTimeout(detach); //detaching during blur explodes in WebKit
     });
     function detach() {
       textareaSpan.detach();
+      root.blurred = true;
     }
-    return;
+    return textareaManager;
   }
 
   var textareaManager = manageTextarea(textarea, {
@@ -248,13 +263,16 @@ function createRoot(container, root, textbox, editable) {
   });
 
   container.prepend(textareaSpan);
+  return textareaManager;
+}
 
-  //root CSS classes
+function rootCSSClasses(container, textbox) {
   container.addClass('mathquill-editable');
   if (textbox)
     container.addClass('mathquill-textbox');
+}
 
-  //focus and blur handling
+function focusBlurEvents(root, cursor, textarea) {
   textarea.focus(function(e) {
     root.blurred = false;
     if (!cursor.parent)
@@ -272,7 +290,9 @@ function createRoot(container, root, textbox, editable) {
     if (cursor.selection)
       cursor.selection.jQ.addClass('mq-blur');
   }).blur();
+}
 
+function desmosCustomEvents(container, root, cursor) {
   container.bind('select_all', function(e) {
     cursor.prepareMove().appendTo(root);
     while (cursor.prev) cursor.selectLeft();

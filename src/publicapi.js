@@ -188,7 +188,18 @@ $.fn.mathquill = function(cmd, latex) {
       editable = textbox || cmd === 'editable',
       RootBlock = textbox ? RootTextBlock : RootMathBlock;
     return this.each(function() {
-      createRoot($(this), RootBlock(), textbox, editable);
+      var container = $(this), root = RootBlock();
+      createRoot(container, root, textbox, editable);
+      var cursor = root.cursor;
+      var textarea = setupTextarea(editable, container, root, cursor);
+      var textareaSpan = root.textarea;
+      root.editable = editable;
+      mouseEvents(container);
+      setupTouchHandle(editable, root, cursor);
+      if (!editable) return;
+      rootCSSClasses(container, textbox);
+      focusBlurEvents(root, cursor, textarea);
+      desmosCustomEvents(container, root, cursor);
     });
   }
 };
