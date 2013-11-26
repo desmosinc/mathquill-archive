@@ -358,6 +358,11 @@ var MathCommand = P(MathElement, function(_, _super) {
       return latex + '{' + (child.latex() || ' ') + '}';
     });
   };
+  _.mqLatex = function() {
+    return this.foldChildren(this.ctrlSeq, function(latex, child) {
+      return latex + '{' + (child.mqLatex() || ' ') + '}';
+    });
+  };
   _.textTemplate = [''];
   _.text = function() {
     var i = 0;
@@ -417,6 +422,7 @@ var MathBlock = P(MathElement, function(_) {
       return fold + child[methodName]();
     });
   };
+  _.mqLatex = function() { return this.join('mqLatex'); };
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
     return this.firstChild === this.lastChild ?

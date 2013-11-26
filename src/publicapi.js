@@ -77,6 +77,10 @@ $.fn.mathquill = function(cmd, latex) {
     var blockId = $(this).attr(mqBlockId),
       block = blockId && MathElement[blockId];
     return block && block.latex();
+  case 'mqLatex':
+    var blockId = $(this).attr(mqBlockId),
+      block = blockId && MathElement[blockId];
+    return block && block.mqLatex();
   case 'text':
     var blockId = $(this).attr(mqBlockId),
       block = blockId && MathElement[blockId];

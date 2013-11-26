@@ -1067,6 +1067,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
     desmosCustomEvents(self.jQ, rootBlock, cursor);
   };
 
+  _.mqLatex = _super.latex;
   _.latex = function(){ return this.firstChild.latex(); };
   _.text = function(){ return this.firstChild.text(); };
 });
