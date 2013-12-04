@@ -358,9 +358,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       jQ.empty();
     }
 
-    this.cursor.parent = this;
-    this.cursor.prev = this.lastChild;
-    this.cursor.next = 0;
+    if (!this.blurred) this.cursor.appendTo(this);
   };
   _.renderSliderLatex = function(latex) {
     function makeCmd(ch) {
