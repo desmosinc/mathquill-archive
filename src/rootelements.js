@@ -638,8 +638,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   //  4) the equation was rendered
   //  5) etc
   _.triggerSpecialEvent = function(eventName) {
-    var jQ = this.jQ;
-    setTimeout(function(){ jQ.trigger(eventName); }, 1);
+    this.jQ.trigger(eventName);
   };
 });
 
