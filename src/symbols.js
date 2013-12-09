@@ -101,6 +101,7 @@ var UnItalicized = P(Symbol, function(_, _super) {
 //backslashless commands, words where adjacent letters (Variables)
 //that form them automatically are turned into commands
 var UnItalicizedCmds = {
+  mean: 1,
   ln: 1,
   log: 1,
   min: 1,
