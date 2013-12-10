@@ -19,24 +19,39 @@ var Cursor = P(function(_) {
     this.blink = function(){ jQ.toggleClass('mq-blink'); }
 
     this.upDownCache = {};
+
+    this.handle = $('<span class="mq-handle"></span>');
+    this.handleAnchor = $('<span class="mq-handle-anchor" ' +
+                                'style="display:none"></span>')
+                        .append(this.handle).insertAfter(root.jQ);
+    this.handleAnchor.top = this.handleAnchor.left = 0;
   };
 
   _.prev = 0;
   _.next = 0;
   _.parent = 0;
-  _.handle = 0;
   _.showHandle = function() {
-    if (!this.handle) {
-      this.handle = $('<span class="mq-handle"></span>').appendTo(this.jQ);
+    if (!this.handleAnchor.visible) {
+      this.handleAnchor.show();
+      this.repositionHandle(this.jQ[0].getBoundingClientRect());
+      this.handleAnchor.visible = true;
     }
     return this;
   };
   _.hideHandle = function() {
-    if (this.handle) {
-      this.handle.remove();
-      delete this.handle;
+    if (this.handleAnchor.visible) {
+      this.handleAnchor.hide();
+      delete this.handleAnchor.visible;
     }
     return this;
+  };
+  _.repositionHandle = function(cursorRect) {
+    var anchor = this.handleAnchor;
+    var anchorRect = anchor[0].getBoundingClientRect();
+    anchor.css({
+      top: anchor.top += cursorRect.bottom - anchorRect.bottom,
+      left: anchor.left += cursorRect.left - anchorRect.left
+    });
   };
   _.show = function(keepHandle) {
     if (!keepHandle) this.hideHandle();
@@ -58,6 +73,7 @@ var Cursor = P(function(_) {
     return this;
   };
   _.hide = function() {
+    this.hideHandle();
     if ('intervalId' in this)
       clearInterval(this.intervalId);
     delete this.intervalId;
@@ -199,6 +215,7 @@ var Cursor = P(function(_) {
               } else {
                 var coords = self.jQ[0].getBoundingClientRect();
                 var cachedClientRect = cachedClientRectFnForNewCache();
+                cachedClientRect.scrollLeft = 0; // only used in this event thread
                 prop.seek(self, coords.left, coords.bottom, prop, cachedClientRect);
               }
             }
@@ -224,7 +241,13 @@ var Cursor = P(function(_) {
     var node = nodeId ? MathElement[nodeId] : cursor.root;
     pray('nodeId is the id of some Node that exists', node);
 
-    node.seek(cursor, clientX, clientY, cursor.root, clientRect);
+    var dx = clientRect.scrollLeft = this.root.jQ.scrollLeft();
+    node.seek(cursor, clientX + dx, clientY, cursor.root, clientRect);
+    delete clientRect.scrollLeft; // be defensive: was only valid in this event
+                                  // thread, unlike the cache of clientRect's
+
+    this.root.scrollHoriz(); // before .selectFrom when mouse-selecting, so
+      // always hits no-selection case in scrollHoriz and scrolls slower
 
     return cursor;
   };

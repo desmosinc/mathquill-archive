@@ -82,7 +82,7 @@ $.fn.mathquill = function(cmd, latex) {
       block = blockId && MathElement[blockId];
     return block && block.text();
   case 'html':
-    return this.children(':last').html().replace(/ ?mq-hasCursor|mq-hasCursor /, '')
+    return this.children('.mathquill-root-block').html().replace(/ ?mq-hasCursor|mq-hasCursor /, '')
       .replace(/ class=(""|(?= |>))/g, '')
       .replace(/<span class="?mq-cursor( mq-blink)?"?>.?<\/span>/i, '');
   case 'write':
@@ -188,16 +188,30 @@ $.fn.mathquill = function(cmd, latex) {
       editable = textbox || cmd === 'editable',
       RootBlock = textbox ? RootTextBlock : RootMathBlock;
     return this.each(function() {
-      createRoot($(this), RootBlock(), textbox, editable);
+      var container = $(this), root = RootBlock();
+      createRoot(container, root, textbox, editable);
+      var cursor = root.cursor;
+      var textarea = setupTextarea(editable, container, root, cursor);
+      var textareaSpan = root.textarea;
+      root.editable = editable;
+      mouseEvents(container);
+      setupTouchHandle(editable, root, cursor);
+      if (!editable) return;
+      rootCSSClasses(container, textbox);
+      focusBlurEvents(root, cursor, textarea);
+      desmosCustomEvents(container, root, cursor);
     });
   }
 };
 
+//NOTE desmos doesn't want auto-render functionality because we want to avoid
+//interfering with clients' mathquill in our api
+//
 //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
 //elements according to their CSS class.
-$(function() {
-  $('.mathquill-editable:not(.mathquill-rendered-math)').mathquill('editable');
-  $('.mathquill-textbox:not(.mathquill-rendered-math)').mathquill('textbox');
-  $('.mathquill-embedded-latex').mathquill();
-});
+// $(function() {
+//   $('.mathquill-editable:not(.mathquill-rendered-math)').mathquill('editable');
+//   $('.mathquill-textbox:not(.mathquill-rendered-math)').mathquill('textbox');
+//   $('.mathquill-embedded-latex:not(.mathquill-rendered-math)').mathquill();
+// });
 

@@ -16,10 +16,12 @@ function createRoot(container, root, textbox, editable) {
       .append(contents);
   };
 
-  var cursor = root.cursor = Cursor(root);
+  root.cursor = Cursor(root);
 
   root.renderLatex(contents.text());
+}
 
+function setupTextarea(editable, container, root, cursor) {
   var is_ios = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) !== null;
   var is_android = navigator.userAgent.match(/(Android|Silk|Kindle)/i) !== null;
   
@@ -31,7 +33,7 @@ function createRoot(container, root, textbox, editable) {
   /******
    * TODO [Han]: Document this
    */
-  var textareaSelectionTimeout, prevLatex;
+  var textareaSelectionTimeout;
   root.selectionChanged = function() {
     if (textareaSelectionTimeout === undefined) {
       textareaSelectionTimeout = setTimeout(setTextareaSelection);
@@ -41,9 +43,7 @@ function createRoot(container, root, textbox, editable) {
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
     var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
-    if (latex === prevLatex) return;
     textareaManager.select(latex);
-    prevLatex = latex;
     root.triggerSpecialEvent('selectionChanged');
   }
 
@@ -53,10 +53,23 @@ function createRoot(container, root, textbox, editable) {
     e.stopPropagation();
   });
 
+  var textareaManager = hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection);
+
+  return textarea;
+}
+
+function mouseEvents(ultimateRootjQ) {
   //drag-to-select event handling
-  var anticursor, blink = cursor.blink;
-  container.bind('mousedown.mathquill', function(e) {
+  ultimateRootjQ.bind('mousedown.mathquill', function(e) {
     e.preventDefault();
+
+    var container = $(e.target);
+    if (!container.hasClass('mathquill-editable')) {
+      container = container.closest('.mathquill-root-block').parent();
+    }
+    var root = MathElement[container.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
+    var cursor = root.cursor, blink = cursor.blink;
+    var textareaSpan = root.textarea, textarea = textareaSpan.children();
 
     if (root.ignoreMousedownTimeout !== undefined) {
       clearTimeout(root.ignoreMousedownTimeout);
@@ -93,7 +106,7 @@ function createRoot(container, root, textbox, editable) {
       anticursor = undefined;
       cursor.blink = blink;
       if (!cursor.selection) {
-        if (editable) {
+        if (root.editable) {
           cursor.show();
         }
         else {
@@ -106,23 +119,21 @@ function createRoot(container, root, textbox, editable) {
       $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
-    setTimeout(function() { if (root.blurred) textarea.focus(); });
-      // preventDefault won't prevent focus on mousedown in IE<9
-      // that means immediately after this mousedown, whatever was
-      // mousedown-ed will receive focus
-      // http://bugs.jquery.com/ticket/10345
-
     cursor.blink = noop;
     cursor.hideHandle().seek($(e.target), e.clientX, e.clientY, cachedClientRect);
 
-    anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
+    var anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
-    if (!editable) container.prepend(textareaSpan);
+    if (!root.editable && root.blurred) container.prepend(textareaSpan);
+    textarea.focus();
+    root.blurred = false;
 
     container.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
   });
+}
 
+function setupTouchHandle(editable, root, cursor) {
   // event handling for touch-draggable handle
   /**
    * Usage:
@@ -155,51 +166,67 @@ function createRoot(container, root, textbox, editable) {
       });
     };
   }
-  cursor.jQ.delegate('.mq-handle', 'touchstart', firstFingerOnly(function(e) {
+  cursor.handle.on('touchstart', firstFingerOnly(function(e) {
     cursor.blink = noop;
     var cursorRect = cursor.jQ[0].getBoundingClientRect();
     var offsetX = e.clientX - cursorRect.left;
     var offsetY = e.clientY - (cursorRect.top + cursorRect.bottom)/2;
     var cachedClientRect = cachedClientRectFnForNewCache();
+    var onAnimationEnd;
+    root.onAnimationEnd = function() { onAnimationEnd(); };
     return {
       touchmove: function(e) {
         var adjustedX = e.clientX - offsetX, adjustedY = e.clientY - offsetY;
         cursor.seek(elAtPt(adjustedX, adjustedY, root), adjustedX, adjustedY, cachedClientRect, true);
+        visualHapticFeedback();
+        onAnimationEnd = visualHapticFeedback;
 
-        // visual "haptic" feedback
-        var cursorRect = cursor.jQ[0].getBoundingClientRect();
-        var dx = adjustedX - cursorRect.left;
-        var dy = adjustedY - (cursorRect.top + cursorRect.bottom)/2;
-        var dist = Math.sqrt(dx*dx + dy*dy);
-        var weight = (Math.log(dist)+1)/dist;
-        var skewX = Math.atan2(weight*dx, offsetY);
-        var scaleY = (weight*dy + offsetY)/offsetY;
-        var steeperScale = 2*(scaleY - 1) + 1;
-        cursor.handle.css({
-          WebkitTransform: 'translateX(.5px) skewX('+skewX+'rad) scaleY('+scaleY+')',
-          opacity: 1 - steeperScale*.5
-        });
+        function visualHapticFeedback() {
+          var cursorRect = cursor.jQ[0].getBoundingClientRect();
+          cursor.repositionHandle(cursorRect);
+
+          var dx = adjustedX - cursorRect.left;
+          var dy = adjustedY - (cursorRect.top + cursorRect.bottom)/2;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          var weight = (Math.log(dist)+1)/dist;
+          var skewX = Math.atan2(weight*dx, offsetY);
+          var scaleY = (weight*dy + offsetY)/offsetY;
+          var steeperScale = 2*(scaleY - 1) + 1;
+          cursor.handle.css({
+            WebkitTransform: 'translateX(.5px) skewX('+skewX+'rad) scaleY('+scaleY+')',
+            opacity: 1 - steeperScale*.5
+          });
+        }
       },
       touchend: function(e) {
         cursor.handle.css({ WebkitTransform: '', opacity: '' });
         cursor.blink = blink;
         cursor.show(true);
+        onAnimationEnd = function() {
+          cursor.repositionHandle(cursor.jQ[0].getBoundingClientRect());
+          cursor.handle.css({ WebkitTransform: '', opacity: '' });
+          delete root.onAnimationEnd;
+        };
       }
     };
   }));
+}
 
+function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection) {
   if (!editable) {
+    root.blurred = true;
     var textareaManager = manageTextarea(textarea, { container: container });
-    container.bind('cut paste', false).bind('copy', setTextareaSelection)
+    container.bind('copy', setTextareaSelection)
       .prepend('<span class="mq-selectable">$'+root.latex()+'$</span>');
-    textarea.blur(function() {
+    textarea.bind('cut paste', false).blur(function() {
       cursor.clearSelection();
       setTimeout(detach); //detaching during blur explodes in WebKit
     });
     function detach() {
       textareaSpan.detach();
+      root.blurred = true;
     }
-    return;
+    return textareaManager;
   }
 
   var textareaManager = manageTextarea(textarea, {
@@ -236,13 +263,16 @@ function createRoot(container, root, textbox, editable) {
   });
 
   container.prepend(textareaSpan);
+  return textareaManager;
+}
 
-  //root CSS classes
+function rootCSSClasses(container, textbox) {
   container.addClass('mathquill-editable');
   if (textbox)
     container.addClass('mathquill-textbox');
+}
 
-  //focus and blur handling
+function focusBlurEvents(root, cursor, textarea) {
   textarea.focus(function(e) {
     root.blurred = false;
     if (!cursor.parent)
@@ -260,7 +290,9 @@ function createRoot(container, root, textbox, editable) {
     if (cursor.selection)
       cursor.selection.jQ.addClass('mq-blur');
   }).blur();
+}
 
+function desmosCustomEvents(container, root, cursor) {
   container.bind('select_all', function(e) {
     cursor.prepareMove().appendTo(root);
     while (cursor.prev) cursor.selectLeft();
@@ -282,7 +314,13 @@ function elAtPt(clientX, clientY, root) {
 function cachedClientRectFnForNewCache() {
   var cache = {};
   function elById(el, id) {
-    return cache[id] || (cache[id] = el.getBoundingClientRect());
+    if (!cache[id]) {
+      pray('only called within Cursor::seek', 'scrollLeft' in cachedClientRect);
+      var rect = el.getBoundingClientRect(), dx = cachedClientRect.scrollLeft;
+      cache[id] = { top: rect.top, right: rect.right + dx,
+                    bottom: rect.bottom, left: rect.left + dx };
+    }
+    return cache[id];
   };
   function cachedClientRect(node) { return elById(node.jQ[0], node.id); };
   cachedClientRect.elById = elById;
@@ -547,15 +585,50 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       break;
 
     default:
+      this.scrollHoriz();
       return false;
     }
     e.preventDefault();
+    this.scrollHoriz();
     return false;
   };
   _.onText = function(ch) {
     this.cursor.write(ch);
     this.triggerSpecialEvent('render');
+    this.scrollHoriz();
     return false;
+  };
+  _.scrollHoriz = function() {
+    var cursor = this.cursor, seln = cursor.selection;
+    var rootRect = this.jQ[0].getBoundingClientRect();
+    if (!seln) {
+      var x = cursor.jQ[0].getBoundingClientRect().left;
+      if (x > rootRect.right - 20) var scrollBy = x - (rootRect.right - 20);
+      else if (x < rootRect.left + 20) var scrollBy = x - (rootRect.left + 20);
+      else return;
+    }
+    else {
+      var rect = seln.jQ[0].getBoundingClientRect();
+      var overLeft = rect.left - (rootRect.left + 20);
+      var overRight = rect.right - (rootRect.right - 20);
+      if (seln.first === cursor.next) {
+        if (overLeft < 0) var scrollBy = overLeft;
+        else if (overRight > 0) {
+          if (rect.left - overRight < rootRect.left + 20) var scrollBy = overLeft;
+          else var scrollBy = overRight;
+        }
+        else return;
+      }
+      else {
+        if (overRight > 0) var scrollBy = overRight;
+        else if (overLeft < 0) {
+          if (rect.right - overLeft > rootRect.right - 20) var scrollBy = overRight;
+          else var scrollBy = overLeft;
+        }
+        else return;
+      }
+    }
+    this.jQ.stop().animate({ scrollLeft: '+=' + scrollBy }, 100, this.onAnimationEnd);
   };
 
   //triggers a special event occured:
@@ -665,4 +738,5 @@ var RootTextBlock = P(MathBlock, function(_) {
 
     return false;
   };
+  _.scrollHoriz = RootMathBlock.prototype.scrollHoriz;
 });

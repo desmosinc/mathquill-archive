@@ -1,5 +1,21 @@
 .mathquill-editable {
   .inline-block;
+  .mathquill-root-block {
+    .inline-block;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    // this is to make sure that characters like "y" aren't cut off
+    padding-left: 5px;
+    margin-left: -5px;
+
+    vertical-align: middle;
+    &:after {
+      content: '';
+      display: inline-block;
+      width: 1px;
+    }
+  }
 
   .mq-cursor {
     margin-right: -1px;
@@ -10,6 +26,11 @@
 
     .mq-line { border-left: 1px solid black; }
     &.mq-blink .mq-line { visibility: hidden; }
+  }
+
+  .mq-handle-anchor {
+    .inline-block;
+    position: relative;
 
     .mq-handle {
       display: inline-block;
@@ -37,6 +58,7 @@
         border-right: 10px solid transparent;
         border-bottom: 10px solid black;
         top: -10px;
+        left: 0;
         // cover occasional subpixel (floating-point rounding error?) gap
         -webkit-transform: translateY(.2px); // between tip and body
       }
@@ -52,8 +74,10 @@
   }
 
   // special styles for editables within static math
-  .mathquill-embedded-latex & {
+  .mathquill-rendered-math & {
     margin: 1px;
+    border: 1px solid gray;
+    padding: 2px;
   }
 
   ////
@@ -80,7 +104,7 @@
 // Keeps blocks from collapsing to zero width/height
 // when empty by inserting invisible text.
 // TODO: find a way to unify the three concepts below.
-.mathquill-editable.mq-empty:after,
+.mathquill-root-block.mq-empty:after,
 .mathquill-textbox:after,
 .mathquill-rendered-math .mq-empty:after {
   content: '';
