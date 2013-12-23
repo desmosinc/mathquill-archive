@@ -364,25 +364,19 @@ var MathCommand = P(MathElement, function(_, _super) {
   _.dom = function () {
     var cmd = this;
     
-    if (cmd.DOMTemplate) {
-      var blocks = cmd.blocks;
-      var dom = cmd.DOMTemplate(blocks);
-      if (dom instanceof DocumentFragment) {
-        var child = dom.firstChild;
-        while (child) {
-          child.setAttribute('mathquill-command-id', cmd.id);
-          child = child.nextSibling;
-        }
-      } else {
-        dom.setAttribute('mathquill-command-id', cmd.id);
+    var blocks = cmd.blocks;
+    var dom = cmd.DOMTemplate(blocks);
+    if (dom instanceof DocumentFragment) {
+      var child = dom.firstChild;
+      while (child) {
+        child.setAttribute('mathquill-command-id', cmd.id);
+        child = child.nextSibling;
       }
-      return dom;
     } else {
-      var frag = document.createDocumentFragment();
-      $(cmd.html()).each(function () {frag.appendChild(this);});
-      return frag;
+      dom.setAttribute('mathquill-command-id', cmd.id);
     }
-  }
+    return dom;
+  };
 
   // methods to export a string representation of the math tree
   _.latex = function() {

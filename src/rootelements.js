@@ -647,6 +647,12 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
     this.cursor = cursor;
   };
   _.htmlTemplate = '<span class="mathquill-rendered-math">&0</span>';
+  _.DOMTemplate = function (blocks) {
+    return crel('span', {
+      class: 'mathquill-rendered-math',
+      'mathquill-block-id': blocks[0].id
+    }, blocks[0].joinDOM());
+  }
   _.createBlocks = function() {
     this.firstChild =
     this.lastChild =
