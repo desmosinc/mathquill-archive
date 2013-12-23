@@ -159,13 +159,22 @@ var MathElement = P(Node, function(_) {
  * Descendant commands are organized into blocks.
  */
 var MathCommand = P(MathElement, function(_, _super) {
-  _.init = function(ctrlSeq, htmlTemplate, textTemplate) {
+  _.init = function(ctrlSeq, htmlTemplate, textTemplate, DOMTemplate) {
     var cmd = this;
     _super.init.call(cmd);
+
+    var settings;
+    if (typeof htmlTemplate === 'object') {
+      settings = htmlTemplate;
+      htmlTemplate = settings.htmlTemplate;
+      textTemplate = settings.textTemplate;
+      DOMTemplate = settings.DOMTemplate;
+    }
 
     if (!cmd.ctrlSeq) cmd.ctrlSeq = ctrlSeq;
     if (htmlTemplate) cmd.htmlTemplate = htmlTemplate;
     if (textTemplate) cmd.textTemplate = textTemplate;
+    if (DOMTemplate) cmd.DOMTemplate = DOMTemplate;
   };
 
   // obvious methods
@@ -200,7 +209,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
-    MathElement.jQize(cmd.html());
+    MathElement.jQize(cmd.dom());
     if (replacedFragment) {
       replacedFragment.adopt(cmd.firstChild, 0, 0);
       replacedFragment.jQ.appendTo(cmd.firstChild.jQ);
@@ -352,6 +361,29 @@ var MathCommand = P(MathElement, function(_, _super) {
     });
   };
 
+  _.dom = function () {
+    var cmd = this;
+    
+    if (cmd.DOMTemplate) {
+      var blocks = cmd.blocks;
+      var dom = cmd.DOMTemplate(blocks);
+      if (dom instanceof DocumentFragment) {
+        var child = dom.firstChild;
+        while (child) {
+          child.setAttribute('mathquill-command-id', cmd.id);
+          child = child.nextSibling;
+        }
+      } else {
+        dom.setAttribute('mathquill-command-id', cmd.id);
+      }
+      return dom;
+    } else {
+      var frag = document.createDocumentFragment();
+      $(cmd.html()).each(function () {frag.appendChild(this);});
+      return frag;
+    }
+  }
+
   // methods to export a string representation of the math tree
   _.latex = function() {
     return this.foldChildren(this.ctrlSeq, function(latex, child) {
@@ -377,7 +409,7 @@ var MathCommand = P(MathElement, function(_, _super) {
  */
 var Symbol = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, html, text) {
-    if (!text) text = ctrlSeq && ctrlSeq.length > 1 ? ctrlSeq.slice(1) : ctrlSeq;
+    if (!text && !html.textTemplate) text = ctrlSeq && ctrlSeq.length > 1 ? ctrlSeq.slice(1) : ctrlSeq;
 
     _super.init.call(this, ctrlSeq, html, [ text ]);
   };
@@ -417,6 +449,15 @@ var MathBlock = P(MathElement, function(_) {
       return fold + child[methodName]();
     });
   };
+
+  _.joinDOM = function () {
+    var frag = [];
+    this.eachChild(function (child) {
+      frag.push(child.dom());
+    });
+    return frag;
+  }
+
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
     return this.firstChild === this.lastChild ?

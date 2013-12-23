@@ -349,8 +349,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var jQ = this.jQ;
 
     if (block) {
-      var html = block.join('html');
-      jQ.html(html);
+      jQ.empty().append(block.joinDOM());
       MathElement.jQize(jQ);
       this.focus().finalizeInsert();
     }
@@ -415,8 +414,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     var jQ = this.jQ;
 
-    var html = this.join('html');
-    jQ.html(html);
+    jQ.empty().append(this.joinDOM());
     MathElement.jQize(jQ);
     //this.finalizeInsert();
 
@@ -722,8 +720,7 @@ var RootTextBlock = P(MathBlock, function(_) {
         commands[i].adopt(self, self.lastChild, 0);
       }
 
-      var html = self.join('html');
-      MathElement.jQize(html).appendTo(self.jQ);
+      MathElement.jQize(this.joinDOM()).appendTo(self.jQ);
 
       this.finalizeInsert();
     }

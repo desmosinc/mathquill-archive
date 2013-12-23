@@ -275,8 +275,7 @@ var Cursor = P(function(_) {
 
     if (block && !block.isEmpty()) {
       block.children().adopt(self.parent, self.prev, self.next);
-      var html = block.join('html');
-      var jQ = MathElement.jQize(html);
+      var jQ = MathElement.jQize(block.joinDOM());
       jQ.insertBefore(self.jQ);
       self.prev = block.lastChild;
       block.finalizeInsert();

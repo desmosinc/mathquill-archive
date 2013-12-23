@@ -4,8 +4,14 @@
 
 var Variable = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<var>'+(html || ch)+'</var>');
-  }
+    _super.init.call(this, ch, {
+      htmlTemplate: '<var>'+(html || ch)+'</var>',
+      textTemplate: ch,
+      DOMTemplate: function () {
+        return crel('var', html || ch);
+      }
+    });
+  };
   _.createBefore = function(cursor) {
     //want the longest possible autocommand, so assemble longest series of letters (Variables) first
     var ctrlSeq = this.ctrlSeq;
@@ -150,7 +156,13 @@ var UnItalicizedCmds = {
 
 var VanillaSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<span>'+(html || ch)+'</span>');
+    _super.init.call(this, ch, {
+      htmlTemplate: '<span>'+(html || ch)+'</span>',
+      textTemplate: ch,
+      DOMTemplate: function () {
+        return crel('span', html || ch);
+      }
+    });
   };
 });
 
@@ -161,7 +173,13 @@ LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<span class="mq-nonSymbola">'+(html || ch)+'</span>');
+    _super.init.call(this, ch, {
+      htmlTemplate: '<span class="mq-nonSymbola">'+(html || ch)+'</span>',
+      textTemplate: ch,
+      DOMTemplate: function () {
+        return crel('span', {class: 'mq-nonSymbola'}, html || ch);
+      }
+    });
   };
 });
 
@@ -243,7 +261,7 @@ LatexCmds.varrho = //AMS and LaTeX
   bind(Variable,'\\varrho ','&#1009;');
 
 //Greek constants, look best in un-italicised Times New Roman
-LatexCmds.pi = LatexCmds['\u03C0'] = bind(NonSymbolaSymbol,'\\pi ','&pi;');
+LatexCmds.pi = LatexCmds['\u03C0'] = bind(NonSymbolaSymbol,'\\pi ', '\u03C0');
 LatexCmds.theta = LatexCmds['\u03B8'] = bind(NonSymbolaSymbol,'\\theta ','&theta;');
 LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','&lambda;');
 
@@ -320,7 +338,13 @@ LatexCmds['\u2154'] = bind(LatexFragment, '\\frac23');
 var BinaryOperator = P(Symbol, function(_, _super) {
   _.init = function(ctrlSeq, html, text) {
     _super.init.call(this,
-      ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text
+      ctrlSeq, {
+        htmlTemplate: '<span class="mq-binary-operator">'+html+'</span>',
+        textTemplate: text,
+        DOMTemplate: function () {
+          return crel('span', {class: 'mq-binary-operator'}, html);
+        }
+      }
     );
   };
   _.createBefore = function(cursor) {
@@ -356,7 +380,7 @@ var PlusMinus = P(BinaryOperator, function(_) {
 
 LatexCmds['+'] = bind(PlusMinus, '+', '+');
 //yes, these are different dashes, I think one is an en dash and the other is a hyphen
-LatexCmds['\u2013'] = LatexCmds['\u2212'] = LatexCmds['-'] = bind(PlusMinus, '-', '&minus;');
+LatexCmds['\u2013'] = LatexCmds['\u2212'] = LatexCmds['-'] = bind(PlusMinus, '-', '\u2212');
 LatexCmds['\u00B1'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
   bind(PlusMinus,'\\pm ','&plusmn;');
 LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
@@ -367,8 +391,8 @@ CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
 //semantically should be &sdot;, but &middot; looks better
 
 LatexCmds['='] = bind(BinaryOperator, '=', '=');
-LatexCmds['<'] = bind(BinaryOperator, '<', '&lt;');
-LatexCmds['>'] = bind(BinaryOperator, '>', '&gt;');
+LatexCmds['<'] = bind(BinaryOperator, '<', '\u003C');
+LatexCmds['>'] = bind(BinaryOperator, '>', '\u003E');
 
 LatexCmds.notin =
 LatexCmds.sim =
@@ -401,13 +425,13 @@ LatexCmds.prop = LatexCmds.propto = bind(BinaryOperator,'\\propto ','&prop;');
 
 LatexCmds['\u2248'] = LatexCmds.asymp = LatexCmds.approx = bind(BinaryOperator,'\\approx ','&asymp;');
 
-LatexCmds.lt = bind(BinaryOperator,'<','&lt;');
+LatexCmds.lt = bind(BinaryOperator,'<','\u003C');
 
-LatexCmds.gt = bind(BinaryOperator,'>','&gt;');
+LatexCmds.gt = bind(BinaryOperator,'>','\u003E');
 
-LatexCmds['\u2264'] = LatexCmds.le = LatexCmds.leq = bind(BinaryOperator,'\\le ','&le;');
+LatexCmds['\u2264'] = LatexCmds.le = LatexCmds.leq = bind(BinaryOperator,'\\le ','\u2264');
 
-LatexCmds['\u2265'] = LatexCmds.ge = LatexCmds.geq = bind(BinaryOperator,'\\ge ','&ge;');
+LatexCmds['\u2265'] = LatexCmds.ge = LatexCmds.geq = bind(BinaryOperator,'\\ge ','\u2265');
 
 LatexCmds.isin = LatexCmds['in'] = bind(BinaryOperator,'\\in ','&isin;');
 
@@ -557,7 +581,7 @@ LatexCmds.nwarrow = bind(VanillaSymbol, '\\nwarrow ', '&#8598;');
 
 //Misc
 */
-LatexCmds.space = bind(VanillaSymbol, '\\space ', '&nbsp;');
+LatexCmds.space = bind(VanillaSymbol, '\\space ', '\u00A0');
 /*
 LatexCmds.ldots = bind(VanillaSymbol, '\\ldots ', '&#8230;');
 LatexCmds.cdots = bind(VanillaSymbol, '\\cdots ', '&#8943;');

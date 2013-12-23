@@ -84,7 +84,18 @@ LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="m
 
 var SupSub = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tag, text) {
-    _super.init.call(this, ctrlSeq, '<'+tag+' class="mq-non-leaf"><span class="mq-non-leaf mq-'+tag+'">&0</span></'+tag+'>', [ text ]);
+    _super.init.call(this, ctrlSeq, {
+      htmlTemplate: '<'+tag+' class="mq-non-leaf"><span class="mq-non-leaf mq-'+tag+'">&0</span></'+tag+'>',
+      textTemplate: [ text ],
+      DOMTemplate: function (blocks) {
+        return crel(tag, {class: 'mq-non-leaf'},
+          crel('span', {
+            class: 'mq-non-leaf mq-'+tag,
+            'mathquill-block-id': blocks[0].id
+          }, blocks[0].joinDOM())
+        );
+      }
+    });
   };
   _.finalizeTree = function() {
     //TODO: use inheritance
@@ -270,14 +281,24 @@ LatexCmds['^'] = bind(SupSub, '^', 'sup', '**');
 
 var BigSymbol = P(MathCommand, function(_, _super) {
   _.init = function(ch, html) {
-    var htmlTemplate =
-        '<span class="mq-large-operator mq-non-leaf">'
-      +   '<span class="mq-to"><span>&1</span></span>'
-      +   '<big>'+html+'</big>'
-      +   '<span class="mq-from"><span>&0</span></span>'
-      + '</span>'
-    ;
-    Symbol.prototype.init.call(this, ch, htmlTemplate);
+    Symbol.prototype.init.call(this, ch, {
+      htmlTemplate: '<span class="mq-large-operator mq-non-leaf">'
+        +   '<span class="mq-to"><span>&1</span></span>'
+        +   '<big>'+html+'</big>'
+        +   '<span class="mq-from"><span>&0</span></span>'
+        + '</span>',
+      DOMTemplate: function (blocks) {
+        return crel('span', {class: 'mq-large-operator mq-non-leaf'},
+          crel('span', {class: 'mq-to'},
+            crel('span', {'mathquill-block-id': blocks[1].id}, blocks[1].joinDOM())
+          ),
+          crel('big', html),
+          crel('span', {class: 'mq-from'},
+            crel('span', {'mathquill-block-id': blocks[0].id}, blocks[0].joinDOM())
+          )
+        );
+      }
+    });
   };
   _.placeCursor = function(cursor) {
     cursor.appendTo(this.firstChild).writeLatex('n=').show();
@@ -346,6 +367,13 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
     +   '<span style="display:inline-block;width:0;overflow:hidden">&nbsp;</span>'
     + '</span>'
   ;
+  _.DOMTemplate = function (blocks) {
+    return crel('span', {class: 'mq-fraction mq-non-leaf'},
+      crel('span', {class: 'mq-numerator', 'mathquill-block-id': blocks[0].id}, blocks[0].joinDOM()),
+      crel('span', {class: 'mq-denominator', 'mathquill-block-id': blocks[1].id}, blocks[1].joinDOM()),
+      crel('span', {style: 'display:inline-block;width:0;overflow:hidden'}, '\u00A0')
+    );
+  };
   _.textTemplate = ['(', '/', ')'];
   _.finalizeTree = function() {
     this.up = this.lastChild.up = this.firstChild;
@@ -407,6 +435,15 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
     +   '<span class="mq-non-leaf mq-sqrt-stem">&0</span>'
     + '</span>'
   ;
+  _.DOMTemplate = function (blocks) {
+    return crel('span', {class: 'mq-non-leaf'},
+      crel('span', {class: 'mq-scaled mq-sqrt-prefix'}, '\u221A'),
+      crel('span', {
+        class: 'mq-non-leaf mq-sqrt-stem',
+        'mathquill-block-id': blocks[0].id
+      }, blocks[0].joinDOM())
+    );
+  };
   _.textTemplate = ['sqrt(', ')'];
   _.parser = function() {
     return latexMathParser.optBlock.then(function(optBlock) {
@@ -435,6 +472,21 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
     +   '<span class="mq-sqrt-stem mq-non-leaf">&1</span>'
     + '</span>'
   ;
+  _.DOMTemplate = function (blocks) {
+    var frag = document.createDocumentFragment();
+    frag.appendChild(crel('span', {
+      class: 'mq-nthroot mq-non-leaf',
+      'mathquill-block-id': blocks[0].id
+    }, blocks[0].joinDOM()))
+    frag.appendChild(crel('span', {class: 'mq-scaled'},
+      crel('span', {class: 'mq-sqrt-prefix mq-scaled'}, '\u221A'),
+      crel('span', {
+        class: 'mq-sqrt-stem mq-non-leaf',
+        'mathquill-block-id': blocks[1].id
+      }, blocks[1].joinDOM())
+    ));
+    return frag;
+  }
   _.textTemplate = ['sqrt[', '](', ')'];
   _.latex = function() {
     return '\\sqrt['+this.firstChild.latex()+']{'+this.lastChild.latex()+'}';
@@ -473,13 +525,24 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 var Bracket = P(MathCommand, function(_, _super) {
   _.init = function(open, close, ctrlSeq, end) {
-    _super.init.call(this, '\\left'+ctrlSeq,
-        '<span class="mq-non-leaf">'
+    _super.init.call(this, '\\left'+ctrlSeq, {
+      htmlTemplate: '<span class="mq-non-leaf">'
       +   '<span class="mq-scaled mq-paren">'+open+'</span>'
       +   '<span class="mq-non-leaf">&0</span>'
       +   '<span class="mq-scaled mq-paren">'+close+'</span>'
       + '</span>',
-      [open, close]);
+      textTemplate: [open, close],
+      DOMTemplate: function (blocks) {
+        return crel('span', {class: 'mq-non-leaf'},
+          crel('span', {class: 'mq-scaled mq-paren'}, open),
+          crel('span', {
+            class: 'mq-non-leaf',
+            'mathquill-block-id': blocks[0].id
+          }, blocks[0].joinDOM()),
+          crel('span', {class: 'mq-scaled mq-paren'}, close)
+        );
+      }
+    });
     this.end = '\\right'+end;
   };
   _.jQadd = function() {
