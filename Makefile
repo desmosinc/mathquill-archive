@@ -9,6 +9,7 @@ OUTRO = $(SRC_DIR)/outro.js
 
 SOURCES = \
   ./node_modules/pjs/src/p.js \
+  $(SRC_DIR)/crel.js \
   $(SRC_DIR)/textarea.js \
   $(SRC_DIR)/parser.js \
   $(SRC_DIR)/tree.js \
