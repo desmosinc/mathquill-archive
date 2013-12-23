@@ -33,11 +33,13 @@
 
     insertMeasured = function () {
       var t = now();
-      for (var i = 0; i < 100; i++) {
-        var span = document.createElement('span');
-        container.appendChild(span);
-        $(span).mathquill('editable').mathquill('latex', '\\left(\\sqrt{\\frac{1}{x^2}}\\right)');
-      }
+      $.fn.mathquill.batchRedraw(function () {
+        for (var i = 0; i < 100; i++) {
+          var span = document.createElement('span');
+          container.appendChild(span);
+          $(span).mathquill('editable').mathquill('latex', '\\left(\\sqrt{\\frac{1}{x^2}}\\right)');
+        }
+      });
       document.getElementById('result2').firstChild.textContent += (now() - t + 'ms');
     }
 

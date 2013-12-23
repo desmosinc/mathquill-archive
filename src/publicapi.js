@@ -204,6 +204,8 @@ $.fn.mathquill = function(cmd, latex) {
   }
 };
 
+$.fn.mathquill.batchRedraw = batchRedraw;
+
 //NOTE desmos doesn't want auto-render functionality because we want to avoid
 //interfering with clients' mathquill in our api
 //

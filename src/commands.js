@@ -66,6 +66,44 @@ else {
   };
 }
 
+// `batchRedraw` is a performance optimization for the case of inserting many mathquills into the
+// DOM at once. It executes the passed function, fn, deferring all DOM measurements until after the
+// function has finished executing, and deferring all scaling until after the measurements are
+// finished. This keeps the browser from having to perform a style recalculation and page layout
+// for every call to scale.
+//
+// This procedure relies on calls to `scale` being wrapped in `batchCall`. The argument to batchCall
+// is a function that performs a DOM measurement, and returns a function that will use that DOM
+// measurement to do a rescaling. The nested function structure is necessary because calls to `scale`
+// invalidate the layout (in Chrome anyway, as of Dec. 2013), so it's necessary to do all measuring
+// in a first pass, and all scaling in a second pass. Note, this is only correct so long as calls to
+// `scale` on an inner node don't affect the offsetHeight of an outer node.
+//
+// batchRedraw is exported as part of the public api. Usage is as follows:
+//
+// `$.fn.mathquill.batchRedraw(function () { /* insert a bunch of mathquills into the DOM */ });
+var batchRedrawing = false;
+var redrawQueue = [];
+var batchRedraw = function (fn) {
+  if (batchRedrawing) {fn(); return;}
+
+  batchRedrawing = true;
+  fn();
+  for (var i = 0; i < redrawQueue.length; i++) redrawQueue[i] = redrawQueue[i]();
+  for (var i = 0; i < redrawQueue.length; i++) redrawQueue[i]();
+  batchRedrawing = false;
+  redrawQueue = [];
+};
+
+var batchCall = function (fn) {
+  if (batchRedrawing) {
+    redrawQueue.push(fn);
+  } else {
+    fn()();
+  }
+};
+
+
 var Style = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tagName, attrs) {
     _super.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
@@ -458,7 +496,11 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
   };
   _.redraw = function() {
     var block = this.lastChild.jQ;
-    scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
+
+    batchCall(function () {
+      var height = block.innerHeight()/+block.css('fontSize').slice(0,-2);
+      return function () {scale(block.prev(), 1, height - .1);};
+    });
   };
 });
 
@@ -566,10 +608,12 @@ var Bracket = P(MathCommand, function(_, _super) {
   };
   _.redraw = function() {
     var blockjQ = this.firstChild.jQ;
+    var bracketjQs = this.bracketjQs;
 
-    var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
-
-    scale(this.bracketjQs, min(1 + .2*(height - 1), 1.2), 1.05*height);
+    batchCall(function () {
+      var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
+      return function () {scale(bracketjQs, min(1 + .2*(height - 1), 1.2), 1.05*height);};
+    });
   };
 });
 
@@ -984,10 +1028,12 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
   _.redraw = function() {
     var blockjQ = this.jQ.eq(1);
 
-    var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
-
     var parens = this.jQ.filter('.mq-paren');
-    scale(parens, min(1 + .2*(height - 1), 1.2), 1.05*height);
+
+    batchCall(function () {
+      var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
+      return function () {scale(parens, min(1 + .2*(height - 1), 1.2), 1.05*height);};
+    });
   };
   // vertical-align: middle, so
   _.expectedCursorYNextTo = Symbol.prototype.expectedCursorYNextTo;
