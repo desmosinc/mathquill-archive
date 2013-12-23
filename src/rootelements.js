@@ -289,7 +289,7 @@ function focusBlurEvents(root, cursor, textarea) {
     cursor.hide().parent.blur();
     if (cursor.selection)
       cursor.selection.jQ.addClass('mq-blur');
-  }).blur();
+  })[0].blur();
 }
 
 function desmosCustomEvents(container, root, cursor) {
