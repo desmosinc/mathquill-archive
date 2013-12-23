@@ -351,8 +351,8 @@ var BigSymbol = P(MathCommand, function(_, _super) {
     return false;
   }
 });
-LatexCmds['\u2211'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
-LatexCmds['\u220F'] = LatexCmds.prod = LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
+LatexCmds['\u2211'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','\u2211');
+LatexCmds['\u220F'] = LatexCmds.prod = LatexCmds.product = bind(BigSymbol,'\\prod ','\u220F');
 
 var Fraction =
 LatexCmds.frac =
@@ -364,7 +364,7 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
       '<span class="mq-fraction mq-non-leaf">'
     +   '<span class="mq-numerator">&0</span>'
     +   '<span class="mq-denominator">&1</span>'
-    +   '<span style="display:inline-block;width:0;overflow:hidden">&nbsp;</span>'
+    +   '<span style="display:inline-block;width:0;overflow:hidden">\u00A0</span>'
     + '</span>'
   ;
   _.DOMTemplate = function (blocks) {
@@ -431,7 +431,7 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
       '<span class="mq-non-leaf">'
-    +   '<span class="mq-scaled mq-sqrt-prefix">&radic;</span>'
+    +   '<span class="mq-scaled mq-sqrt-prefix">\u221A</span>'
     +   '<span class="mq-non-leaf mq-sqrt-stem">&0</span>'
     + '</span>'
   ;
@@ -468,7 +468,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   _.htmlTemplate =
       '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
     + '<span class="mq-scaled">'
-    +   '<span class="mq-sqrt-prefix mq-scaled">&radic;</span>'
+    +   '<span class="mq-sqrt-prefix mq-scaled">\u221A</span>'
     +   '<span class="mq-sqrt-stem mq-non-leaf">&1</span>'
     + '</span>'
   ;
@@ -618,7 +618,7 @@ LatexCmds.right = P(MathCommand, function(_) {
 LatexCmds.lbrace =
 CharCmds['{'] = bind(Bracket, '{', '}', '\\{', '\\}');
 LatexCmds.langle =
-LatexCmds.lang = bind(Bracket, '&lang;','&rang;','\\langle ','\\rangle ');
+LatexCmds.lang = bind(Bracket, '\u27E8','\u27E9','\\langle ','\\rangle ');
 
 // Closing bracket matching opening bracket above
 var CloseBracket = P(Bracket, function(_, _super) {
@@ -656,7 +656,7 @@ var CloseBracket = P(Bracket, function(_, _super) {
 LatexCmds.rbrace =
 CharCmds['}'] = bind(CloseBracket, '{','}','\\{','\\}');
 LatexCmds.rangle =
-LatexCmds.rang = bind(CloseBracket, '&lang;','&rang;','\\langle ','\\rangle ');
+LatexCmds.rang = bind(CloseBracket, '\u27E8','\u27E9','\\langle ','\\rangle ');
 
 var parenMixin = function(_, _super) {
   _.init = function(open, close) {

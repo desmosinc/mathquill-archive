@@ -168,7 +168,7 @@ var VanillaSymbol = P(Symbol, function(_, _super) {
 
 CharCmds[' '] = bind(VanillaSymbol, '\\space ', ' ');
 
-LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
+LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '\u2032');
 
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, _super) {
@@ -184,7 +184,7 @@ var NonSymbolaSymbol = P(Symbol, function(_, _super) {
 });
 
 LatexCmds['@'] = NonSymbolaSymbol;
-LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&amp;');
+LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '\u0026');
 LatexCmds['%'] = bind(NonSymbolaSymbol, '\\%', '%');
 
 //the following are all Greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
@@ -219,32 +219,32 @@ LatexCmds.phi = //W3C or Unicode?
 
 LatexCmds.phiv = //Elsevier and 9573-13
 LatexCmds.varphi = //AMS and LaTeX
-  bind(Variable,'\\varphi ','&phi;');
+  bind(Variable,'\\varphi ','\u03C6');
 
 LatexCmds.epsilon = //W3C or Unicode?
   bind(Variable,'\\epsilon ','&#1013;');
 
 LatexCmds.epsiv = //Elsevier and 9573-13
 LatexCmds.varepsilon = //AMS and LaTeX
-  bind(Variable,'\\varepsilon ','&epsilon;');
+  bind(Variable,'\\varepsilon ','\u03B5');
 
 LatexCmds.piv = //W3C/Unicode and Elsevier and 9573-13
 LatexCmds.varpi = //AMS and LaTeX
-  bind(Variable,'\\varpi ','&piv;');
+  bind(Variable,'\\varpi ','\u03D6');
 
 LatexCmds.sigmaf = //W3C/Unicode
 LatexCmds.sigmav = //Elsevier
 LatexCmds.varsigma = //LaTeX
-  bind(Variable,'\\varsigma ','&sigmaf;');
+  bind(Variable,'\\varsigma ','\u03C2');
 
 LatexCmds.thetav = //Elsevier and 9573-13
 LatexCmds.vartheta = //AMS and LaTeX
 LatexCmds.thetasym = //W3C/Unicode
-  bind(Variable,'\\vartheta ','&thetasym;');
+  bind(Variable,'\\vartheta ','\u03D1');
 
 LatexCmds.upsilon = //AMS and LaTeX and W3C/Unicode
 LatexCmds.upsi = //Elsevier and 9573-13
-  bind(Variable,'\\upsilon ','&upsilon;');
+  bind(Variable,'\\upsilon ','\u03C5');
 
 //these aren't even mentioned in the HTML character entity references
 LatexCmds.gammad = //Elsevier
@@ -262,8 +262,8 @@ LatexCmds.varrho = //AMS and LaTeX
 
 //Greek constants, look best in un-italicised Times New Roman
 LatexCmds.pi = LatexCmds['\u03C0'] = bind(NonSymbolaSymbol,'\\pi ', '\u03C0');
-LatexCmds.theta = LatexCmds['\u03B8'] = bind(NonSymbolaSymbol,'\\theta ','&theta;');
-LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','&lambda;');
+LatexCmds.theta = LatexCmds['\u03B8'] = bind(NonSymbolaSymbol,'\\theta ','\u03B8');
+LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','\u03BB');
 
 //uppercase greek letters
 
@@ -271,7 +271,7 @@ LatexCmds.Upsilon = //LaTeX
 LatexCmds.Upsi = //Elsevier and 9573-13
 LatexCmds.upsih = //W3C/Unicode "upsilon with hook"
 LatexCmds.Upsih = //'cos it makes sense to me
-  bind(Symbol,'\\Upsilon ','<var style="font-family: serif">&upsih;</var>'); //Symbola's 'upsilon with a hook' is a capital Y without hooks :(
+  bind(Symbol,'\\Upsilon ','<var style="font-family: serif">\u03D2</var>'); //Symbola's 'upsilon with a hook' is a capital Y without hooks :(
 
 //other symbols with the same LaTeX command and HTML character entity reference
 LatexCmds.Gamma =
@@ -350,9 +350,9 @@ var BinaryOperator = P(Symbol, function(_, _super) {
   _.createBefore = function(cursor) {
     var ctrlSeq = cursor.prev.ctrlSeq + this.ctrlSeq;
     if (ctrlSeq === '<=')
-      cursor.backspace().insertNew(BinaryOperator('\\le ', '&le;'));
+      cursor.backspace().insertNew(BinaryOperator('\\le ', '\u2264'));
     else if (ctrlSeq === '>=')
-      cursor.backspace().insertNew(BinaryOperator('\\ge ', '&ge;'));
+      cursor.backspace().insertNew(BinaryOperator('\\ge ', '\u2265'));
     else
       _super.createBefore.apply(this, arguments);
   };
@@ -382,13 +382,13 @@ LatexCmds['+'] = bind(PlusMinus, '+', '+');
 //yes, these are different dashes, I think one is an en dash and the other is a hyphen
 LatexCmds['\u2013'] = LatexCmds['\u2212'] = LatexCmds['-'] = bind(PlusMinus, '-', '\u2212');
 LatexCmds['\u00B1'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
-  bind(PlusMinus,'\\pm ','&plusmn;');
+  bind(PlusMinus,'\\pm ','\u00B1');
 LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
   bind(PlusMinus,'\\mp ','&#8723;');
 
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
-  bind(BinaryOperator, '\\cdot ', '&middot;');
-//semantically should be &sdot;, but &middot; looks better
+  bind(BinaryOperator, '\\cdot ', '\u00B7');
+//semantically should be \u22C5, but \u00B7 looks better
 
 LatexCmds['='] = bind(BinaryOperator, '=', '=');
 LatexCmds['<'] = bind(BinaryOperator, '<', '\u003C');
@@ -405,25 +405,25 @@ LatexCmds.otimes = P(BinaryOperator, function(_, _super) {
   };
 });
 
-LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '[x]');
+LatexCmds.times = bind(BinaryOperator, '\\times ', '\u00D7', '[x]');
 
 LatexCmds['\u00F7'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
-  bind(BinaryOperator,'\\div ','&divide;', '[/]');
+  bind(BinaryOperator,'\\div ','\u00F7', '[/]');
 
-LatexCmds['\u2260'] = LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;');
+LatexCmds['\u2260'] = LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','\u2260');
 
 LatexCmds.ast = LatexCmds.star = LatexCmds.loast = LatexCmds.lowast =
-  bind(BinaryOperator,'\\ast ','&lowast;');
+  bind(BinaryOperator,'\\ast ','\u2217');
   //case 'there4 = // a special exception for this one, perhaps?
 LatexCmds.therefor = LatexCmds.therefore =
-  bind(BinaryOperator,'\\therefore ','&there4;');
+  bind(BinaryOperator,'\\therefore ','\u2234');
 
 LatexCmds.cuz = // l33t
 LatexCmds.because = bind(BinaryOperator,'\\because ','&#8757;');
 
-LatexCmds.prop = LatexCmds.propto = bind(BinaryOperator,'\\propto ','&prop;');
+LatexCmds.prop = LatexCmds.propto = bind(BinaryOperator,'\\propto ','\u221D');
 
-LatexCmds['\u2248'] = LatexCmds.asymp = LatexCmds.approx = bind(BinaryOperator,'\\approx ','&asymp;');
+LatexCmds['\u2248'] = LatexCmds.asymp = LatexCmds.approx = bind(BinaryOperator,'\\approx ','\u2248');
 
 LatexCmds.lt = bind(BinaryOperator,'<','\u003C');
 
@@ -433,17 +433,17 @@ LatexCmds['\u2264'] = LatexCmds.le = LatexCmds.leq = bind(BinaryOperator,'\\le '
 
 LatexCmds['\u2265'] = LatexCmds.ge = LatexCmds.geq = bind(BinaryOperator,'\\ge ','\u2265');
 
-LatexCmds.isin = LatexCmds['in'] = bind(BinaryOperator,'\\in ','&isin;');
+LatexCmds.isin = LatexCmds['in'] = bind(BinaryOperator,'\\in ','\u2208');
 
-LatexCmds.ni = LatexCmds.contains = bind(BinaryOperator,'\\ni ','&ni;');
+LatexCmds.ni = LatexCmds.contains = bind(BinaryOperator,'\\ni ','\u220B');
 
 LatexCmds.notni = LatexCmds.niton = LatexCmds.notcontains = LatexCmds.doesnotcontain =
   bind(BinaryOperator,'\\not\\ni ','&#8716;');
 
-LatexCmds.sub = LatexCmds.subset = bind(BinaryOperator,'\\subset ','&sub;');
+LatexCmds.sub = LatexCmds.subset = bind(BinaryOperator,'\\subset ','\u2282');
 
 LatexCmds.sup = LatexCmds.supset = LatexCmds.superset =
-  bind(BinaryOperator,'\\supset ','&sup;');
+  bind(BinaryOperator,'\\supset ','\u2283');
 
 LatexCmds.nsub = LatexCmds.notsub =
 LatexCmds.nsubset = LatexCmds.notsubset =
@@ -455,12 +455,12 @@ LatexCmds.nsuperset = LatexCmds.notsuperset =
   bind(BinaryOperator,'\\not\\supset ','&#8837;');
 
 LatexCmds.sube = LatexCmds.subeq = LatexCmds.subsete = LatexCmds.subseteq =
-  bind(BinaryOperator,'\\subseteq ','&sube;');
+  bind(BinaryOperator,'\\subseteq ','\u2286');
 
 LatexCmds.supe = LatexCmds.supeq =
 LatexCmds.supsete = LatexCmds.supseteq =
 LatexCmds.supersete = LatexCmds.superseteq =
-  bind(BinaryOperator,'\\supseteq ','&supe;');
+  bind(BinaryOperator,'\\supseteq ','\u2287');
 
 LatexCmds.nsube = LatexCmds.nsubeq =
 LatexCmds.notsube = LatexCmds.notsubeq =
@@ -628,8 +628,8 @@ LatexCmds.caret = bind(VanillaSymbol,'\\caret ','^');
 LatexCmds.underscore = bind(VanillaSymbol,'\\underscore ','_');
 LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\');
 LatexCmds.vert = bind(VanillaSymbol,'|');
-LatexCmds.perp = LatexCmds.perpendicular = bind(VanillaSymbol,'\\perp ','&perp;');
-LatexCmds.nabla = LatexCmds.del = bind(VanillaSymbol,'\\nabla ','&nabla;');
+LatexCmds.perp = LatexCmds.perpendicular = bind(VanillaSymbol,'\\perp ','\u22A5');
+LatexCmds.nabla = LatexCmds.del = bind(VanillaSymbol,'\\nabla ','\u2207');
 LatexCmds.hbar = bind(VanillaSymbol,'\\hbar ','&#8463;');
 
 LatexCmds.AA = LatexCmds.Angstrom = LatexCmds.angstrom =
@@ -638,89 +638,89 @@ LatexCmds.AA = LatexCmds.Angstrom = LatexCmds.angstrom =
 LatexCmds.ring = LatexCmds.circ = LatexCmds.circle =
   bind(VanillaSymbol,'\\circ ','&#8728;');
 
-LatexCmds.bull = LatexCmds.bullet = bind(VanillaSymbol,'\\bullet ','&bull;');
+LatexCmds.bull = LatexCmds.bullet = bind(VanillaSymbol,'\\bullet ','\u2022');
 
 LatexCmds.setminus = LatexCmds.smallsetminus =
   bind(VanillaSymbol,'\\setminus ','&#8726;');
 
 LatexCmds.not = //bind(Symbol,'\\not ','<span class="not">/</span>');
-LatexCmds['¬'] = LatexCmds.neg = bind(VanillaSymbol,'\\neg ','&not;');
+LatexCmds['¬'] = LatexCmds.neg = bind(VanillaSymbol,'\\neg ','\u00AC');
 
 LatexCmds['…'] = LatexCmds.dots = LatexCmds.ellip = LatexCmds.hellip =
 LatexCmds.ellipsis = LatexCmds.hellipsis =
-  bind(VanillaSymbol,'\\dots ','&hellip;');
+  bind(VanillaSymbol,'\\dots ','\u2026');
 
 LatexCmds.converges =
 LatexCmds.darr = LatexCmds.dnarr = LatexCmds.dnarrow = LatexCmds.downarrow =
-  bind(VanillaSymbol,'\\downarrow ','&darr;');
+  bind(VanillaSymbol,'\\downarrow ','\u2193');
 
 LatexCmds.dArr = LatexCmds.dnArr = LatexCmds.dnArrow = LatexCmds.Downarrow =
-  bind(VanillaSymbol,'\\Downarrow ','&dArr;');
+  bind(VanillaSymbol,'\\Downarrow ','\u21D3');
 
 LatexCmds.diverges = LatexCmds.uarr = LatexCmds.uparrow =
-  bind(VanillaSymbol,'\\uparrow ','&uarr;');
+  bind(VanillaSymbol,'\\uparrow ','\u2191');
 
-LatexCmds.uArr = LatexCmds.Uparrow = bind(VanillaSymbol,'\\Uparrow ','&uArr;');
+LatexCmds.uArr = LatexCmds.Uparrow = bind(VanillaSymbol,'\\Uparrow ','\u21D1');
 
-LatexCmds.to = bind(BinaryOperator,'\\to ','&rarr;');
+LatexCmds.to = bind(BinaryOperator,'\\to ','\u2192');
 
-LatexCmds.rarr = LatexCmds.rightarrow = bind(VanillaSymbol,'\\rightarrow ','&rarr;');
+LatexCmds.rarr = LatexCmds.rightarrow = bind(VanillaSymbol,'\\rightarrow ','\u2192');
 
-LatexCmds.implies = bind(BinaryOperator,'\\Rightarrow ','&rArr;');
+LatexCmds.implies = bind(BinaryOperator,'\\Rightarrow ','\u21D2');
 
-LatexCmds.rArr = LatexCmds.Rightarrow = bind(VanillaSymbol,'\\Rightarrow ','&rArr;');
+LatexCmds.rArr = LatexCmds.Rightarrow = bind(VanillaSymbol,'\\Rightarrow ','\u21D2');
 
-LatexCmds.gets = bind(BinaryOperator,'\\gets ','&larr;');
+LatexCmds.gets = bind(BinaryOperator,'\\gets ','\u2190');
 
-LatexCmds.larr = LatexCmds.leftarrow = bind(VanillaSymbol,'\\leftarrow ','&larr;');
+LatexCmds.larr = LatexCmds.leftarrow = bind(VanillaSymbol,'\\leftarrow ','\u2190');
 
-LatexCmds.impliedby = bind(BinaryOperator,'\\Leftarrow ','&lArr;');
+LatexCmds.impliedby = bind(BinaryOperator,'\\Leftarrow ','\u21D0');
 
-LatexCmds.lArr = LatexCmds.Leftarrow = bind(VanillaSymbol,'\\Leftarrow ','&lArr;');
+LatexCmds.lArr = LatexCmds.Leftarrow = bind(VanillaSymbol,'\\Leftarrow ','\u21D0');
 
 LatexCmds.harr = LatexCmds.lrarr = LatexCmds.leftrightarrow =
-  bind(VanillaSymbol,'\\leftrightarrow ','&harr;');
+  bind(VanillaSymbol,'\\leftrightarrow ','\u2194');
 
-LatexCmds.iff = bind(BinaryOperator,'\\Leftrightarrow ','&hArr;');
+LatexCmds.iff = bind(BinaryOperator,'\\Leftrightarrow ','\u21D4');
 
 LatexCmds.hArr = LatexCmds.lrArr = LatexCmds.Leftrightarrow =
-  bind(VanillaSymbol,'\\Leftrightarrow ','&hArr;');
+  bind(VanillaSymbol,'\\Leftrightarrow ','\u21D4');
 
-LatexCmds.Re = LatexCmds.Real = LatexCmds.real = bind(VanillaSymbol,'\\Re ','&real;');
+LatexCmds.Re = LatexCmds.Real = LatexCmds.real = bind(VanillaSymbol,'\\Re ','\u211C');
 
 LatexCmds.Im = LatexCmds.imag =
 LatexCmds.image = LatexCmds.imagin = LatexCmds.imaginary = LatexCmds.Imaginary =
-  bind(VanillaSymbol,'\\Im ','&image;');
+  bind(VanillaSymbol,'\\Im ','\u2111');
 
-LatexCmds.part = LatexCmds.partial = bind(VanillaSymbol,'\\partial ','&part;');
+LatexCmds.part = LatexCmds.partial = bind(VanillaSymbol,'\\partial ','\u2202');
 
 LatexCmds.inf = LatexCmds.infin = LatexCmds.infty = LatexCmds.infinity =
-  bind(VanillaSymbol,'\\infty ','&infin;');
+  bind(VanillaSymbol,'\\infty ','\u221E');
 
 LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
-  bind(VanillaSymbol,'\\aleph ','&alefsym;');
+  bind(VanillaSymbol,'\\aleph ','\u2135');
 
 LatexCmds.xist = //LOL
 LatexCmds.xists = LatexCmds.exist = LatexCmds.exists =
-  bind(VanillaSymbol,'\\exists ','&exist;');
+  bind(VanillaSymbol,'\\exists ','\u2203');
 */
 LatexCmds.and = LatexCmds.land = LatexCmds.wedge =
-  bind(VanillaSymbol,'\\wedge ','&and;');
+  bind(VanillaSymbol,'\\wedge ','\u2227');
 
-LatexCmds.or = LatexCmds.lor = LatexCmds.vee = bind(VanillaSymbol,'\\vee ','&or;');
+LatexCmds.or = LatexCmds.lor = LatexCmds.vee = bind(VanillaSymbol,'\\vee ','\u2228');
 /*
 LatexCmds.o = LatexCmds.O =
 LatexCmds.empty = LatexCmds.emptyset =
 LatexCmds.oslash = LatexCmds.Oslash =
 LatexCmds.nothing = LatexCmds.varnothing =
-  bind(BinaryOperator,'\\varnothing ','&empty;');
+  bind(BinaryOperator,'\\varnothing ','\u2205');
 
-LatexCmds.cup = LatexCmds.union = bind(BinaryOperator,'\\cup ','&cup;');
+LatexCmds.cup = LatexCmds.union = bind(BinaryOperator,'\\cup ','\u222A');
 
 LatexCmds.cap = LatexCmds.intersect = LatexCmds.intersection =
-  bind(BinaryOperator,'\\cap ','&cap;');
+  bind(BinaryOperator,'\\cap ','\u2229');
 
-LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
+LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','\u00B0');
 
-LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
+LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','\u2220');
 */
