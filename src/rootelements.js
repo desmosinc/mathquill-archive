@@ -25,10 +25,9 @@ function setupTextarea(editable, container, root, cursor) {
   var is_ios = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) !== null;
   var is_android = navigator.userAgent.match(/(Android|Silk|Kindle)/i) !== null;
   
-  var textareaSpan = root.textarea = (is_ios || is_android) ?
-      $('<span class="mq-textarea"><span tabindex=0></span></span>')
-    : $('<span class="mq-textarea"><textarea></textarea></span>'),
-    textarea = textareaSpan.children();
+  var textareaElt = (is_ios || is_android) ? crel('span', {tabindex: '0'}) : crel('textarea');
+  var textarea = $(textareaElt);
+  var textareaSpan = root.textarea = $(crel('span', {class: 'mq-textarea'}, textareaElt));
 
   /******
    * TODO [Han]: Document this
@@ -217,7 +216,7 @@ function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpa
     root.blurred = true;
     var textareaManager = manageTextarea(textarea, { container: container });
     container.bind('copy', setTextareaSelection)
-      .prepend('<span class="mq-selectable">$'+root.latex()+'$</span>');
+      .prepend(crel('span', {class: 'mq-selectable'}, '$'+root.latex()+'$'));
     textarea.bind('cut paste', false).blur(function() {
       cursor.clearSelection();
       setTimeout(detach); //detaching during blur explodes in WebKit

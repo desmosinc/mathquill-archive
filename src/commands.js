@@ -1216,7 +1216,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
     self.firstChild = self.lastChild = rootBlock;
     self.blocks = [ rootBlock ];
 
-    rootBlock.jQ = self.jQ.wrapInner('<span class="mathquill-root-block"/>').children();
+    rootBlock.jQ = self.jQ.wrapInner(crel('span', {class: 'mathquill-root-block'})).children();
 
     rootBlock.editable = true;
     var cursor = rootBlock.cursor = Cursor(rootBlock).appendTo(rootBlock);
