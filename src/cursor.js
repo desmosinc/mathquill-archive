@@ -13,17 +13,24 @@ JS environment could actually contain many instances. */
 var Cursor = P(function(_) {
   _.init = function(root) {
     this.parent = this.root = root;
-    var jQ = this.jQ = this._jQ = $('<span class="mq-cursor"><span class="mq-line">\u200D</span></span>');
+
+    var jQ = this.jQ = this._jQ = $(crel('span', {class: 'mq-cursor'},
+      crel('span', {class: 'mq-line'}, '\u200D')
+    ));
 
     //closured for setInterval
     this.blink = function(){ jQ.toggleClass('mq-blink'); }
 
     this.upDownCache = {};
 
-    this.handle = $('<span class="mq-handle"></span>');
-    this.handleAnchor = $('<span class="mq-handle-anchor" ' +
-                                'style="display:none"></span>')
-                        .append(this.handle).insertAfter(root.jQ);
+    var handleElt = crel('span', {class: 'mq-handle'});
+    this.handle = $(handleElt);
+    this.handleAnchor = $(crel('span', {
+      class: 'mq-handle-anchor',
+      style: 'display: none'
+    }, handleElt));
+    this.handleAnchor.insertAfter(root.jQ);
+
     this.handleAnchor.top = this.handleAnchor.left = 0;
   };
 
@@ -629,7 +636,7 @@ var Selection = P(MathFragment, function(_, _super) {
     frag.jQwrap(frag.jQ);
   };
   _.jQwrap = function(children) {
-    this.jQ = children.wrapAll('<span class="mq-selection"></span>').parent();
+    this.jQ = children.wrapAll(crel('span', {class: 'mq-selection'})).parent();
       //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   };
   _.adopt = function() {
