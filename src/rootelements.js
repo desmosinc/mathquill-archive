@@ -22,10 +22,9 @@ function createRoot(container, root, textbox, editable) {
   root.renderLatex(contents.text());
 }
 
+var is_ios = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) !== null;
+var is_android = navigator.userAgent.match(/(Android|Silk|Kindle)/i) !== null;
 function setupTextarea(editable, container, root, cursor) {
-  var is_ios = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) !== null;
-  var is_android = navigator.userAgent.match(/(Android|Silk|Kindle)/i) !== null;
-  
   var textareaElt = (is_ios || is_android) ? crel('span', {tabindex: '0'}) : crel('textarea');
   var textarea = $(textareaElt);
   var textareaSpan = root.textarea = $(crel('span', {class: 'mq-textarea'}, textareaElt));
