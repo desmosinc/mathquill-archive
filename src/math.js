@@ -43,12 +43,10 @@ var MathElement = P(Node, function(_) {
     return this;
   };
 
-  _.postOrder = function(fn /*, args... */) {
+  _.postOrder = function(fn) {
     if (typeof fn === 'string') {
       var methodName = fn;
-      fn = function(el) {
-        if (methodName in el) el[methodName].apply(el, arguments);
-      };
+      fn = function(el) { if (el[methodName]) el[methodName](); };
     }
 
     (function recurse(desc) {
