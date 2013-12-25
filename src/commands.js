@@ -109,10 +109,7 @@ var Style = P(MathCommand, function(_, _super) {
     _super.init.call(this, ctrlSeq, {
       htmlTemplate: '<'+tagName+' class="'+classStr+'">&0</'+tagName+'>',
       DOMTemplate: function (blocks) {
-        return crel(tagName, {
-          class: classStr,
-          'mathquill-block-id': blocks[0].id
-        }, blocks[0].joinDOM());
+        return wrapBlock(crel(tagName, {class: classStr}), blocks[0]);
       }
     });
   };
@@ -135,10 +132,7 @@ var SupSub = P(MathCommand, function(_, _super) {
       textTemplate: [ text ],
       DOMTemplate: function (blocks) {
         return crel(tag, {class: 'mq-non-leaf'},
-          crel('span', {
-            class: 'mq-non-leaf mq-'+tag,
-            'mathquill-block-id': blocks[0].id
-          }, blocks[0].joinDOM())
+          wrapBlock(crel('span', {class: 'mq-non-leaf mq-'+tag}), blocks[0])
         );
       }
     });
@@ -335,13 +329,9 @@ var BigSymbol = P(MathCommand, function(_, _super) {
         + '</span>',
       DOMTemplate: function (blocks) {
         return crel('span', {class: 'mq-large-operator mq-non-leaf'},
-          crel('span', {class: 'mq-to'},
-            crel('span', {'mathquill-block-id': blocks[1].id}, blocks[1].joinDOM())
-          ),
+          crel('span', {class: 'mq-to'}, wrapBlock(crel('span'), blocks[1])),
           crel('big', html),
-          crel('span', {class: 'mq-from'},
-            crel('span', {'mathquill-block-id': blocks[0].id}, blocks[0].joinDOM())
-          )
+          crel('span', {class: 'mq-from'}, wrapBlock(crel('span'), blocks[0]))
         );
       }
     });
@@ -415,8 +405,8 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   ;
   _.DOMTemplate = function (blocks) {
     return crel('span', {class: 'mq-fraction mq-non-leaf'},
-      crel('span', {class: 'mq-numerator', 'mathquill-block-id': blocks[0].id}, blocks[0].joinDOM()),
-      crel('span', {class: 'mq-denominator', 'mathquill-block-id': blocks[1].id}, blocks[1].joinDOM()),
+      wrapBlock(crel('span', {class: 'mq-numerator'}), blocks[0]),
+      wrapBlock(crel('span', {class: 'mq-denominator'}), blocks[1]),
       crel('span', {style: 'display:inline-block;width:0;overflow:hidden'}, '\u00A0')
     );
   };
@@ -484,10 +474,7 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
   _.DOMTemplate = function (blocks) {
     return crel('span', {class: 'mq-non-leaf'},
       crel('span', {class: 'mq-scaled mq-sqrt-prefix'}, '\u221A'),
-      crel('span', {
-        class: 'mq-non-leaf mq-sqrt-stem',
-        'mathquill-block-id': blocks[0].id
-      }, blocks[0].joinDOM())
+      wrapBlock(crel('span', {class: 'mq-non-leaf mq-sqrt-stem'}), blocks[0])
     );
   };
   _.textTemplate = ['sqrt(', ')'];
@@ -524,16 +511,10 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   ;
   _.DOMTemplate = function (blocks) {
     var frag = document.createDocumentFragment();
-    frag.appendChild(crel('span', {
-      class: 'mq-nthroot mq-non-leaf',
-      'mathquill-block-id': blocks[0].id
-    }, blocks[0].joinDOM()))
+    frag.appendChild(wrapBlock(crel('span', {class: 'mq-nthroot mq-non-leaf'}), blocks[0]));
     frag.appendChild(crel('span', {class: 'mq-scaled'},
       crel('span', {class: 'mq-sqrt-prefix mq-scaled'}, '\u221A'),
-      crel('span', {
-        class: 'mq-sqrt-stem mq-non-leaf',
-        'mathquill-block-id': blocks[1].id
-      }, blocks[1].joinDOM())
+      wrapBlock(crel('span', {class: 'mq-sqrt-stem mq-non-leaf'}), blocks[1])
     ));
     return frag;
   }
@@ -585,10 +566,7 @@ var Bracket = P(MathCommand, function(_, _super) {
       DOMTemplate: function (blocks) {
         return crel('span', {class: 'mq-non-leaf'},
           crel('span', {class: 'mq-scaled mq-paren'}, open),
-          crel('span', {
-            class: 'mq-non-leaf',
-            'mathquill-block-id': blocks[0].id
-          }, blocks[0].joinDOM()),
+          wrapBlock(crel('span', {class: 'mq-non-leaf'}), blocks[0]),
           crel('span', {class: 'mq-scaled mq-paren'}, close)
         );
       }
@@ -759,10 +737,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\text';
   _.htmlTemplate = '<span class="mq-text">&0</span>';
   _.DOMTemplate = function (blocks) {
-    return crel('span', {
-      class: 'mq-text',
-      'mathquill-block-id': blocks[0].id
-    }, blocks[0].joinDOM());
+    return wrapBlock(crel('span', {class: 'mq-text'}), blocks[0]);
   };
   _.replaces = function(replacedText) {
     if (replacedText instanceof MathFragment)
@@ -930,7 +905,7 @@ function makeTextBlock(latex, tagName, attrs) {
     DOMTemplate: function (blocks) {
       var extendedAttrs = {'mathquill-block-id': blocks[0].id};
       for (var key in attrs) extendedAttrs[key] = attrs[key];
-      return crel(tagName, extendedAttrs, blocks[0].joinDOM());
+      return wrapBlock(crel(tagName, extendedAttrs), blocks[0]);
     }
   });
 }
@@ -963,7 +938,7 @@ P(MathCommand, function(_, _super) {
   _.htmlTemplate = '<span class="mq-latex-command-input mq-non-leaf">\\<span>&0</span></span>';
   _.DOMTemplate = function (blocks) {
     return crel('span', {class: 'mq-latex-command-input mq-non-leaf'},
-      crel('span', {'mathquill-block-id': blocks[0].id}, blocks[0].joinDOM())
+      wrapBlock(crel('span'), blocks[0])
     );
   };
   _.textTemplate = ['\\'];
@@ -1056,8 +1031,8 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
     frag.appendChild(crel('span', {class: 'mq-paren mq-scaled'}, '('));
     frag.appendChild(crel('span', {class: 'mq-non-leaf'},
       crel('span', {class: 'mq-array mq-non-leaf'},
-        crel('span', {'mathquill-block-id': blocks[0].id}, blocks[0].joinDOM()),
-        crel('span', {'mathquill-block-id': blocks[1].id}, blocks[1].joinDOM())
+        wrapBlock(crel('span'), blocks[0]),
+        wrapBlock(crel('span'), blocks[1])
       )
     ));
     frag.appendChild(crel('span', {class: 'mq-paren mq-scaled'}, ')'));
@@ -1088,9 +1063,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\vector';
   _.htmlTemplate = '<span class="mq-array"><span>&0</span></span>';
   _.DOMTemplate = function (blocks) {
-    return crel('span', {class: 'mq-array'},
-      crel('span', {'mathquill-block-id': blocks[0].id}, blocks[0].joinDOM())
-    );
+    return crel('span', {class: 'mq-array'}, wrapBlock(crel('span'), blocks[0]));
   };
   _.latex = function() {
     return '\\begin{matrix}' + this.foldChildren([], function(latex, child) {
@@ -1197,10 +1170,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\MathQuillMathField';
   _.htmlTemplate = '<span class="mathquill-editable">&0</span>';
   _.DOMTemplate = function (blocks) {
-    return crel('span', {
-      class: 'mathquill-editable',
-      'mathquill-block-id': blocks[0].id
-    }, blocks[0].joinDOM());
+    return wrapBlock(crel('span', {class: 'mathquill-editable'}), blocks[0]);
   };
   _.finalizeTree = function() {
     // parsed \MathQuillMathField{contents}, `this` is this MathCommand,

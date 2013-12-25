@@ -8,6 +8,15 @@ var uuid = (function() {
   return function() { return id += 1; };
 })();
 
+function wrapBlock(el, block) {
+  el.setAttribute('mathquill-block-id', block.id);
+  el.appendChild(block.joinDOM());
+  // TODO does this need to be add, or can it just set?
+  // In other words, do all block ids correspond to a single element?
+  MathElement[block.id].jQadd(el);
+  return el;
+}
+
 /**
  * Math tree node base class.
  * Some math-tree-specific extensions to Node.
@@ -52,31 +61,7 @@ var MathElement = P(Node, function(_) {
   _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
 
   this.jQize = function(html) {
-    // Sets the .jQ of the entire math subtree rooted at this command.
-    // Expects .createBlocks() to have been called already, since it
-    // calls .html().
-    var jQ = $(html);
-
-    function jQadd(el) {
-      if (el.getAttribute) {
-        var cmdId = el.getAttribute('mathquill-command-id');
-        var blockId = el.getAttribute('mathquill-block-id');
-        if (cmdId) MathElement[cmdId].jQadd(el);
-        if (blockId) MathElement[blockId].jQadd(el);
-      }
-    }
-    function traverse(el) {
-      for (el = el.firstChild; el; el = el.nextSibling) {
-        jQadd(el);
-        if (el.firstChild) traverse(el);
-      }
-    }
-
-    for (var i = 0; i < jQ.length; i += 1) {
-      jQadd(jQ[i]);
-      traverse(jQ[i]);
-    }
-    return jQ;
+    return (html instanceof DocumentFragment) ? $(html.childNodes) : $(html);
   };
 
   _.finalizeInsert = function() {
@@ -372,8 +357,10 @@ var MathCommand = P(MathElement, function(_, _super) {
         child.setAttribute('mathquill-command-id', cmd.id);
         child = child.nextSibling;
       }
+      cmd.jQadd($(dom.childNodes));
     } else {
       dom.setAttribute('mathquill-command-id', cmd.id);
+      cmd.jQadd($(dom));
     }
     return dom;
   };
@@ -445,9 +432,9 @@ var MathBlock = P(MathElement, function(_) {
   };
 
   _.joinDOM = function () {
-    var frag = [];
+    var frag = document.createDocumentFragment();
     this.eachChild(function (child) {
-      frag.push(child.dom());
+      frag.appendChild(child.dom());
     });
     return frag;
   }
