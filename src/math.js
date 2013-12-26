@@ -13,7 +13,7 @@ function wrapBlock(el, block) {
   el.appendChild(block.joinDOM());
   // TODO does this need to be add, or can it just set?
   // In other words, do all block ids correspond to a single element?
-  MathElement[block.id].jQadd(el);
+  MathElement[block.id].jQ = $(el);
   return el;
 }
 
@@ -23,7 +23,7 @@ function wrapBlock(el, block) {
  * Both MathBlock's and MathCommand's descend from it.
  */
 var MathElement = P(Node, function(_) {
-  _.init = function(obj) {
+  _.init = function() {
     this.id = uuid();
     MathElement[this.id] = this;
   };
@@ -56,7 +56,6 @@ var MathElement = P(Node, function(_) {
   };
 
   _.jQ = $();
-  _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
 
   this.jQize = function(html) {
     return (html instanceof DocumentFragment) ? $(html.childNodes) : $(html);
@@ -355,10 +354,10 @@ var MathCommand = P(MathElement, function(_, _super) {
         child.setAttribute('mathquill-command-id', cmd.id);
         child = child.nextSibling;
       }
-      cmd.jQadd($(dom.childNodes));
+      cmd.jQ = $(dom.childNodes);
     } else {
       dom.setAttribute('mathquill-command-id', cmd.id);
-      cmd.jQadd($(dom));
+      cmd.jQ = $(dom);
     }
     return dom;
   };

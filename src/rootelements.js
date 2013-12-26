@@ -349,7 +349,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     if (block) {
       jQ.empty().append(block.joinDOM());
-      MathElement.jQize(jQ);
       this.focus().finalizeInsert();
     }
     else {
@@ -414,7 +413,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var jQ = this.jQ;
 
     jQ.empty().append(this.joinDOM());
-    MathElement.jQize(jQ);
     //this.finalizeInsert();
 
     this.cursor.parent = this;
