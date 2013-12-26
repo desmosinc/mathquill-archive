@@ -44,11 +44,6 @@ var MathElement = P(Node, function(_) {
   };
 
   _.postOrder = function(fn) {
-    if (typeof fn === 'string') {
-      var methodName = fn;
-      fn = function(el) { if (el[methodName]) el[methodName](); };
-    }
-
     (function recurse(desc) {
       desc.eachChild(recurse);
       fn(desc);
@@ -61,22 +56,34 @@ var MathElement = P(Node, function(_) {
     return (html instanceof DocumentFragment) ? $(html.childNodes) : $(html);
   };
 
+  // Overridden by descendants.
+  _.finalizeTree = _.blur = _.respace = _.redraw = noop;
+
+  var methodCall = function (methodName) {
+    return function (el) {return el[methodName]();}
+  };
+
+  finalizeTreeMethod = methodCall('finalizeTree');
+  blurMethod = methodCall('blur');
+  respaceMethod = methodCall('respace');
+  redrawMethod = methodCall('redraw');
+
   _.finalizeInsert = function() {
     var self = this;
-    self.postOrder('finalizeTree');
+    self.postOrder(finalizeTreeMethod);
 
     // note: this order is important.
     // empty elements need the empty box provided by blur to
     // be present in order for their dimensions to be measured
     // correctly in redraw.
-    self.postOrder('blur');
+    self.postOrder(blurMethod);
 
     // adjust context-sensitive spacing
-    self.postOrder('respace');
+    self.postOrder(respaceMethod);
     if (self.next.respace) self.next.respace();
     if (self.prev.respace) self.prev.respace();
 
-    self.postOrder('redraw');
+    self.postOrder(redrawMethod);
     self.bubble('redraw');
     self.bubble('redraw');
   };
