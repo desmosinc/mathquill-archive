@@ -595,6 +595,7 @@ var Bracket = P(MathCommand, function(_, _super) {
 
 function bracketProperties(open, close, ctrlSeq, end) {
   return {
+    ctrlSeq: ctrlSeq,
     htmlTemplate: '<span class="mq-non-leaf">'
     +   '<span class="mq-scaled mq-paren">'+open+'</span>'
     +   '<span class="mq-non-leaf">&0</span>'
