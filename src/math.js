@@ -148,23 +148,13 @@ var MathElement = P(Node, function(_) {
  * Descendant commands are organized into blocks.
  */
 var MathCommand = P(MathElement, function(_, _super) {
-  _.init = function(ctrlSeq, htmlTemplate, textTemplate, DOMTemplate) {
-    var cmd = this;
-    _super.init.call(cmd);
-
-    var settings;
-    if (typeof htmlTemplate === 'object') {
-      settings = htmlTemplate;
-      htmlTemplate = settings.htmlTemplate;
-      textTemplate = settings.textTemplate;
-      DOMTemplate = settings.DOMTemplate;
-    }
-
-    if (!cmd.ctrlSeq) cmd.ctrlSeq = ctrlSeq;
-    if (htmlTemplate) cmd.htmlTemplate = htmlTemplate;
-    if (textTemplate) cmd.textTemplate = textTemplate;
-    if (DOMTemplate) cmd.DOMTemplate = DOMTemplate;
+  _.init = function (ctrlSeq) {
+    _super.init.call(this);
+    if (!this.ctrlSeq) this.ctrlSeq = ctrlSeq;
+    if (!this.htmlTemplate) this.htmlTemplate = '<span>' + ctrlSeq + '</span>';
   };
+
+  _.DOMTemplate = function () {return crel('span', this.ctrlSeq);};
 
   // obvious methods
   _.replaces = function(replacedFragment) {
@@ -375,16 +365,16 @@ var MathCommand = P(MathElement, function(_, _super) {
       return latex + '{' + (child.latex() || ' ') + '}';
     });
   };
-  _.textTemplate = [''];
   _.text = function() {
+    var textTemplate = this.textTemplate ? this.textTemplate : [this.ctrlSeq];
     var i = 0;
-    return this.foldChildren(this.textTemplate[i], function(text, child) {
+    return this.foldChildren(textTemplate[i], function(text, child) {
       i += 1;
       var child_text = child.text();
-      if (text && this.textTemplate[i] === '('
+      if (text && textTemplate[i] === '('
           && child_text[0] === '(' && child_text.slice(-1) === ')')
-        return text + child_text.slice(1, -1) + this.textTemplate[i];
-      return text + child.text() + (this.textTemplate[i] || '');
+        return text + child_text.slice(1, -1) + textTemplate[i];
+      return text + child.text() + (textTemplate[i] || '');
     });
   };
 });
@@ -393,12 +383,6 @@ var MathCommand = P(MathElement, function(_, _super) {
  * Lightweight command without blocks or children.
  */
 var Symbol = P(MathCommand, function(_, _super) {
-  _.init = function(ctrlSeq, html, text) {
-    if (!text && !html.textTemplate) text = ctrlSeq && ctrlSeq.length > 1 ? ctrlSeq.slice(1) : ctrlSeq;
-
-    _super.init.call(this, ctrlSeq, html, [ text ]);
-  };
-
   _.parser = function() { return Parser.succeed(this); };
   _.numBlocks = function() { return 0; };
 

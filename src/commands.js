@@ -103,40 +103,30 @@ var batchCall = function (fn) {
   }
 };
 
+var Style = P(MathCommand, {});
 
-var Style = P(MathCommand, function(_, _super) {
-  _.init = function(ctrlSeq, tagName, classStr) {
-    _super.init.call(this, ctrlSeq, {
-      htmlTemplate: '<'+tagName+' class="'+classStr+'">&0</'+tagName+'>',
-      DOMTemplate: function (blocks) {
-        return wrapBlock(crel(tagName, {class: classStr}), blocks[0]);
-      }
-    });
-  };
-});
+var makeStyle = function (ctrlSeq, tagName, classStr) {
+  return P(Style, {
+    ctrlSeq: ctrlSeq,
+    tagName: tagName,
+    htmlTemplate: '<'+tagName+' class="'+classStr+'">&0</'+tagName+'>',
+    DOMTemplate: function (blocks) {
+      return wrapBlock(crel(tagName, {class: classStr}), blocks[0]);
+    }
+  });
+};
 
 //fonts
-LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'mq-roman mq-font');
-LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'mq-font');
-LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'mq-font');
-LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'mq-sans-serif mq-font');
-LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'mq-monospace mq-font');
+LatexCmds.mathrm = makeStyle('\\mathrm', 'span', 'mq-roman mq-font');
+LatexCmds.mathit = makeStyle('\\mathit', 'i', 'mq-font');
+LatexCmds.mathbf = makeStyle('\\mathbf', 'b', 'mq-font');
+LatexCmds.mathsf = makeStyle('\\mathsf', 'span', 'mq-sans-serif mq-font');
+LatexCmds.mathtt = makeStyle('\\mathtt', 'span', 'mq-monospace mq-font');
 //text-decoration
-LatexCmds.underline = bind(Style, '\\underline', 'span', 'mq-non-leaf mq-underline');
-LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'mq-non-leaf mq-overline');
+LatexCmds.underline = makeStyle('\\underline', 'span', 'mq-non-leaf mq-underline');
+LatexCmds.overline = LatexCmds.bar = makeStyle('\\overline', 'span', 'mq-non-leaf mq-overline');
 
 var SupSub = P(MathCommand, function(_, _super) {
-  _.init = function(ctrlSeq, tag, text) {
-    _super.init.call(this, ctrlSeq, {
-      htmlTemplate: '<'+tag+' class="mq-non-leaf"><span class="mq-non-leaf mq-'+tag+'">&0</span></'+tag+'>',
-      textTemplate: [ text ],
-      DOMTemplate: function (blocks) {
-        return crel(tag, {class: 'mq-non-leaf'},
-          wrapBlock(crel('span', {class: 'mq-non-leaf mq-'+tag}), blocks[0])
-        );
-      }
-    });
-  };
   _.finalizeTree = function() {
     //TODO: use inheritance
     pray('SupSub is only _ and ^',
@@ -312,30 +302,27 @@ var SupSub = P(MathCommand, function(_, _super) {
   };
 });
 
+function makeSupSub(ctrlSeq, tag, text) {
+  return P(SupSub, {
+    ctrlSeq: ctrlSeq,
+    htmlTemplate: '<'+tag+' class="mq-non-leaf"><span class="mq-non-leaf mq-'+tag+'">&0</span></'+tag+'>',
+    textTemplate: [ text ],
+    DOMTemplate: function (blocks) {
+      return crel(tag, {class: 'mq-non-leaf'},
+        wrapBlock(crel('span', {class: 'mq-non-leaf mq-'+tag}), blocks[0])
+      );
+    }
+  });
+}
+
 LatexCmds.subscript =
-LatexCmds._ = bind(SupSub, '_', 'sub', '_');
+LatexCmds._ = makeSupSub('_', 'sub', '_');
 
 LatexCmds.superscript =
 LatexCmds.supscript =
-LatexCmds['^'] = bind(SupSub, '^', 'sup', '**');
+LatexCmds['^'] = makeSupSub('^', 'sup', '**');
 
 var BigSymbol = P(MathCommand, function(_, _super) {
-  _.init = function(ch, html) {
-    Symbol.prototype.init.call(this, ch, {
-      htmlTemplate: '<span class="mq-large-operator mq-non-leaf">'
-        +   '<span class="mq-to"><span>&1</span></span>'
-        +   '<big>'+html+'</big>'
-        +   '<span class="mq-from"><span>&0</span></span>'
-        + '</span>',
-      DOMTemplate: function (blocks) {
-        return crel('span', {class: 'mq-large-operator mq-non-leaf'},
-          crel('span', {class: 'mq-to'}, wrapBlock(crel('span'), blocks[1])),
-          crel('big', html),
-          crel('span', {class: 'mq-from'}, wrapBlock(crel('span'), blocks[0]))
-        );
-      }
-    });
-  };
   _.placeCursor = function(cursor) {
     cursor.appendTo(this.firstChild).writeLatex('n=').show();
   };
@@ -387,8 +374,27 @@ var BigSymbol = P(MathCommand, function(_, _super) {
     return false;
   }
 });
-LatexCmds['\u2211'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','\u2211');
-LatexCmds['\u220F'] = LatexCmds.prod = LatexCmds.product = bind(BigSymbol,'\\prod ','\u220F');
+
+function makeBigSymbol(ch, html) {
+  return P(BigSymbol, {
+    ctrlSeq: ch,
+    htmlTemplate: '<span class="mq-large-operator mq-non-leaf">'
+      +   '<span class="mq-to"><span>&1</span></span>'
+      +   '<big>'+html+'</big>'
+      +   '<span class="mq-from"><span>&0</span></span>'
+      + '</span>',
+    DOMTemplate: function (blocks) {
+      return crel('span', {class: 'mq-large-operator mq-non-leaf'},
+        crel('span', {class: 'mq-to'}, wrapBlock(crel('span'), blocks[1])),
+        crel('big', html),
+        crel('span', {class: 'mq-from'}, wrapBlock(crel('span'), blocks[0]))
+      );
+    }
+  });
+};
+
+LatexCmds['\u2211'] = LatexCmds.sum = LatexCmds.summation = makeBigSymbol('\\sum ','\u2211');
+LatexCmds['\u220F'] = LatexCmds.prod = LatexCmds.product = makeBigSymbol('\\prod ','\u220F');
 
 var Fraction =
 LatexCmds.frac =
@@ -517,7 +523,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
       wrapBlock(crel('span', {class: 'mq-sqrt-stem mq-non-leaf'}), blocks[1])
     ));
     return frag;
-  }
+  };
   _.textTemplate = ['sqrt[', '](', ')'];
   _.latex = function() {
     return '\\sqrt['+this.firstChild.latex()+']{'+this.lastChild.latex()+'}';
@@ -555,29 +561,12 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 var Bracket = P(MathCommand, function(_, _super) {
-  _.init = function(open, close, ctrlSeq, end) {
-    _super.init.call(this, '\\left'+ctrlSeq, {
-      htmlTemplate: '<span class="mq-non-leaf">'
-      +   '<span class="mq-scaled mq-paren">'+open+'</span>'
-      +   '<span class="mq-non-leaf">&0</span>'
-      +   '<span class="mq-scaled mq-paren">'+close+'</span>'
-      + '</span>',
-      textTemplate: [open, close],
-      DOMTemplate: function (blocks) {
-        return crel('span', {class: 'mq-non-leaf'},
-          crel('span', {class: 'mq-scaled mq-paren'}, open),
-          wrapBlock(crel('span', {class: 'mq-non-leaf'}), blocks[0]),
-          crel('span', {class: 'mq-scaled mq-paren'}, close)
-        );
-      }
-    });
-    this.end = '\\right'+end;
-  };
-  _.jQadd = function() {
-    _super.jQadd.apply(this, arguments);
-    var jQ = this.jQ;
-    this.bracketjQs = jQ.children(':first').add(jQ.children(':last'));
-  };
+  _.init = function () {
+    _super.init.call(this);
+    this.openEl = crel('span', {class: 'mq-scaled mq-paren'}, this.open);
+    this.closeEl = crel('span', {class: 'mq-scaled mq-paren'}, this.close);
+    this.bracketjQs = $([this.openEl, this.closeEl]);
+  }
   //When typed, auto-expand paren to end of block
   _.finalizeTree = function() {
     if (this.firstChild.isEmpty() && this.next) {
@@ -603,11 +592,36 @@ var Bracket = P(MathCommand, function(_, _super) {
   };
 });
 
+
+function bracketProperties(open, close, ctrlSeq, end) {
+  return {
+    htmlTemplate: '<span class="mq-non-leaf">'
+    +   '<span class="mq-scaled mq-paren">'+open+'</span>'
+    +   '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-scaled mq-paren">'+close+'</span>'
+    + '</span>',
+    textTemplate: [open, close],
+    DOMTemplate: function (blocks) {
+      return crel('span', {class: 'mq-non-leaf'},
+        this.openEl,
+        wrapBlock(crel('span', {class: 'mq-non-leaf'}), blocks[0]),
+        this.closeEl
+      );
+    },
+    open: open,
+    close: close,
+    end: '\\right'+end
+  }
+}
+
+function makeBracket() {
+  return P(Bracket, bracketProperties.apply(null, arguments));
+}
+
 LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
     var regex = Parser.regex;
     var string = Parser.string;
-    var regex = Parser.regex;
     var succeed = Parser.succeed;
     var block = latexMathParser.block;
     var optWhitespace = Parser.optWhitespace;
@@ -646,9 +660,9 @@ LatexCmds.right = P(MathCommand, function(_) {
 });
 
 LatexCmds.lbrace =
-CharCmds['{'] = bind(Bracket, '{', '}', '\\{', '\\}');
+CharCmds['{'] = makeBracket('{', '}', '\\{', '\\}');
 LatexCmds.langle =
-LatexCmds.lang = bind(Bracket, '\u27E8','\u27E9','\\langle ','\\rangle ');
+LatexCmds.lang = makeBracket('\u27E8','\u27E9','\\langle ','\\rangle ');
 
 // Closing bracket matching opening bracket above
 var CloseBracket = P(Bracket, function(_, _super) {
@@ -683,49 +697,50 @@ var CloseBracket = P(Bracket, function(_, _super) {
   };
 });
 
+function makeCloseBracket() {
+  return P(CloseBracket, bracketProperties.apply(null, arguments));
+}
+
 LatexCmds.rbrace =
-CharCmds['}'] = bind(CloseBracket, '{','}','\\{','\\}');
+CharCmds['}'] = makeCloseBracket('{','}','\\{','\\}');
 LatexCmds.rangle =
-LatexCmds.rang = bind(CloseBracket, '\u27E8','\u27E9','\\langle ','\\rangle ');
+LatexCmds.rang = makeCloseBracket('\u27E8','\u27E9','\\langle ','\\rangle ');
 
-var parenMixin = function(_, _super) {
-  _.init = function(open, close) {
-    _super.init.call(this, open, close, open, close);
-  };
-};
+var Paren = P(Bracket, {});
 
-var Paren = P(Bracket, parenMixin);
+function makeParen(open, close) {
+  return P(Paren, bracketProperties(open, close, open, close));
+}
 
 LatexCmds.lparen =
-CharCmds['('] = bind(Paren, '(', ')');
+CharCmds['('] = makeParen('(', ')');
 LatexCmds.lbrack =
 LatexCmds.lbracket =
-CharCmds['['] = bind(Paren, '[', ']');
+CharCmds['['] = makeParen('[', ']');
 
-var CloseParen = P(CloseBracket, parenMixin);
+var CloseParen = P(CloseBracket, {});
+
+function makeCloseParen(open, close) {
+  return P(Paren, bracketProperties(open, close, open, close));
+}
 
 LatexCmds.rparen =
-CharCmds[')'] = bind(CloseParen, '(', ')');
+CharCmds[')'] = makeCloseParen('(', ')');
 LatexCmds.rbrack =
 LatexCmds.rbracket =
-CharCmds[']'] = bind(CloseParen, '[', ']');
+CharCmds[']'] = makeCloseParen('[', ']');
 
 var Pipes =
 LatexCmds.lpipe =
 LatexCmds.rpipe =
-CharCmds['|'] = P(Paren, function(_, _super) {
-  _.init = function() {
-    _super.init.call(this, '|', '|');
-  }
-
-  _.createBefore = function(cursor) {
-    if (!cursor.next && cursor.parent.parent && cursor.parent.parent.end === this.end && !this.replacedFragment)
-      cursor.insertAfter(cursor.parent.parent);
-    else
-      MathCommand.prototype.createBefore.call(this, cursor);
-  };
-  _.finalizeTree = noop;
-});
+CharCmds['|'] = makeParen('|', '|');
+CharCmds['|'].prototype.createBefore = function (cursor) {
+  if (!cursor.next && cursor.parent.parent && cursor.parent.parent.end === this.end && !this.replacedFragment)
+    cursor.insertAfter(cursor.parent.parent);
+  else
+    MathCommand.prototype.createBefore.call(this, cursor);
+};
+CharCmds['|'].prototype.finalizeTree = noop;
 
 // DISABLED in DCG
 var TextBlock =

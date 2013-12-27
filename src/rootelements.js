@@ -19,7 +19,8 @@ function createRoot(container, root, textbox, editable) {
 
   root.cursor = Cursor(root);
 
-  root.renderLatex(contents.text());
+  var text = contents.text();
+  if (text) root.renderLatex(text);
 }
 
 var is_ios = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) !== null;
