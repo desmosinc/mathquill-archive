@@ -9,7 +9,8 @@ function createRoot(container, root, textbox, editable) {
     container.addClass('mathquill-rendered-math');
   }
 
-  root.jQ = $('<span class="mathquill-root-block"/>').appendTo(container.attr(mqBlockId, root.id));
+  container.attr(mqBlockId, root.id);
+  root.jQ = $(crel('span', {class: 'mathquill-root-block'})).appendTo(container);
   root.revert = function() {
     container.empty().unbind('.mathquill')
       .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
@@ -18,17 +19,16 @@ function createRoot(container, root, textbox, editable) {
 
   root.cursor = Cursor(root);
 
-  root.renderLatex(contents.text());
+  var text = contents.text();
+  if (text) root.renderLatex(text);
 }
 
+var is_ios = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) !== null;
+var is_android = navigator.userAgent.match(/(Android|Silk|Kindle)/i) !== null;
 function setupTextarea(editable, container, root, cursor) {
-  var is_ios = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) !== null;
-  var is_android = navigator.userAgent.match(/(Android|Silk|Kindle)/i) !== null;
-  
-  var textareaSpan = root.textarea = (is_ios || is_android) ?
-      $('<span class="mq-textarea"><span tabindex=0></span></span>')
-    : $('<span class="mq-textarea"><textarea></textarea></span>'),
-    textarea = textareaSpan.children();
+  var textareaElt = (is_ios || is_android) ? crel('span', {tabindex: '0'}) : crel('textarea');
+  var textarea = $(textareaElt);
+  var textareaSpan = root.textarea = $(crel('span', {class: 'mq-textarea'}, textareaElt));
 
   /******
    * TODO [Han]: Document this
@@ -217,7 +217,7 @@ function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpa
     root.blurred = true;
     var textareaManager = manageTextarea(textarea, { container: container });
     container.bind('copy', setTextareaSelection)
-      .prepend('<span class="mq-selectable">$'+root.latex()+'$</span>');
+      .prepend(crel('span', {class: 'mq-selectable'}, '$'+root.latex()+'$'));
     textarea.bind('cut paste', false).blur(function() {
       cursor.clearSelection();
       setTimeout(detach); //detaching during blur explodes in WebKit
@@ -289,7 +289,7 @@ function focusBlurEvents(root, cursor, textarea) {
     cursor.hide().parent.blur();
     if (cursor.selection)
       cursor.selection.jQ.addClass('mq-blur');
-  }).blur();
+  })[0].blur();
 }
 
 function desmosCustomEvents(container, root, cursor) {
@@ -349,9 +349,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var jQ = this.jQ;
 
     if (block) {
-      var html = block.join('html');
-      jQ.html(html);
-      MathElement.jQize(jQ);
+      jQ.empty().append(block.joinDOM());
       this.focus().finalizeInsert();
     }
     else {
@@ -415,9 +413,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     var jQ = this.jQ;
 
-    var html = this.join('html');
-    jQ.html(html);
-    MathElement.jQize(jQ);
+    jQ.empty().append(this.joinDOM());
     //this.finalizeInsert();
 
     this.cursor.parent = this;
@@ -649,6 +645,9 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
     this.cursor = cursor;
   };
   _.htmlTemplate = '<span class="mathquill-rendered-math">&0</span>';
+  _.DOMTemplate = function (blocks) {
+    return wrapBlock(crel('span', {class: 'mathquill-rendered-math'}), blocks[0]);
+  }
   _.createBlocks = function() {
     this.firstChild =
     this.lastChild =
@@ -722,8 +721,7 @@ var RootTextBlock = P(MathBlock, function(_) {
         commands[i].adopt(self, self.lastChild, 0);
       }
 
-      var html = self.join('html');
-      MathElement.jQize(html).appendTo(self.jQ);
+      MathElement.jQize(this.joinDOM()).appendTo(self.jQ);
 
       this.finalizeInsert();
     }

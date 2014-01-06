@@ -8,13 +8,22 @@ var uuid = (function() {
   return function() { return id += 1; };
 })();
 
+function wrapBlock(el, block) {
+  el.setAttribute('mathquill-block-id', block.id);
+  el.appendChild(block.joinDOM());
+  // TODO does this need to be add, or can it just set?
+  // In other words, do all block ids correspond to a single element?
+  MathElement[block.id].jQ = $(el);
+  return el;
+}
+
 /**
  * Math tree node base class.
  * Some math-tree-specific extensions to Node.
  * Both MathBlock's and MathCommand's descend from it.
  */
 var MathElement = P(Node, function(_) {
-  _.init = function(obj) {
+  _.init = function() {
     this.id = uuid();
     MathElement[this.id] = this;
   };
@@ -34,14 +43,7 @@ var MathElement = P(Node, function(_) {
     return this;
   };
 
-  _.postOrder = function(fn /*, args... */) {
-    if (typeof fn === 'string') {
-      var methodName = fn;
-      fn = function(el) {
-        if (methodName in el) el[methodName].apply(el, arguments);
-      };
-    }
-
+  _.postOrder = function(fn) {
     (function recurse(desc) {
       desc.eachChild(recurse);
       fn(desc);
@@ -49,52 +51,39 @@ var MathElement = P(Node, function(_) {
   };
 
   _.jQ = $();
-  _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
 
   this.jQize = function(html) {
-    // Sets the .jQ of the entire math subtree rooted at this command.
-    // Expects .createBlocks() to have been called already, since it
-    // calls .html().
-    var jQ = $(html);
-
-    function jQadd(el) {
-      if (el.getAttribute) {
-        var cmdId = el.getAttribute('mathquill-command-id');
-        var blockId = el.getAttribute('mathquill-block-id');
-        if (cmdId) MathElement[cmdId].jQadd(el);
-        if (blockId) MathElement[blockId].jQadd(el);
-      }
-    }
-    function traverse(el) {
-      for (el = el.firstChild; el; el = el.nextSibling) {
-        jQadd(el);
-        if (el.firstChild) traverse(el);
-      }
-    }
-
-    for (var i = 0; i < jQ.length; i += 1) {
-      jQadd(jQ[i]);
-      traverse(jQ[i]);
-    }
-    return jQ;
+    return (html instanceof DocumentFragment) ? $(html.childNodes) : $(html);
   };
+
+  // Overridden by descendants.
+  _.finalizeTree = _.blur = _.respace = _.redraw = noop;
+
+  var methodCall = function (methodName) {
+    return function (el) {return el[methodName]();}
+  };
+
+  finalizeTreeMethod = methodCall('finalizeTree');
+  blurMethod = methodCall('blur');
+  respaceMethod = methodCall('respace');
+  redrawMethod = methodCall('redraw');
 
   _.finalizeInsert = function() {
     var self = this;
-    self.postOrder('finalizeTree');
+    self.postOrder(finalizeTreeMethod);
 
     // note: this order is important.
     // empty elements need the empty box provided by blur to
     // be present in order for their dimensions to be measured
     // correctly in redraw.
-    self.postOrder('blur');
+    self.postOrder(blurMethod);
 
     // adjust context-sensitive spacing
-    self.postOrder('respace');
+    self.postOrder(respaceMethod);
     if (self.next.respace) self.next.respace();
     if (self.prev.respace) self.prev.respace();
 
-    self.postOrder('redraw');
+    self.postOrder(redrawMethod);
     self.bubble('redraw');
     self.bubble('redraw');
   };
@@ -159,14 +148,13 @@ var MathElement = P(Node, function(_) {
  * Descendant commands are organized into blocks.
  */
 var MathCommand = P(MathElement, function(_, _super) {
-  _.init = function(ctrlSeq, htmlTemplate, textTemplate) {
-    var cmd = this;
-    _super.init.call(cmd);
-
-    if (!cmd.ctrlSeq) cmd.ctrlSeq = ctrlSeq;
-    if (htmlTemplate) cmd.htmlTemplate = htmlTemplate;
-    if (textTemplate) cmd.textTemplate = textTemplate;
+  _.init = function (ctrlSeq) {
+    _super.init.call(this);
+    if (!this.ctrlSeq) this.ctrlSeq = ctrlSeq;
+    if (!this.htmlTemplate) this.htmlTemplate = '<span>' + ctrlSeq + '</span>';
   };
+
+  _.DOMTemplate = function () {return crel('span', this.ctrlSeq);};
 
   // obvious methods
   _.replaces = function(replacedFragment) {
@@ -200,7 +188,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
-    MathElement.jQize(cmd.html());
+    MathElement.jQize(cmd.dom());
     if (replacedFragment) {
       replacedFragment.adopt(cmd.firstChild, 0, 0);
       replacedFragment.jQ.appendTo(cmd.firstChild.jQ);
@@ -352,22 +340,41 @@ var MathCommand = P(MathElement, function(_, _super) {
     });
   };
 
+  _.dom = function () {
+    var cmd = this;
+    
+    var blocks = cmd.blocks;
+    var dom = cmd.DOMTemplate(blocks);
+    if (dom instanceof DocumentFragment) {
+      var child = dom.firstChild;
+      while (child) {
+        child.setAttribute('mathquill-command-id', cmd.id);
+        child = child.nextSibling;
+      }
+      cmd.jQ = $(dom.childNodes);
+    } else {
+      dom.setAttribute('mathquill-command-id', cmd.id);
+      cmd.jQ = $(dom);
+    }
+    return dom;
+  };
+
   // methods to export a string representation of the math tree
   _.latex = function() {
     return this.foldChildren(this.ctrlSeq, function(latex, child) {
       return latex + '{' + (child.latex() || ' ') + '}';
     });
   };
-  _.textTemplate = [''];
   _.text = function() {
+    var textTemplate = this.textTemplate ? this.textTemplate : [this.ctrlSeq];
     var i = 0;
-    return this.foldChildren(this.textTemplate[i], function(text, child) {
+    return this.foldChildren(textTemplate[i], function(text, child) {
       i += 1;
       var child_text = child.text();
-      if (text && this.textTemplate[i] === '('
+      if (text && textTemplate[i] === '('
           && child_text[0] === '(' && child_text.slice(-1) === ')')
-        return text + child_text.slice(1, -1) + this.textTemplate[i];
-      return text + child.text() + (this.textTemplate[i] || '');
+        return text + child_text.slice(1, -1) + textTemplate[i];
+      return text + child.text() + (textTemplate[i] || '');
     });
   };
 });
@@ -376,12 +383,6 @@ var MathCommand = P(MathElement, function(_, _super) {
  * Lightweight command without blocks or children.
  */
 var Symbol = P(MathCommand, function(_, _super) {
-  _.init = function(ctrlSeq, html, text) {
-    if (!text) text = ctrlSeq && ctrlSeq.length > 1 ? ctrlSeq.slice(1) : ctrlSeq;
-
-    _super.init.call(this, ctrlSeq, html, [ text ]);
-  };
-
   _.parser = function() { return Parser.succeed(this); };
   _.numBlocks = function() { return 0; };
 
@@ -417,6 +418,15 @@ var MathBlock = P(MathElement, function(_) {
       return fold + child[methodName]();
     });
   };
+
+  _.joinDOM = function () {
+    var frag = document.createDocumentFragment();
+    this.eachChild(function (child) {
+      frag.appendChild(child.dom());
+    });
+    return frag;
+  }
+
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
     return this.firstChild === this.lastChild ?
