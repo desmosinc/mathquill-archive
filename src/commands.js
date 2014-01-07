@@ -1050,6 +1050,15 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
 LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\MathQuillMathField';
   _.htmlTemplate = '<span class="mathquill-editable">&0</span>';
+  _.parser = function() {
+    var self = this
+    var string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
+    // Note regex that whitelists of valid CSS classname characters:
+    // https://github.com/mathquill/mathquill/pull/191#discussion_r4327442
+    return string('[').then(regex(/^[-\w\s\\\xA0-\xFF]*/)).skip(string(']'))
+      .map(function(classnames) { self.classnames = classnames; })
+      .or(succeed()).then(_super.parser.call(self));
+  };
   _.finalizeTree = function() {
     // parsed \MathQuillMathField{contents}, `this` is this MathCommand,
     // replace its sole child MathBlock with a RootMathBlock
@@ -1072,6 +1081,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
     setupTouchHandle(true, rootBlock, cursor);
     focusBlurEvents(rootBlock, cursor, textarea);
     desmosCustomEvents(self.jQ, rootBlock, cursor);
+    self.jQ.addClass(self.classnames);
   };
 
   _.latex = function(){ return this.firstChild.latex(); };
