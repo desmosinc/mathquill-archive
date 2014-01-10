@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="../build/mathquill.css">
+</head>
+<body>
+  <p id='result1'>Time to insert 100 simple editable mathquills: </p>
+  <p id='result2'>Time to insert 100 editable mathquills with measured containers: </p>
+
+  <div id='mathquill-container'></div>
+
+  <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
+  <script src="../build/mathquill.js"></script>
+  <script>
+    var container = document.getElementById('mathquill-container');
+    
+    var now;
+    if (window.performance && performance.now) {
+      now = function () {return performance.now();};
+    } else {
+      now = function () {return Date.now();};
+    }
+
+    insertSimple = function () {
+      var t = now();
+      for (var i = 0; i < 100; i++) {
+        var span = document.createElement('span');
+        container.appendChild(span);
+        $(span).mathquill('editable').mathquill('latex', 'ax^2+bx+c=0');
+      }
+      document.getElementById('result1').firstChild.textContent += (now() - t + 'ms');
+    }
+
+    insertMeasured = function () {
+      var t = now();
+      for (var i = 0; i < 100; i++) {
+        var span = document.createElement('span');
+        container.appendChild(span);
+        $(span).mathquill('editable').mathquill('latex', '\\left(\\sqrt{\\frac{1}{x^2}}\\right)');
+      }
+      document.getElementById('result2').firstChild.textContent += (now() - t + 'ms');
+    }
+
+    withPauses = function (fns) {
+      if (!fns.length) return;
+      fns.shift().call();
+      setTimeout(withPauses.bind(undefined, fns), 500);
+    }
+
+    withPauses([function () {}, insertSimple, insertMeasured]);
+  </script>
+</body>
+</html>
