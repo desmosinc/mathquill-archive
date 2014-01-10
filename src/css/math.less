@@ -208,7 +208,6 @@
   // fractions
   .mq-fraction {
     font-size: 90%;
-    text-align: center;
     vertical-align: -.5em;
     padding: 0 .2em;
   }
@@ -226,6 +225,10 @@
 
   .mq-numerator, .mq-denominator {
     display: block;
+    text-align: center;
+    * {
+      text-align: left;
+    }
   }
 
   .mq-numerator {
