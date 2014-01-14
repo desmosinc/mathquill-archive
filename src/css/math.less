@@ -15,6 +15,12 @@
   .mq-non-leaf, .mq-scaled {
     .inline-block;
   }
+  // workaround for WebKit bug where with white-space:pre,
+  // inline-block's at the end of a line box get wrapped:
+  // https://bugs.webkit.org/show_bug.cgi?id=35443#c1
+  .mq-non-leaf::after {
+    content: '';
+  }
 
   // TODO: dasherize non-symbola
   var, .mq-text, .mq-nonSymbola {
