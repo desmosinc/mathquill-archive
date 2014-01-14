@@ -166,6 +166,7 @@ function setupTouchHandle(editable, root, cursor) {
       });
     };
   }
+  var blink = cursor.blink;
   cursor.handle.on('touchstart', firstFingerOnly(function(e) {
     cursor.blink = noop;
     var cursorRect = cursor.jQ[0].getBoundingClientRect();
