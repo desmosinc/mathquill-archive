@@ -330,8 +330,8 @@ var BigSymbol = P(MathCommand, function(_, _super) {
     return false;
   }
 });
-LatexCmds['\u2211'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
-LatexCmds['\u220F'] = LatexCmds.prod = LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
+LatexCmds['\u2211'] = LatexCmds.sum = LatexCmds.summation = LatexCmds.Sigma = bind(BigSymbol,'\\sum ','&sum;');
+LatexCmds['\u220F'] = LatexCmds.prod = LatexCmds.product = LatexCmds.Pi = bind(BigSymbol,'\\prod ','&prod;');
 
 var Fraction =
 LatexCmds.frac =
