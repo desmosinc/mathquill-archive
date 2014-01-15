@@ -128,8 +128,11 @@ var UnItalicizedCmds = {
   sum: 1,
   prod: 1,
   pi: 1,
+  Pi: 1,
   phi: 1,
+  Sigma: 1,
   tau: 1,
+  Gamma: 1,
   gamma: 1,
   theta: 1/*,
   int: 1*/
