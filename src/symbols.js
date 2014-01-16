@@ -133,7 +133,6 @@ var UnItalicizedCmds = {
   Sigma: 1,
   tau: 1,
   Gamma: 1,
-  gamma: 1,
   theta: 1/*,
   int: 1*/
 }, MAX_AUTOCMD_LEN = 7;
