@@ -451,6 +451,8 @@ LatexCmds.nsupersete = LatexCmds.nsuperseteq =
 LatexCmds.notsupersete = LatexCmds.notsuperseteq =
   bind(BinaryOperator,'\\not\\supseteq ','&#8841;');
 
+LatexCmds.Box = bind(VanillaSymbol, '\\Box ', '\u25A1');
+
 /*
 
 //the canonical sets of numbers
