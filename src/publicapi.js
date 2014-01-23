@@ -128,7 +128,7 @@ $.fn.mathquill = function(cmd, latex) {
       if (cursor && touchstartTarget !== cursor.handle[0]) {
         var wasBlurred = block.blurred;
         block.textarea.children().focus();
-        cursor.seek(elAtPt(x, y, block), x, y, cachedClientRectFnForNewCache(), true);
+        cursor.seek($(touchstartTarget), x, y, cachedClientRectFnForNewCache(), true);
         if (!wasBlurred) cursor.showHandle();
       }
     });
