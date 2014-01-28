@@ -428,6 +428,7 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
 
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
+  _.ctrlSeq = '\\root';
   _.htmlTemplate =
       '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
     + '<span class="mq-scaled">'
@@ -436,9 +437,6 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
     + '</span>'
   ;
   _.textTemplate = ['sqrt[', '](', ')'];
-  _.latex = function() {
-    return '\\sqrt['+this.firstChild.latex()+']{'+this.lastChild.latex()+'}';
-  };
   _.onKey = function(key, e) {
     if (this.getCursor().parent.parent !== this) return;
 
