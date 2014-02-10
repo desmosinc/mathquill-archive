@@ -24,9 +24,6 @@ CSS_DIR = $(SRC_DIR)/css
 CSS_MAIN = $(CSS_DIR)/main.less
 CSS_SOURCES = $(shell find $(CSS_DIR) -name '*.less')
 
-FONT_SOURCE = $(SRC_DIR)/font
-FONT_TARGET = $(BUILD_DIR)/font
-
 UNIT_TESTS = ./test/unit/*.test.js
 
 # outputs
@@ -56,14 +53,13 @@ LESS_OPTS ?=
 # -*- Build tasks -*-
 #
 
-.PHONY: all cat uglify css font dist clean
-all: font css uglify
+.PHONY: all cat uglify css dist clean
+all: css uglify
 # dev is like all, but without minification
-dev: font css js
+dev: css js
 js: $(BUILD_JS)
 uglify: $(UGLY_JS)
 css: $(BUILD_CSS)
-font: $(FONT_TARGET)
 dist: $(DIST)
 clean:
 	rm -rf $(CLEAN)
@@ -77,11 +73,7 @@ $(UGLY_JS): $(BUILD_JS)
 $(BUILD_CSS): $(CSS_SOURCES)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
 
-$(FONT_TARGET): $(FONT_SOURCE)
-	rm -rf $@
-	cp -r $< $@
-
-$(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
+$(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS)
 	tar -czf $(DIST) \
 		--xform 's:^\./build:$(DISTDIR):' \
 		--exclude='\.gitkeep' \
