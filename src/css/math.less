@@ -25,6 +25,7 @@
   // TODO: dasherize non-symbola
   var, .mq-text, .mq-nonSymbola {
     font-family: @times;
+    -webkit-text-stroke: 0;
     line-height: .9;
   }
 
@@ -56,6 +57,7 @@
 
   .mq-font {
     font: 1em @times;
+    -webkit-text-stroke: 0;
     line-height: .9;
 
     * {
@@ -82,12 +84,13 @@
   }
 
   .mq-sans-serif {
-    
     font-family: @sans-serif;
+    -webkit-text-stroke: 0;
   }
 
   .mq-monospace {
     font-family: @monospace;
+    -webkit-text-stroke: 0;
   }
 
   .mq-overline {
@@ -202,6 +205,7 @@
   // like \sin, \cos, \ln, etc.
   .mq-un-italicized {
     font-family: @times;
+    -webkit-text-stroke: 0;
     line-height: 1;
     font-style: normal;
   }
@@ -290,5 +294,6 @@
   &, .mathquill-editable {
     cursor: text;
     font-family: @symbola;
+    -webkit-text-stroke: .3px;
   }
 }
