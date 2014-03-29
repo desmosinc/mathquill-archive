@@ -121,7 +121,8 @@ var UnItalicizedCmds = {
   floor: 1,
   sign: 1,
   signum: 1,
-  round: 1
+  round: 1,
+  length: 1
 }, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
   sqrt: 1,
   nthroot: 1,
