@@ -21,11 +21,28 @@ function createRoot(container, root, textbox, editable) {
   root.renderLatex(contents.text());
 }
 
-function setupTextarea(editable, container, root, cursor) {
-  var is_ios = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) !== null;
-  var is_android = navigator.userAgent.match(/(Android|Silk|Kindle)/i) !== null;
+function shouldUseSpan () {
+  // enable physical keyboards.
+  if (window.PhysicalKeyboardIsPresent === true) {
+    return false;
+    
+  // disable physical keyboards
+  } else if (window.PhysicalKeyboardIsPresent === false) {
+    return true;  
+  }
   
-  var textareaSpan = root.textarea = (is_ios || is_android) ?
+  var matches = function (regex) {
+    return navigator.userAgent.match(regex) !== null;
+  }
+  
+  // make a good guess
+  var is_ios = matches(/(iPad|iPhone|iPod)/i);
+  var is_android = matches(/(Android|Silk|Kindle)/i);
+  return (is_ios || is_android);
+}
+
+function setupTextarea(editable, container, root, cursor) {
+  var textareaSpan = root.textarea = shouldUseSpan() ?
       $('<span class="mq-textarea"><span tabindex=0></span></span>')
     : $('<span class="mq-textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
