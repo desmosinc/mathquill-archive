@@ -1,5 +1,6 @@
 suite('key', function() {
-  var el;
+  var textarea;
+  var spanarea;
   var Event = $.Event
 
   function shouldNotBeCalled() {
@@ -7,39 +8,41 @@ suite('key', function() {
   }
 
   function supportsSelectionAPI() {
-    return 'selectionStart' in el[0];
+    return 'selectionStart' in textarea[0];
   }
 
   setup(function() {
-    el = $('<textarea>').appendTo('#mock');
+    textarea = $('<textarea>').appendTo('#mock');
+    spanarea = $('<span>').appendTo('#mock');
   });
 
   teardown(function() {
-    el.remove();
+    textarea.remove();
+    spanarea.remove(); 
   });
 
   test('normal keys', function(done) {
     var counter = 0;
-    manageTextarea(el, {
+    manageTextarea(textarea, spanarea, {
       text: function(text, keydown, keypress) {
         counter += 1;
         assert.ok(counter <= 1, 'callback is only called once');
         assert.equal(text, 'a', 'text comes back as a');
-        assert.equal(el.val(), '', 'the textarea remains empty');
+        assert.equal(textarea.val(), '', 'the textarea remains empty');
 
         done();
       },
     });
 
-    el.trigger(Event('keydown', { which: 97 }));
-    el.trigger(Event('keypress', { which: 97 }));
-    el.val('a');
+    textarea.trigger(Event('keydown', { which: 97 }));
+    textarea.trigger(Event('keypress', { which: 97 }));
+    textarea.val('a');
   });
 
   test('one keydown only', function(done) {
     var counter = 0;
 
-    manageTextarea(el, {
+    manageTextarea(textarea, spanarea, {
       key: function(key, evt) {
         counter += 1;
         assert.ok(counter <= 1, 'callback is called only once');
@@ -50,13 +53,13 @@ suite('key', function() {
       text: shouldNotBeCalled
     });
 
-    el.trigger(Event('keydown', { which: 8 }));
+    textarea.trigger(Event('keydown', { which: 8 }));
   });
 
   test('a series of keydowns only', function(done) {
     var counter = 0;
 
-    manageTextarea(el, {
+    manageTextarea(textarea, spanarea, {
       key: function(key, keydown) {
         counter += 1;
         assert.ok(counter <= 3, 'callback is called at most 3 times');
@@ -69,15 +72,15 @@ suite('key', function() {
       text: shouldNotBeCalled
     });
 
-    el.trigger(Event('keydown', { which: 37 }));
-    el.trigger(Event('keydown', { which: 37 }));
-    el.trigger(Event('keydown', { which: 37 }));
+    textarea.trigger(Event('keydown', { which: 37 }));
+    textarea.trigger(Event('keydown', { which: 37 }));
+    textarea.trigger(Event('keydown', { which: 37 }));
   });
 
   test('one keydown and a series of keypresses', function(done) {
     var counter = 0;
 
-    manageTextarea(el, {
+    manageTextarea(textarea, spanarea, {
       key: function(key, keydown) {
         counter += 1;
         assert.ok(counter <= 3, 'callback is called at most 3 times');
@@ -90,68 +93,68 @@ suite('key', function() {
       text: shouldNotBeCalled
     });
 
-    el.trigger(Event('keydown', { which: 8 }));
-    el.trigger(Event('keypress', { which: 8 }));
-    el.trigger(Event('keypress', { which: 8 }));
-    el.trigger(Event('keypress', { which: 8 }));
+    textarea.trigger(Event('keydown', { which: 8 }));
+    textarea.trigger(Event('keypress', { which: 8 }));
+    textarea.trigger(Event('keypress', { which: 8 }));
+    textarea.trigger(Event('keypress', { which: 8 }));
   });
 
   suite('select', function() {
     test('select populates the textarea but doesn\'t call text', function() {
-      var manager = manageTextarea(el, {
+      var manager = manageTextarea(textarea, spanarea, {
         text: shouldNotBeCalled,
       });
 
       manager.select('foobar');
 
-      assert.equal(el.val(), 'foobar');
-      el.trigger('keydown');
-      assert.equal(el.val(), 'foobar', 'value remains after keydown');
+      assert.equal(textarea.val(), 'foobar');
+      textarea.trigger('keydown');
+      assert.equal(textarea.val(), 'foobar', 'value remains after keydown');
 
       if (supportsSelectionAPI()) {
-        el.trigger('keypress');
-        assert.equal(el.val(), 'foobar', 'value remains after keypress');
-        el.trigger('input');
-        assert.equal(el.val(), 'foobar', 'value remains after flush after keypress');
+        textarea.trigger('keypress');
+        assert.equal(textarea.val(), 'foobar', 'value remains after keypress');
+        textarea.trigger('input');
+        assert.equaltextarea.val(), 'foobar', 'value remains after flush after keypress');
       }
     });
 
     test('select populates the textarea but doesn\'t call text' +
          ' on keydown, even when the selection is not properly' +
          ' detectable', function() {
-      var manager = manageTextarea(el, { text: shouldNotBeCalled });
+      var manager = manageTextarea(textarea, spanarea, { text: shouldNotBeCalled });
 
       manager.select('foobar');
       // monkey-patch the dom-level selection so that hasSelection()
       // returns false, as in IE < 9.
-      el[0].selectionStart = el[0].selectionEnd = 0;
+      textarea[0].selectionStart = textarea[0].selectionEnd = 0;
 
-      el.trigger('keydown');
-      assert.equal(el.val(), 'foobar', 'value remains after keydown');
+      textarea.trigger('keydown');
+      assert.equal(textarea.val(), 'foobar', 'value remains after keydown');
     });
 
     test('blurring', function() {
-      var manager = manageTextarea(el, {
+      var manager = manageTextarea(textarea, spanarea, {
         text: shouldNotBeCalled,
       });
 
       manager.select('foobar');
-      el.trigger('blur');
-      el.focus();
+      textarea.trigger('blur');
+      textarea.focus();
 
       // IE < 9 doesn't support selection{Start,End}
       if (supportsSelectionAPI()) {
-        assert.equal(el[0].selectionStart, 0, 'it\'s selected from the start');
-        assert.equal(el[0].selectionEnd, 6, 'it\'s selected to the end');
+        assert.equal(textarea[0].selectionStart, 0, 'it\'s selected from the start');
+        assert.equal(textarea[0].selectionEnd, 6, 'it\'s selected to the end');
       }
 
-      assert.equal(el.val(), 'foobar', 'it still has content');
+      assert.equal(textarea.val(), 'foobar', 'it still has content');
     });
   });
 
   suite('paste', function() {
     test('paste event only', function(done) {
-      manageTextarea(el, {
+      manageTextarea(textarea, spanarea, {
         text: shouldNotBeCalled,
         paste: function(text) {
           assert.equal(text, '$x^2+1$');
@@ -160,12 +163,12 @@ suite('key', function() {
         }
       });
 
-      el.trigger('paste');
-      el.val('$x^2+1$');
+      textarea.trigger('paste');
+      textarea.val('$x^2+1$');
     });
 
     test('paste after keydown/keypress', function(done) {
-      manageTextarea(el, {
+      manageTextarea(textarea, spanarea, {
         text: shouldNotBeCalled,
         paste: function(text) {
           assert.equal(text, 'foobar');
@@ -174,14 +177,14 @@ suite('key', function() {
       });
 
       // somebody presses Ctrl-V
-      el.trigger('keydown', { which: 86, ctrlKey: true });
-      el.trigger('keypress', { which: 118, ctrlKey: true });
-      el.trigger('paste');
-      el.val('foobar');
+      textarea.trigger('keydown', { which: 86, ctrlKey: true });
+      textarea.trigger('keypress', { which: 118, ctrlKey: true });
+      textarea.trigger('paste');
+      textarea.val('foobar');
     });
 
     test('keypress timeout happening before paste timeout', function(done) {
-      manageTextarea(el, {
+      manageTextarea(textarea, spanarea, {
         text: shouldNotBeCalled,
         paste: function(text) {
           assert.equal(text, 'foobar');
@@ -189,14 +192,14 @@ suite('key', function() {
         }
       });
 
-      el.trigger('keydown', { which: 86, ctrlKey: true });
-      el.trigger('keypress', { which: 118, ctrlKey: true });
-      el.trigger('paste');
-      el.val('foobar');
+      textarea.trigger('keydown', { which: 86, ctrlKey: true });
+      textarea.trigger('keypress', { which: 118, ctrlKey: true });
+      textarea.trigger('paste');
+      textarea.val('foobar');
 
       // this synthesizes the keypress timeout calling handleText()
       // before the paste timeout happens.
-      el.trigger('input');
+      textarea.trigger('input');
     });
   });
 });
