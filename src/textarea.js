@@ -85,11 +85,28 @@ var manageTextarea = (function() {
     modifiers.push(key);
     return modifiers.join('-');
   }
+  
+  // A global listener that's attached once. It monitors for keydown events.
+  // Whenever one occurs, it checks if the currently active element has
+  // permission to enable the physical keyboard for a mathquill. If so,
+  // it calls the closured function to do so. When that mathquill loses focus
+  // it will automatically disable the keyboard again. This means that a 
+  // bluetooh keyboard can be added and removed throught a session and we'll
+  // update the mathquills accordingly. The only edge case is if you remove
+  // a keyboard while editing a mathquill. In that case, the virtual keypad
+  // will popup.
+  $(document).on('keydown', function () {
+    var activeElement = document.activeElement;
+    var enableKeyboard = $(activeElement).data('enablePhysicalKeyboard')
+    if (enableKeyboard) {
+      enableKeyboard();
+    }
+  });
 
   // create a textarea manager that calls callbacks at useful times
   // and exports useful public methods
-  return function manageTextarea(el, opts) {
-    if (!el.is('textarea')) return { select: noop };
+  return function manageTextarea(textarea, spanarea, opts) {
+    var exports = {}
     var keydown = null;
     var keypress = null;
 
@@ -99,7 +116,6 @@ var manageTextarea = (function() {
     var pasteCallback = opts.paste || noop;
     var onCut = opts.cut || noop;
 
-    var textarea = $(el);
     var target = $(opts.container || textarea);
 
     // defer() runs fn immediately after the current thread.
@@ -107,6 +123,44 @@ var manageTextarea = (function() {
     // flush always needs to be called before defer, and is called a
     // few other places besides.
     var timeout, deferredFn;
+    var isPhysicalKeyboardEnabled = undefined;
+    var disableFocusEvents = 0;
+    
+    function disablePhysicalKeyboard () {
+      disableFocusEvents++;
+      textarea.attr('disabled', true);
+      spanarea.attr('tabindex', '0');
+      isPhysicalKeyboardEnabled = false;
+      disableFocusEvents--;
+    }
+    
+    function enablePhysicalKeyboard () {
+      disableFocusEvents++;
+      isPhysicalKeyboardEnabled = true;
+      spanarea.removeAttr('tabindex');
+      textarea.removeAttr('disabled');
+      textarea.focus();
+      textarea.select();
+      disableFocusEvents--;
+    }
+    
+    function ignoreTransitionFocusEvents (evt) {
+      if (disableFocusEvents) {
+        evt.stopPropagation();
+        evt.stopImmediatePropagation();
+      }
+    }
+    
+    // if we get a keydown event while this element is active, we'll
+    // enable the physical physical keyboard.
+    spanarea.data('enablePhysicalKeyboard', enablePhysicalKeyboard);
+
+    // start off with keyboard disabled. This keeps virtual keyboards
+    // on touch devices away. We enable keyboards when this mathquill
+    // is focused and we observe a native 'keydown' event. We assume
+    // that command came from a physical keyboard. We JIT switch focus
+    // to a real textarea in order to catch the keypress.
+    disablePhysicalKeyboard();
 
     function defer(fn) {
       timeout = setTimeout(fn);
@@ -120,18 +174,55 @@ var manageTextarea = (function() {
         deferredFn();
       }
     }
-
-    target.bind('keydown keypress input keyup focusout paste', flush);
-
-
-    // -*- public methods -*- //
-    function select(text) {
+    
+    // -*- public methods -*- //    
+    exports.onFocus = function () {}
+    exports.onBlur = function () {}
+    exports.focus = function () {
+      var target = isPhysicalKeyboardEnabled ? textarea : spanarea;
+      if (document.activeElement !== target[0]) {
+        target.focus()
+      }
+    };
+    exports.blur = function () {
+      if (document.activeElement == textarea[0]) {
+        textarea.blur();
+      }
+      if (document.activeElement == spanarea[0]) {
+        spanarea.blur();
+      }
+    };
+    
+    exports.select = function (text) {
       flush();
 
       textarea.val(text);
       if (text) textarea[0].select();
     }
-
+    
+    // when enabling keyboard, we switch focus from the spanarea
+    // to the textarea. We want that transition to be seamless.
+    // The outside world should not know that a focus change
+    // has occured.
+    target.on('focusin focusout', function (evt) {
+      if (disableFocusEvents) {
+        evt.stopPropagation();
+        evt.stopImmediatePropagation();
+      } else if (evt.type === 'focusin') {
+        exports.onFocus();
+      } else if (evt.type === 'focusout') {
+        exports.onBlur();
+        
+        // lost focus so disable keyboard. Prevents virtual keypad
+        // on already created mathquills if keyboard is removed later.
+        if (isPhysicalKeyboardEnabled) {
+          disablePhysicalKeyboard()
+        }
+      }
+    });
+    
+    target.bind('keydown keypress input keyup focusout paste', flush);
+    
     // -*- helper subroutines -*- //
 
     // Determine whether there's a selection in the textarea.
@@ -252,8 +343,6 @@ var manageTextarea = (function() {
     });
 
     // -*- export public methods -*- //
-    return {
-      select: select
-    };
+    return exports;
   };
 }());
