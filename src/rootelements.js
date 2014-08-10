@@ -20,33 +20,11 @@ function createRoot(container, root, textbox, editable) {
 
   root.renderLatex(contents.text());
 }
-
-function shouldUseSpan () {
-  // enable physical keyboards.
-  if (window.PhysicalKeyboardIsPresent === true) {
-    return false;
-    
-  // disable physical keyboards
-  } else if (window.PhysicalKeyboardIsPresent === false) {
-    return true;  
-  }
-  
-  var matches = function (regex) {
-    return navigator.userAgent.match(regex) !== null;
-  }
-  
-  // make a good guess
-  var is_ios = matches(/(iPad|iPhone|iPod)/i);
-  var is_android = matches(/(Android|Silk|Kindle)/i);
-  return (is_ios || is_android);
-}
-
 function setupTextarea(editable, container, root, cursor) {
-  var textareaSpan = root.textarea = shouldUseSpan() ?
-      $('<span class="mq-textarea"><span tabindex=0></span></span>')
-    : $('<span class="mq-textarea"><textarea></textarea></span>'),
-    textarea = textareaSpan.children();
-
+  var textareaSpan = root.textarea = $('<span class="mq-textarea"></span>');
+  textarea = $(document.createElement('textarea')).appendTo(textareaSpan)
+  spanarea = $(document.createElement('span')).appendTo(textareaSpan)
+  
   /******
    * TODO [Han]: Document this
    */
@@ -60,19 +38,21 @@ function setupTextarea(editable, container, root, cursor) {
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
     var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
-    textareaManager.select(latex);
+    root.textareaManager.select(latex);
     root.triggerSpecialEvent('selectionChanged');
   }
 
+  // TODO - this causes issues with IE. I don't think we need it
+  // since we prevent text selection with css. Would be best
+  // to figure out how to fix this.
+  /*
   //prevent native selection except textarea
   container.bind('selectstart.mathquill', function(e) {
-    if (e.target !== textarea[0]) e.preventDefault();
+    if (e.target !== textarea[0] && e.target !== spanarea[0]) e.preventDefault();
     e.stopPropagation();
-  });
+  });*/
 
-  var textareaManager = hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection);
-
-  return textarea;
+  hookUpTextarea(editable, container, root, cursor, textarea, spanarea, textareaSpan, setTextareaSelection);
 }
 
 function mouseEvents(ultimateRootjQ) {
@@ -86,7 +66,7 @@ function mouseEvents(ultimateRootjQ) {
     }
     var root = MathElement[container.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
     var cursor = root.cursor, blink = cursor.blink;
-    var textareaSpan = root.textarea, textarea = textareaSpan.children();
+    var textareaSpan = root.textarea;
 
     if (root.ignoreMousedownTimeout !== undefined) {
       clearTimeout(root.ignoreMousedownTimeout);
@@ -142,7 +122,7 @@ function mouseEvents(ultimateRootjQ) {
     var anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
     if (!root.editable && root.blurred) container.prepend(textareaSpan);
-    textarea.focus();
+    root.textareaManager.focus();
     root.blurred = false;
 
     container.mousemove(mousemove);
@@ -230,10 +210,10 @@ function setupTouchHandle(editable, root, cursor) {
   }));
 }
 
-function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection) {
+function hookUpTextarea(editable, container, root, cursor, textarea, spanarea, textareaSpan, setTextareaSelection) {
   if (!editable) {
     root.blurred = true;
-    var textareaManager = manageTextarea(textarea, { container: container });
+    root.textareaManager = manageTextarea(textarea, spanarea, { container: container });
     container.bind('copy', setTextareaSelection)
       .prepend('<span class="mq-selectable">$'+root.latex()+'$</span>');
     textarea.bind('cut paste', false).blur(function() {
@@ -244,10 +224,10 @@ function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpa
       textareaSpan.detach();
       root.blurred = true;
     }
-    return textareaManager;
+    return;
   }
 
-  var textareaManager = manageTextarea(textarea, {
+  root.textareaManager = manageTextarea(textarea, spanarea, {
     container: container,
     key: function(key, evt) {
       cursor.parent.bubble('onKey', key, evt);
@@ -281,7 +261,6 @@ function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpa
   });
 
   container.prepend(textareaSpan);
-  return textareaManager;
 }
 
 function rootCSSClasses(container, textbox) {
@@ -290,8 +269,8 @@ function rootCSSClasses(container, textbox) {
     container.addClass('mathquill-textbox');
 }
 
-function focusBlurEvents(root, cursor, textarea) {
-  textarea.focus(function(e) {
+function focusBlurEvents(root, cursor) {
+  root.textareaManager.onFocus = function () {
     root.blurred = false;
     if (!cursor.parent)
       cursor.appendTo(root);
@@ -300,14 +279,20 @@ function focusBlurEvents(root, cursor, textarea) {
       cursor.selection.jQ.removeClass('mq-blur');
       setTimeout(root.selectionChanged); //re-select textarea contents after tabbing away and back
     }
-    else
+    else {
       cursor.show();
-  }).blur(function(e) {
+    }
+  };
+  
+  root.textareaManager.onBlur = function () {
     root.blurred = true;
     cursor.hide().parent.blur();
-    if (cursor.selection)
+    if (cursor.selection) {
       cursor.selection.jQ.addClass('mq-blur');
-  }).blur();
+    }
+  };
+
+  root.textareaManager.onBlur()
 }
 
 function desmosCustomEvents(container, root, cursor) {

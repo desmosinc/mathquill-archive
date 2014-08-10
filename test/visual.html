@@ -152,6 +152,16 @@ td {
   <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
 </table>
 
+<h3>Changing focus during downPressed and upPressed event</h3>
+<div id="changefocus-test">
+<span class="mathquill-editable">1</span><br>
+<span class="mathquill-editable">2</span><br>
+<span class="mathquill-editable">3</span><br>
+<span class="mathquill-editable">4</span>
+</div>
+<span onclick="$('#changefocus-test-log').html('');" style="border: 1px solid black;">clear log</span>
+<div id="changefocus-test-log"></div>
+
 <h3>Static LaTeX rendering (<code>.mathquill-embedded-latex</code>) tests</h3>
 <table>
 <tr><td><span class="mathquill-embedded-latex">^{\frac{as}{ }df}</span><td><span>^{\frac{as}{ }df}</span>
@@ -335,6 +345,31 @@ function timeAndLog(f) {
     });
   });
 }());
+(function () {
+  // the order dcg clears changes mathquill expressions
+  // when using upPressed and downPressed. IE has troubles
+  // with it. Getting rid of the .mathquill('blur') fixes
+  // IE.
+  $('#changefocus-test .mathquill-editable')
+  .on('downPressed', function (evt) {
+    var current = $(this).closest('.mathquill-editable');
+    var next = current.nextAll('.mathquill-editable').first()
+    current.mathquill('clearSelection').mathquill('blur');
+    next.mathquill('focus').mathquill('moveStart');
+  })
+  .on('upPressed', function (evt) {
+    var current = $(this).closest('.mathquill-editable');
+    var prev = current.prevAll('.mathquill-editable').first()
+    current.mathquill('clearSelection').mathquill('blur');
+    prev.mathquill('focus').mathquill('moveStart');
+  })
+  .on('focusin focusout focus blur', function (evt) {
+    var tag = evt.target.tagName;
+    var parents = $(evt.target).parents().length
+    var latex = $(evt.target).closest('.mathquill-editable').mathquill('latex');
+    $('#changefocus-test-log').append('<div>' + evt.type + ' : ' + latex + " : " + tag + ' ' + parents + '</div>')
+  });
+})();
 </script>
 </body>
 </html>
