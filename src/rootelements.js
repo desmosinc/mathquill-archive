@@ -20,7 +20,6 @@ function createRoot(container, root, textbox, editable) {
 
   root.renderLatex(contents.text());
 }
-
 function setupTextarea(editable, container, root, cursor) {
   var textareaSpan = root.textarea = $('<span class="mq-textarea"></span>');
   textarea = $(document.createElement('textarea')).appendTo(textareaSpan)
