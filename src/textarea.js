@@ -37,10 +37,6 @@
 // textarea manager in order to better enforce the
 // *HARD* internal abstraction barrier.
 
-// TODO - original tests assume that the textarea is 
-// enabled by default. That's not the case so the tests
-// should probably get updated.
-
 var manageTextarea = (function() {
   
   var NONE = 0;
@@ -132,28 +128,20 @@ var manageTextarea = (function() {
       enableKeyboard();
     }
   });
-
-  // create a textarea manager that calls callbacks at useful times
-  // and exports useful public methods
-  return function manageTextarea(textarea, spanarea, opts) {
-    var exports = {}
-    var keydown = null;
-    var keypress = null;
-
-    if (!opts) opts = {};
-    var textCallback = opts.text || noop;
-    var keyCallback = opts.key || noop;
-    var pasteCallback = opts.paste || noop;
-    var onCut = opts.cut || noop;
-
-    var target = $(opts.container || textarea);
-
-    // defer() runs fn immediately after the current thread.
-    // flush() will run it even sooner, if possible.
-    // flush always needs to be called before defer, and is called a
-    // few other places besides.
-    var timeout, deferredFn;
+  
+  // Sets up the listeners to automatically switch between spanarea and
+  // the textarea. This allows us to use the physical keyboard wihtout
+  // bringing up a native virtual keyboard when a physical keyboard is
+  // not present. Should only be used when there is a user supplied
+  // keypad present.
+  //
+  // We enable physical keyboards when this mathquill's spanara is
+  // focused and we observe a native 'keydown' event. We assume
+  // that command came from a physical keyboard. We JIT switch 
+  // focus to a real textarea in order to catch the keypress.
+  function autoSwitchTextarea (spanarea, textarea, exports) {
     var focusedElement = NONE;
+    
     function disablePhysicalKeyboard () {
       spanarea.attr('tabindex', '0');
       
@@ -172,38 +160,12 @@ var manageTextarea = (function() {
       textarea.select();
     }
     
-    // if we get a keydown event while this element is active, we'll
-    // enable the physical physical keyboard.
-    spanarea.data('enablePhysicalKeyboard', enablePhysicalKeyboard);
-
-    // start off with keyboard disabled. This keeps virtual keyboards
-    // on touch devices away. We enable keyboards when this mathquill
-    // is focused and we observe a native 'keydown' event. We assume
-    // that command came from a physical keyboard. We JIT switch focus
-    // to a real textarea in order to catch the keypress.
-    disablePhysicalKeyboard();
-
-    function defer(fn) {
-      timeout = setTimeout(fn);
-      deferredFn = fn;
-    }
-
-    function flush() {
-      if (timeout) {
-        clearTimeout(timeout);
-        timeout = undefined;
-        deferredFn();
-      }
-    }
-    
-    // -*- public methods -*- //    
-    exports.onFocus = function () {}
-    exports.onBlur = function () {}
     exports.focus = function () {
       if (focusedElement === NONE) {
         spanarea.focus();
       }
     };
+    
     exports.blur = function () {
       if (focusedElement === TEXTAREA) {
         textarea.blur();
@@ -212,18 +174,6 @@ var manageTextarea = (function() {
         spanarea.blur();
       }
     };
-    
-    exports.select = function (text) {
-      flush();
-
-      textarea.val(text);
-      
-      // IE throws error if you try to select an unfocused
-      // textarea.
-      if (text && focusedElement === TEXTAREA) {
-        textarea[0].select();
-      }
-    }
     
     // we do some work to make sure that focusin and focusout
     // events are only fired once and are fired only when they
@@ -260,6 +210,112 @@ var manageTextarea = (function() {
         exports.onBlur();
       }
     });
+    
+    // if we get a keydown event while this element is active, we'll
+    // enable the physical physical keyboard.
+    spanarea.data('enablePhysicalKeyboard', enablePhysicalKeyboard);
+
+    // start off with spanarea enabled
+    disablePhysicalKeyboard();
+  }
+  
+  // this defaults to how mathquill normally works. We always back
+  // the textareaManager with a real textarea. This is the effect of
+  // always bringing up the native virtual keyboard on devices that
+  // do not have a physical keyboard attached.
+  function alwaysUseTextarea (spanarea, textarea, exports) {
+    var focusedElement = NONE;
+    
+    exports.focus = function () {
+      if (focusedElement === NONE) {
+        textarea.focus();
+      }
+    };
+    
+    exports.blur = function () {
+      if (focusedElement === TEXTAREA) {
+        textarea.blur();
+      }
+    };
+    
+    // we do some work to make sure that focusin and focusout
+    // events are only fired once and are fired only when they
+    // should be. The transition from spanarea being focused to
+    // textarea being focused needs to happen silently. This
+    // code makes sure that happens. It also eliminates multiple
+    // focusin and focusout events from being fired in IE.
+    textarea.on('focusin', function (evt) {
+      if (focusedElement !== NONE) {
+        stopEvent(evt);
+      } else {
+        focusedElement = TEXTAREA;
+        exports.onFocus();
+      }
+    }).on('focusout', function (evt) {
+      if (focusedElement !== TEXTAREA) {
+        stopEvent(evt);
+      } else {
+        focusedElement = NONE;
+        exports.onBlur();
+      }
+    });
+  }
+  
+
+  // create a textarea manager that calls callbacks at useful times
+  // and exports useful public methods
+  return function manageTextarea(textarea, spanarea, opts) {
+    var exports = {}
+    var keydown = null;
+    var keypress = null;
+
+    if (!opts) opts = {};
+    var textCallback = opts.text || noop;
+    var keyCallback = opts.key || noop;
+    var pasteCallback = opts.paste || noop;
+    var onCut = opts.cut || noop;
+
+    var target = $(opts.container || textarea);
+
+    // defer() runs fn immediately after the current thread.
+    // flush() will run it even sooner, if possible.
+    // flush always needs to be called before defer, and is called a
+    // few other places besides.
+    var timeout, deferredFn;
+    
+    function defer(fn) {
+      timeout = setTimeout(fn);
+      deferredFn = fn;
+    }
+
+    function flush() {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = undefined;
+        deferredFn();
+      }
+    }
+    
+    // -*- public methods -*- //    
+    exports.onFocus = function () {}
+    exports.onBlur = function () {}
+    
+    exports.select = function (text) {
+      flush();
+
+      textarea.val(text);
+      
+      // IE throws error if you try to select an unfocused textarea
+      if (text && document.activeElement === textarea[0]) {
+        textarea[0].select();
+      }
+    }
+    
+    if (window.overrideNativeOnscreenKeypad) {
+      autoSwitchTextarea(spanarea, textarea, exports);
+    } else {
+      alwaysUseTextarea(spanarea, textarea, exports);
+    }
     
     target.bind('keydown keypress input keyup focusout paste', flush);
     

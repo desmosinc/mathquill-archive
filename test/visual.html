@@ -53,6 +53,10 @@ td {
 }
 </style>
 
+<script>
+window.overrideNativeOnscreenKeypad = window.location.search.indexOf('keypad') != -1;
+</script>
+
 </head>
 <body>
 <div id="body">
@@ -346,10 +350,6 @@ function timeAndLog(f) {
   });
 }());
 (function () {
-  // the order dcg clears changes mathquill expressions
-  // when using upPressed and downPressed. IE has troubles
-  // with it. Getting rid of the .mathquill('blur') fixes
-  // IE.
   $('#changefocus-test .mathquill-editable')
   .on('downPressed', function (evt) {
     var current = $(this).closest('.mathquill-editable');

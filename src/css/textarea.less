@@ -10,6 +10,8 @@
 
   .mq-textarea textarea, .mq-selectable {
     .user-select(text);
+    outline: none;
+    
     // the only way to hide the textarea
     // *and the blinking insertion point* in IE
     position: absolute;
@@ -22,6 +24,7 @@
   // Mobile Safari needs tabindex=0 span instead of textarea to not
   // pull up on-screen keyboard
   .mq-textarea span {
+    outline: none;
     position: absolute;
     display: inline-block;
     height: 1px;
