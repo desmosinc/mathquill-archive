@@ -31,6 +31,9 @@ var Cursor = P(function(_) {
   _.next = 0;
   _.parent = 0;
   _.showHandle = function() {
+    //temporary: remove handle
+    return this;
+
     if (!this.handleAnchor.visible) {
       this.handleAnchor.show();
       this.repositionHandle(this.jQ[0].getBoundingClientRect());
@@ -39,6 +42,9 @@ var Cursor = P(function(_) {
     return this;
   };
   _.hideHandle = function() {
+    //temporary: remove handle
+    return this;
+
     if (this.handleAnchor.visible) {
       this.handleAnchor.hide();
       delete this.handleAnchor.visible;
@@ -46,6 +52,9 @@ var Cursor = P(function(_) {
     return this;
   };
   _.repositionHandle = function(cursorRect) {
+    //temporary: remove handle
+    return;
+
     var anchor = this.handleAnchor;
     var anchorRect = anchor[0].getBoundingClientRect();
     anchor.css({
