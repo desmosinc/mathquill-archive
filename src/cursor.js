@@ -465,8 +465,9 @@ var Cursor = P(function(_) {
         //extra hack to clear out subscript altogether when it's empty (takes two backspaces)
         if (!this.prev && !this.next) {
           this.backspace()
+        } else {
+          this.moveUp()
         }
-        this.moveUp()
       } else {
         this.selectLeft();
       }
