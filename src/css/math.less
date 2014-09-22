@@ -119,7 +119,6 @@
   // sup/sub
   sup, sub {
     position: relative;
-    font-size: 90%;
     top: 0;
 
     .mq-binary-operator {
@@ -150,8 +149,18 @@
     }
   }
 
+  sub {
+    font-size: 70%;
+    sub {
+      font-size: 90%;
+      margin-bottom: 0;
+    }
+  }
+
   sup {
     vertical-align: .5em;
+    font-size: 90%;
+    margin-top: .05em;
     &.mq-int, &.mq-nthroot {
       vertical-align: 0.8em
     }
@@ -182,7 +191,7 @@
   ////
   // parentheses
   .mq-paren {
-    padding: 0 .1em;
+    padding: .05em .1em 0;
     vertical-align: bottom;
     -webkit-transform-origin: bottom center;
     -moz-transform-origin: bottom center;
@@ -239,8 +248,7 @@
   }
 
   .mq-numerator {
-    padding: 0 0.1em;
-    margin-bottom: -0.1em;
+    padding: 0.1em 0.1em 0;
   }
 
   .mq-denominator {
