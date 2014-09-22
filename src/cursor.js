@@ -330,7 +330,7 @@ var Cursor = P(function(_) {
       '0123456789'.indexOf(ch) >= 0 &&
       (
         (this.prev && this.prev.htmlTemplate.substr(0, 5) === '<var>') ||
-        (this.prev instanceof SupSub && this.prev.ctrlSeq === '_' )
+        (this.prev instanceof SupSub && this.prev.ctrlSeq === '_' && this.prev.prev.ctrlSeq !== '^')
       )
     ) {
       if (this.prev instanceof SupSub) {
@@ -456,10 +456,20 @@ var Cursor = P(function(_) {
         this.prev = this.prev.remove().prev;
         if (ins) this.insertNew(ins);
       }
-      else if (this.prev instanceof Bracket)
+      else if (this.prev instanceof Bracket) {
         return this.appendTo(this.prev.firstChild).deleteForward();
-      else
+      }
+      else if (this.prev instanceof SupSub && this.prev.ctrlSeq === '_' && this.prev.prev.ctrlSeq !== '^') {
+        this.moveDown()
+        this.backspace()
+        //extra hack to clear out subscript altogether when it's empty (takes two backspaces)
+        if (!this.prev && !this.next) {
+          this.backspace()
+        }
+        this.moveUp()
+      } else {
         this.selectLeft();
+      }
     }
     else if (this.parent !== this.root) {
       if (this.parent.parent.isEmpty())
