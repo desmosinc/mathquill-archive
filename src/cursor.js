@@ -305,7 +305,17 @@ var Cursor = P(function(_) {
       this.moveUp();
       return;
     }
-    
+
+    //Hack #3.5 by Eli: if you type "_" just after a subscript, behave as though you just pressed down
+    if (ch === '_' && this.prev instanceof SupSub && 
+      //note: need both of these, because if it's a superscript and subscript,
+      //those could appear in either order
+      (this.prev.ctrlSeq === '_' || this.prev.prev.ctrlSeq === '_')) {
+      this.moveDown();
+      return;
+    }
+
+
     //Hack #4 by Eli: if you type "^" just _before_ a superscript, behave as though you just pressed up
     if (ch === '^' && this.next instanceof SupSub && 
       //note: need both of these, because if it's a superscript and subscript,
@@ -314,8 +324,26 @@ var Cursor = P(function(_) {
       this.moveUp();
       return;
     }
-    
-    
+
+    //Hack #5 by Eli: typing a number after a variable subscripts it
+    if (
+      '0123456789'.indexOf(ch) >= 0 &&
+      (
+        (this.prev && this.prev.htmlTemplate.substr(0, 5) === '<var>') ||
+        (this.prev instanceof SupSub && this.prev.ctrlSeq === '_' )
+      )
+    ) {
+      if (this.prev instanceof SupSub) {
+        this.moveDown();
+      } else {
+        this.insertNew(LatexCmds['_']('_'));
+      }
+      this.insertNew(VanillaSymbol(ch));
+      this.moveUp();
+      return;
+    }
+
+
     if (ch === '_' && this.prev instanceof SupSub && 
       //note: need both of these, because if it's a superscript and subscript,
       //those could appear in either order
