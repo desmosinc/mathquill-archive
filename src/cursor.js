@@ -305,7 +305,17 @@ var Cursor = P(function(_) {
       this.moveUp();
       return;
     }
-    
+
+    //Hack #3.5 by Eli: if you type "_" just after a subscript, behave as though you just pressed down
+    if (ch === '_' && this.prev instanceof SupSub && 
+      //note: need both of these, because if it's a superscript and subscript,
+      //those could appear in either order
+      (this.prev.ctrlSeq === '_' || this.prev.prev.ctrlSeq === '_')) {
+      this.moveDown();
+      return;
+    }
+
+
     //Hack #4 by Eli: if you type "^" just _before_ a superscript, behave as though you just pressed up
     if (ch === '^' && this.next instanceof SupSub && 
       //note: need both of these, because if it's a superscript and subscript,
@@ -314,8 +324,26 @@ var Cursor = P(function(_) {
       this.moveUp();
       return;
     }
-    
-    
+
+    //Hack #5 by Eli: typing a number after a variable subscripts it
+    if (
+      '0123456789'.indexOf(ch) >= 0 &&
+      (
+        (this.prev && this.prev.htmlTemplate.substr(0, 5) === '<var>') ||
+        (this.prev instanceof SupSub && this.prev.ctrlSeq === '_' && this.prev.prev.ctrlSeq !== '^')
+      )
+    ) {
+      if (this.prev instanceof SupSub) {
+        this.moveDown();
+      } else {
+        this.insertNew(LatexCmds['_']('_'));
+      }
+      this.insertNew(VanillaSymbol(ch));
+      this.moveUp();
+      return;
+    }
+
+
     if (ch === '_' && this.prev instanceof SupSub && 
       //note: need both of these, because if it's a superscript and subscript,
       //those could appear in either order
@@ -428,10 +456,21 @@ var Cursor = P(function(_) {
         this.prev = this.prev.remove().prev;
         if (ins) this.insertNew(ins);
       }
-      else if (this.prev instanceof Bracket)
+      else if (this.prev instanceof Bracket) {
         return this.appendTo(this.prev.firstChild).deleteForward();
-      else
+      }
+      else if (this.prev instanceof SupSub && this.prev.ctrlSeq === '_' && this.prev.prev.ctrlSeq !== '^') {
+        this.moveDown()
+        this.backspace()
+        //extra hack to clear out subscript altogether when it's empty (takes two backspaces)
+        if (!this.prev && !this.next) {
+          this.backspace()
+        } else {
+          this.moveUp()
+        }
+      } else {
         this.selectLeft();
+      }
     }
     else if (this.parent !== this.root) {
       if (this.parent.parent.isEmpty())
