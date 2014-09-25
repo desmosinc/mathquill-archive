@@ -370,6 +370,7 @@ CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
 LatexCmds['='] = bind(BinaryOperator, '=', '=');
 LatexCmds['<'] = bind(BinaryOperator, '<', '&lt;');
 LatexCmds['>'] = bind(BinaryOperator, '>', '&gt;');
+LatexCmds['~'] = bind(BinaryOperator, '~', '~');
 
 LatexCmds.notin =
 LatexCmds.sim =
