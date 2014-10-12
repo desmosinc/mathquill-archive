@@ -291,7 +291,7 @@ var Cursor = P(function(_) {
     if ((ch == '^' || ch == '_') && !this.prev) return;
 
     //Hack #2 by Eli: if you type '+' or '-' or '=' in an exponent or subscript, break out of it
-    if ((ch == '+' || ch == '=' || ch == '-' || ch == '<' || ch == '>') && (this.parent.parent.ctrlSeq === '^' || this.parent.parent.ctrlSeq === '_')
+    if ((ch == '+' || ch == '=' || ch == '-' || ch == '<' || ch == '>' || ch == '~') && (this.parent.parent.ctrlSeq === '^' || this.parent.parent.ctrlSeq === '_')
       && !this.next && this.prev
     ) {
       this.moveRight();
