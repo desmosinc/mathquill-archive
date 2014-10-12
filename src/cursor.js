@@ -285,6 +285,14 @@ var Cursor = P(function(_) {
 
     return this;
   };
+
+  _.isInSubscript = function () {
+    if (!this.parent || !this.parent.parent) return false;
+    var p = this.parent.parent;
+    if (!(p instanceof SupSub)) return false;
+    return (p.ctrlSeq === '_' && p.firstChild === this.parent);
+  };
+
   _.write =
   _.insertCh = function(ch) {
     //Hack by Eli: don't exponentiate if there's nothing before the cursor
@@ -345,6 +353,14 @@ var Cursor = P(function(_) {
       this.insertNew(VanillaSymbol(ch));
       this.moveUp();
       return;
+    }
+
+    //hack #6: don't allow nested subscripts
+    if (ch === "_" && this.isInSubscript()) return;
+
+    //hack #7: break out of subscripts for division & exponentiation
+    if (ch === '/' || ch === '^') {
+      while (this.isInSubscript()) this.moveRightWithin()
     }
 
     clearUpDownCache(this);
