@@ -156,20 +156,29 @@ var Cursor = P(function(_) {
   _.moveLeft = function() {
     clearUpDownCache(this);
 
-    if (this.selection)
+    if (this.selection) {
       this.insertBefore(this.selection.first).clearSelection();
-    else {
+    //hack by eli: move all the way past subscripts
+    } else if (this.prev instanceof SupSub && this.prev.ctrlSeq === '_') {
+      this.moveLeftWithin(this.root);
+      while (this.isInSubscript()) this.moveLeftWithin(this.root);
+    } else {
       this.moveLeftWithin(this.root);
     }
+
     this.root.triggerSpecialEvent('cursorMoved');
     return this.show();
   };
   _.moveRight = function() {
     clearUpDownCache(this);
 
-    if (this.selection)
+    if (this.selection) {
       this.insertAfter(this.selection.last).clearSelection();
-    else {
+    //hack by eli: move all the way past subscripts
+    } else if (this.next instanceof SupSub && this.next.ctrlSeq === '_') {
+      this.moveRightWithin(this.root);
+      while (this.isInSubscript()) this.moveRightWithin(this.root);
+    } else {
       this.moveRightWithin(this.root);
     }
     this.root.triggerSpecialEvent('cursorMoved');
