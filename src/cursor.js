@@ -306,12 +306,11 @@ var Cursor = P(function(_) {
       return;
     }
 
-    //Hack #3.5 by Eli: if you type "_" just after a subscript, behave as though you just pressed down
+    //Hack #3.5 by Eli: if you type "_" just after a subscript, return early
     if (ch === '_' && this.prev instanceof SupSub && 
       //note: need both of these, because if it's a superscript and subscript,
       //those could appear in either order
       (this.prev.ctrlSeq === '_' || this.prev.prev.ctrlSeq === '_')) {
-      this.moveDown();
       return;
     }
 
