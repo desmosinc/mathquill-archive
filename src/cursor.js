@@ -293,6 +293,11 @@ var Cursor = P(function(_) {
     //Hack #2 by Eli: if you type '+' or '-' or '=' in an exponent or subscript, break out of it
     if ((ch == '+' || ch == '=' || ch == '-' || ch == '<' || ch == '>' || ch == '~') && (this.parent.parent.ctrlSeq === '^' || this.parent.parent.ctrlSeq === '_')
       && !this.next && this.prev
+      //don't break out of complex exponents. more likely the user knows what they're doing
+      //so if there's a subscript, superscript, or fraction before, we stay in the exponent
+      //still behaves as it does for y=x^2+2 or y=2^x+3. But now it's easier to write
+      //e^-x^2+4 or y=e^(b*x1+c)
+      && !this.prev.firstChild
     ) {
       this.moveRight();
     }
