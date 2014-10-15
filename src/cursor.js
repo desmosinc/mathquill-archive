@@ -354,6 +354,7 @@ var Cursor = P(function(_) {
     //Hack #5 by Eli: typing a number after a variable subscripts it
     if (
       !this.selection &&
+      !(this.next && this.next instanceof SupSub) &&
       '0123456789'.indexOf(ch) >= 0 &&
       (
         (this.prev && this.prev.htmlTemplate.substr(0, 5) === '<var>') ||
