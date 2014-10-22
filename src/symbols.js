@@ -35,6 +35,8 @@ var Variable = P(Symbol, function(_, _super) {
     for (var next = this.next; next instanceof Variable && next.ctrlSeq.length === 1; next = next.next)
       ctrlSeq += next.ctrlSeq;
 
+    this.isVariable = true;
+
     //removeClass from all the things before figuring out what's an autocmd, if any
     MathFragment(prev.next || this.parent.firstChild, next.prev || this.parent.lastChild)
     .each(function(el) {
@@ -50,6 +52,7 @@ var Variable = P(Symbol, function(_, _super) {
           first.isFirstLetter = true;
           for (var j = 0, letter = first; j < len; j += 1, letter = letter.next) {
             letter.jQ.addClass('mq-un-italicized');
+            letter.isVariable = false;
             var last = letter;
           }
           last.isLastLetter = true;

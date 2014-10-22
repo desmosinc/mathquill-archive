@@ -366,7 +366,7 @@ var Cursor = P(function(_) {
       !(this.next && this.next instanceof SupSub) &&
       '0123456789'.indexOf(ch) >= 0 &&
       (
-        (this.prev && this.prev.htmlTemplate.substr(0, 5) === '<var>') ||
+        (this.prev && this.prev.isVariable) ||
         (this.prev instanceof SupSub && this.prev.ctrlSeq === '_' && this.prev.prev.ctrlSeq !== '^')
       )
     ) {
