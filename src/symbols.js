@@ -127,7 +127,11 @@ var UnItalicizedCmds = {
   round: 1,
   length: 1,
   stdev: 1,
+  stddev: 1,
   stdDev: 1,
+  stdevp: 1,
+  stddevp: 1,
+  stdDevP: 1,
   total: 1
 }, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
   sqrt: 1,
