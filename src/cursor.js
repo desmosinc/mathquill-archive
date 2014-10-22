@@ -320,11 +320,6 @@ var Cursor = P(function(_) {
     if (
       "+=-<>~".indexOf(ch) >= 0 && this.parent.parent.ctrlSeq === '^'
       && !this.next && this.prev
-      //don't break out of complex exponents. more likely the user knows what they're doing
-      //so if there's a subscript, superscript, or fraction before, we stay in the exponent
-      //still behaves as it does for y=x^2+2 or y=2^x+3. But now it's easier to write
-      //e^-x^2+4 or y=e^(b*x1+c)
-      && !this.prev.firstChild
     ) this.moveRight();
 
     //Hack #2.5 by Eli: break out of the end of subscripts. Be a little more aggressive about breaking out down there
