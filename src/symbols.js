@@ -132,7 +132,9 @@ var UnItalicizedCmds = {
   stdevp: 1,
   stddevp: 1,
   stdDevP: 1,
-  total: 1
+  total: 1,
+  'var': 1,
+  variance: 1
 }, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
   sqrt: 1,
   nthroot: 1,
