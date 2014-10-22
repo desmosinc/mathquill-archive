@@ -1070,9 +1070,9 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
 
     rootBlock.editable = true;
     var cursor = rootBlock.cursor = Cursor(rootBlock).appendTo(rootBlock);
-    var textarea = setupTextarea(true, self.jQ, rootBlock, cursor);
+    setupTextarea(true, self.jQ, rootBlock, cursor);
     setupTouchHandle(true, rootBlock, cursor);
-    focusBlurEvents(rootBlock, cursor, textarea);
+    focusBlurEvents(rootBlock, cursor);
     desmosCustomEvents(self.jQ, rootBlock, cursor);
     self.jQ.addClass(self.classnames);
   };

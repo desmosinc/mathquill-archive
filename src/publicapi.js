@@ -11,8 +11,8 @@ $.fn.mathquill = function(cmd, latex) {
     return this.each(function() {
       var blockId = $(this).attr(mqBlockId),
         block = blockId && MathElement[blockId];
-      if (block && block.textarea)
-        block.textarea.children().trigger(cmd);
+      if (block && block.textareaManager)
+        block.textareaManager[cmd]()
     });
   case 'onKey':
   case 'onText':
@@ -127,7 +127,7 @@ $.fn.mathquill = function(cmd, latex) {
         cursor = block && block.cursor;
       if (cursor && touchstartTarget !== cursor.handle[0]) {
         var wasBlurred = block.blurred;
-        block.textarea.children().focus();
+        block.textareaManager.focus()
         cursor.seek($(touchstartTarget), x, y, cachedClientRectFnForNewCache(), true);
         if (!wasBlurred) cursor.showHandle();
       }
@@ -191,14 +191,13 @@ $.fn.mathquill = function(cmd, latex) {
       var container = $(this), root = RootBlock();
       createRoot(container, root, textbox, editable);
       var cursor = root.cursor;
-      var textarea = setupTextarea(editable, container, root, cursor);
-      var textareaSpan = root.textarea;
+      setupTextarea(editable, container, root, cursor);
       root.editable = editable;
       mouseEvents(container);
       setupTouchHandle(editable, root, cursor);
       if (!editable) return;
       rootCSSClasses(container, textbox);
-      focusBlurEvents(root, cursor, textarea);
+      focusBlurEvents(root, cursor);
       desmosCustomEvents(container, root, cursor);
     });
   }
