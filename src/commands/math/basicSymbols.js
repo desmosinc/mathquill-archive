@@ -188,16 +188,6 @@ LatexCmds.operatorname = P(MathCommand, function(_) {
   };
 });
 
-LatexCmds.f = P(Letter, function(_, super_) {
-  _.init = function() {
-    Symbol.p.init.call(this, this.letter = 'f', '<var class="mq-florin">&fnof;</var>');
-  };
-  _.italicize = function(bool) {
-    this.jQ.html(bool ? '&fnof;' : 'f').toggleClass('mq-florin', bool);
-    return super_.italicize.apply(this, arguments);
-  };
-});
-
 // VanillaSymbol's
 LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', ' ');
 
