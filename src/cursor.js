@@ -165,20 +165,29 @@ var Cursor = P(function(_) {
   _.moveLeft = function() {
     clearUpDownCache(this);
 
-    if (this.selection)
+    if (this.selection) {
       this.insertBefore(this.selection.first).clearSelection();
-    else {
+    //hack by eli: move all the way past subscripts
+    } else if (this.prev instanceof SupSub && this.prev.ctrlSeq === '_') {
+      this.moveLeftWithin(this.root);
+      while (this.isInSubscript()) this.moveLeftWithin(this.root);
+    } else {
       this.moveLeftWithin(this.root);
     }
+
     this.root.triggerSpecialEvent('cursorMoved');
     return this.show();
   };
   _.moveRight = function() {
     clearUpDownCache(this);
 
-    if (this.selection)
+    if (this.selection) {
       this.insertAfter(this.selection.last).clearSelection();
-    else {
+    //hack by eli: move all the way past subscripts
+    } else if (this.next instanceof SupSub && this.next.ctrlSeq === '_') {
+      this.moveRightWithin(this.root);
+      while (this.isInSubscript()) this.moveRightWithin(this.root);
+    } else {
       this.moveRightWithin(this.root);
     }
     this.root.triggerSpecialEvent('cursorMoved');
@@ -294,17 +303,30 @@ var Cursor = P(function(_) {
 
     return this;
   };
+
+  _.isInSubscript = function () {
+    if (!this.parent || !this.parent.parent) return false;
+    var p = this.parent.parent;
+    if (!(p instanceof SupSub)) return false;
+    return (p.ctrlSeq === '_' && p.firstChild === this.parent);
+  };
+
   _.write =
   _.insertCh = function(ch) {
     //Hack by Eli: don't exponentiate if there's nothing before the cursor
     if ((ch == '^' || ch == '_') && !this.prev) return;
 
-    //Hack #2 by Eli: if you type '+' or '-' or '=' in an exponent or subscript, break out of it
-    if ((ch == '+' || ch == '=' || ch == '-' || ch == '<' || ch == '>') && (this.parent.parent.ctrlSeq === '^' || this.parent.parent.ctrlSeq === '_')
+    //Hack #2 by Eli: break out of the end of exponents
+    if (
+      "+=-<>~".indexOf(ch) >= 0 && this.parent.parent.ctrlSeq === '^'
       && !this.next && this.prev
-    ) {
-      this.moveRight();
-    }
+    ) this.moveRight();
+
+    //Hack #2.5 by Eli: break out of the end of subscripts. Be a little more aggressive about breaking out down there
+    if (
+      "+=-<>~*".indexOf(ch) >= 0 && this.parent.parent.ctrlSeq === '_'
+      && !this.next && this.prev
+    ) this.moveRight();
 
     //Hack #3 by Eli: if you type "^" just after a superscript, behave as though you just pressed up
     if (ch === '^' && this.prev instanceof SupSub && 
@@ -314,7 +336,16 @@ var Cursor = P(function(_) {
       this.moveUp();
       return;
     }
-    
+
+    //Hack #3.5 by Eli: if you type "_" just after a subscript, return early
+    if (ch === '_' && this.prev instanceof SupSub && 
+      //note: need both of these, because if it's a superscript and subscript,
+      //those could appear in either order
+      (this.prev.ctrlSeq === '_' || this.prev.prev.ctrlSeq === '_')) {
+      return;
+    }
+
+
     //Hack #4 by Eli: if you type "^" just _before_ a superscript, behave as though you just pressed up
     if (ch === '^' && this.next instanceof SupSub && 
       //note: need both of these, because if it's a superscript and subscript,
@@ -323,14 +354,34 @@ var Cursor = P(function(_) {
       this.moveUp();
       return;
     }
-    
-    
-    if (ch === '_' && this.prev instanceof SupSub && 
-      //note: need both of these, because if it's a superscript and subscript,
-      //those could appear in either order
-      (this.prev.ctrlSeq === '_' || this.prev.prev.ctrlSeq === '_')) {
-      this.moveDown();
+
+    //Hack #5 by Eli: typing a number after a variable subscripts it
+    if (
+      !this.isInSubscript() &&
+      !this.selection &&
+      !(this.next && this.next instanceof SupSub) &&
+      '0123456789'.indexOf(ch) >= 0 &&
+      (
+        (this.prev && this.prev.isVariable) ||
+        (this.prev instanceof SupSub && this.prev.ctrlSeq === '_' && this.prev.prev.ctrlSeq !== '^')
+      )
+    ) {
+      if (this.prev instanceof SupSub) {
+        this.moveDown();
+      } else {
+        this.insertNew(LatexCmds['_']('_'));
+      }
+      this.insertNew(VanillaSymbol(ch));
+      this.moveUp();
       return;
+    }
+
+    //hack #6: don't allow nested subscripts
+    if (ch === "_" && this.isInSubscript()) return;
+
+    //hack #7: break out of subscripts for division & exponentiation
+    if (ch === '/' || ch === '^') {
+      while (this.isInSubscript()) this.moveRightWithin()
     }
 
     clearUpDownCache(this);
@@ -437,10 +488,21 @@ var Cursor = P(function(_) {
         this.prev = this.prev.remove().prev;
         if (ins) this.insertNew(ins);
       }
-      else if (this.prev instanceof Bracket)
+      else if (this.prev instanceof Bracket) {
         return this.appendTo(this.prev.firstChild).deleteForward();
-      else
+      }
+      else if (this.prev instanceof SupSub && this.prev.ctrlSeq === '_' && this.prev.prev.ctrlSeq !== '^') {
+        this.moveDown()
+        this.backspace()
+        //extra hack to clear out subscript altogether when it's empty (takes two backspaces)
+        if (!this.prev && !this.next) {
+          this.backspace()
+        } else {
+          this.moveUp()
+        }
+      } else {
         this.selectLeft();
+      }
     }
     else if (this.parent !== this.root) {
       if (this.parent.parent.isEmpty())

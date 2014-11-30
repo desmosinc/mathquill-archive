@@ -603,6 +603,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var cursor = this.cursor, seln = cursor.selection;
     var rootRect = this.jQ[0].getBoundingClientRect();
     if (!seln) {
+      if (!cursor.jQ[0]) return;
       var x = cursor.jQ[0].getBoundingClientRect().left;
       if (x > rootRect.right - 20) var scrollBy = x - (rootRect.right - 20);
       else if (x < rootRect.left + 20) var scrollBy = x - (rootRect.left + 20);

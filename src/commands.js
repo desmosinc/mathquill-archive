@@ -534,9 +534,9 @@ LatexCmds.left = P(MathCommand, function(_) {
           .skip(optWhitespace)
           .then(regex(/^(?:[\])|]|\\\})/))
           .then(function(close) {
-            /*if (close.slice(-1) !== cmd.end.slice(-1)) {
+            if (close.slice(-1) !== cmd.end.slice(-1)) {
               return Parser.fail('open doesn\'t match close');
-            }*/
+            }
 
             return succeed(cmd);
           })
@@ -616,13 +616,6 @@ CharCmds[')'] = bind(CloseParen, '(', ')');
 LatexCmds.rbrack =
 LatexCmds.rbracket =
 CharCmds[']'] = bind(CloseParen, '[', ']');
-
-//Temporarily disable square brackets (silently replace with ())
-//This this to push people towards new point syntax
-//in preparation for supporting lists with [] again
-//TODO - re-enable square brackets once stats is ready (by deleting the following two lines)
-LatexCmds.rbrack = LatexCmds.rbracket = CharCmds[']'] = CharCmds[')'];
-LatexCmds.lbrack = LatexCmds.lbracket = CharCmds['['] = CharCmds['('];
 
 var Pipes =
 LatexCmds.lpipe =

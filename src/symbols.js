@@ -35,6 +35,8 @@ var Variable = P(Symbol, function(_, _super) {
     for (var next = this.next; next instanceof Variable && next.ctrlSeq.length === 1; next = next.next)
       ctrlSeq += next.ctrlSeq;
 
+    this.isVariable = true;
+
     //removeClass from all the things before figuring out what's an autocmd, if any
     MathFragment(prev.next || this.parent.firstChild, next.prev || this.parent.lastChild)
     .each(function(el) {
@@ -50,6 +52,7 @@ var Variable = P(Symbol, function(_, _super) {
           first.isFirstLetter = true;
           for (var j = 0, letter = first; j < len; j += 1, letter = letter.next) {
             letter.jQ.addClass('mq-un-italicized');
+            letter.isVariable = false;
             var last = letter;
           }
           last.isLastLetter = true;
@@ -121,7 +124,17 @@ var UnItalicizedCmds = {
   floor: 1,
   sign: 1,
   signum: 1,
-  round: 1
+  round: 1,
+  length: 1,
+  stdev: 1,
+  stddev: 1,
+  stdDev: 1,
+  stdevp: 1,
+  stddevp: 1,
+  stdDevP: 1,
+  total: 1,
+  'var': 1,
+  variance: 1
 }, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
   sqrt: 1,
   nthroot: 1,
@@ -369,6 +382,7 @@ CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
 LatexCmds['='] = bind(BinaryOperator, '=', '=');
 LatexCmds['<'] = bind(BinaryOperator, '<', '&lt;');
 LatexCmds['>'] = bind(BinaryOperator, '>', '&gt;');
+LatexCmds['~'] = bind(BinaryOperator, '~', '~');
 
 LatexCmds.notin =
 LatexCmds.sim =
