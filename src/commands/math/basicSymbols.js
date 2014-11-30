@@ -384,6 +384,8 @@ CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
   bind(BinaryOperator, '\\cdot ', '&middot;');
 //semantically should be &sdot;, but &middot; looks better
 
+CharCmds['~'] = bind(BinaryOperator, '~', '~');
+
 var Inequality = P(BinaryOperator, function(_, super_) {
   _.init = function(data, strict) {
     this.data = data;
