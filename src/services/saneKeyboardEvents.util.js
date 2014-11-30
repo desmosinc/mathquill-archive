@@ -150,7 +150,7 @@ var saneKeyboardEvents = (function() {
 
       handleKey();
       if (shouldBeSelected) checkTextareaFor(function() {
-        textarea[0].select(); // re-select textarea in case it's an unrecognized
+        if (shouldBeSelected) textarea[0].select(); // re-select textarea in case it's an unrecognized
         checkTextarea = noop; // key that clears the selection, then never
         clearTimeout(timeoutId); // again, 'cos next thing might be blur
       });
@@ -196,7 +196,10 @@ var saneKeyboardEvents = (function() {
       else if (text) textarea[0].select(); // re-select if that's why we're here
     }
 
-    function onBlur() { keydown = keypress = null; }
+    function onBlur() {
+      keydown = keypress = null;
+      shouldBeSelected = false;
+    }
 
     function onPaste(e) {
       // browsers are dumb.
