@@ -64,6 +64,7 @@ function mouseEvents(ultimateRootjQ) {
     if (!container.hasClass('mathquill-editable')) {
       container = container.closest('.mathquill-root-block').parent();
     }
+    var ownerDocument = e.target.ownerDocument;
     var root = MathElement[container.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
     var cursor = root.cursor, blink = cursor.blink;
     var textareaSpan = root.textarea;
@@ -113,7 +114,8 @@ function mouseEvents(ultimateRootjQ) {
 
       // delete the mouse handlers now that we're not dragging anymore
       container.unbind('mousemove', mousemove);
-      $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+      $(ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+      delete root.handleMissedMouseUp;
     }
 
     cursor.blink = noop;
@@ -124,9 +126,10 @@ function mouseEvents(ultimateRootjQ) {
     if (!root.editable && root.blurred) container.prepend(textareaSpan);
     root.textareaManager.focus();
     root.blurred = false;
+    root.handleMissedMouseUp = mouseup;
 
     container.mousemove(mousemove);
-    $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
+    $(ownerDocument).mousemove(docmousemove).mouseup(mouseup);
   });
 }
 
@@ -283,16 +286,22 @@ function focusBlurEvents(root, cursor) {
       cursor.show();
     }
   };
-  
+
   root.textareaManager.onBlur = function () {
     root.blurred = true;
     cursor.hide().parent.blur();
     if (cursor.selection) {
       cursor.selection.jQ.addClass('mq-blur');
     }
+
+    // sometimes a mouseup event is lost. Recover when
+    // the mathquill element is blurred. Without this,
+    // we will show the cursor on every mousemove even
+    // if the mathquill isn't focused.
+    if(root.handleMissedMouseUp) root.handleMissedMouseUp();
   };
 
-  root.textareaManager.onBlur()
+  root.textareaManager.onBlur();
 }
 
 function desmosCustomEvents(container, root, cursor) {
