@@ -181,11 +181,49 @@ var manageTextarea = (function() {
     var focusedElement = NONE;
     function setFocusedElement (el) {
       focusedElement = el;
+      if (focusedElement !== NONE) {
+        startPollingFocus();
+      } else {
+        stopPollingFocus();
+      }
     }
     function getFocusedElement () {
       return focusedElement;
     }
 
+    var focusPollTimeout;
+    function startPollingFocus () {
+      if (focusPollTimeout) {
+        return;
+      }
+
+      var consecutiveRunLoopsWithoutFocus = 0;
+      function pollFocus () {
+        focusPollTimeout = setTimeout(pollFocus, 10);
+        var activeElement = document.activeElement;
+        if (activeElement === textarea[0] || activeElement === spanarea[0]) {
+          consecutiveRunLoopsWithoutFocus = 0;
+        } else {
+          consecutiveRunLoopsWithoutFocus++;
+        }
+
+        // a generous number of times to fail the check. Should
+        // never resonably reach this limit unless focus is
+        // permanently gone.
+        if (consecutiveRunLoopsWithoutFocus >= 4) {
+          setFocusedElement(NONE);
+          exports.onBlur();
+        }
+      }
+
+      pollFocus();
+    }
+
+    function stopPollingFocus () {
+      clearTimeout(focusPollTimeout);
+      focusPollTimeout = null;
+    }
+    
     // Sets up the listeners to automatically switch between spanarea and
     // the textarea. This allows us to use the physical keyboard wihtout
     // bringing up a native virtual keyboard when a physical keyboard is
