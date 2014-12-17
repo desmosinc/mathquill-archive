@@ -191,9 +191,9 @@ var manageTextarea = (function() {
       return focusedElement;
     }
 
-    var focusPollTimeout;
+    var focusPollTimeout = undefined;
     function startPollingFocus () {
-      if (focusPollTimeout) {
+      if (focusPollTimeout !== undefined) {
         return;
       }
 
@@ -221,7 +221,7 @@ var manageTextarea = (function() {
 
     function stopPollingFocus () {
       clearTimeout(focusPollTimeout);
-      focusPollTimeout = null;
+      focusPollTimeout = undefined;
     }
     
     // Sets up the listeners to automatically switch between spanarea and
