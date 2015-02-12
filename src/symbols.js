@@ -134,7 +134,11 @@ var UnItalicizedCmds = {
   stdDevP: 1,
   total: 1,
   'var': 1,
-  variance: 1
+  variance: 1,
+  median: 1,
+  cov: 1,
+  corr: 1,
+  quantile: 1
 }, MAX_UNITALICIZED_LEN = 9, AutoCmds = {
   sqrt: 1,
   nthroot: 1,
