@@ -8,6 +8,11 @@
     .user-select(text);
   }
 
+  //remove system cursor on iPad
+  .mq-textarea textarea:focus {
+    text-indent: -9999em
+  }
+
   .mq-textarea textarea, .mq-selectable {
     .user-select(text);
     outline: none;
