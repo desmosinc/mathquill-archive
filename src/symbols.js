@@ -132,6 +132,7 @@ var UnItalicizedCmds = {
   stdevp: 1,
   stddevp: 1,
   stdDevP: 1,
+  mad: 1,
   total: 1,
   'var': 1,
   variance: 1,
